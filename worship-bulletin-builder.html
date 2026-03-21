@@ -120,6 +120,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .bi-body { flex: 1; min-width: 0; }
 .bi-title  { font-size: 11.5px; font-weight: 600; color: var(--g900); line-height: 1.6; }
 .bi-detail { font-size: 11.5px; color: var(--g700); margin-top: 0; line-height: 1.6; }
+.bi-inline { font-weight: 400; color: var(--g500); }
 .bf-rule { margin-top: 18px; border-top: 1px solid var(--g200); padding-top: 12px; }
 .bf-people { font-size: 11.5px; color: var(--g700); line-height: 1.7; }
 .bf-people strong { font-weight: 600; color: var(--g900); }
@@ -277,11 +278,19 @@ var svcOrder = [
 var iCounter = 0;
 
 // ─── BULLETIN HELPERS ───
-function bItem(icon, title, detail) {
+function bItem(icon, title, detail, inline, inlinePrefix) {
   if (!title) return '';
   var h = '<div class="bi"><div class="bi-icon">' + (icon||'') + '</div><div class="bi-body">';
-  h += '<div class="bi-title">' + title + '</div>';
-  if (detail) h += '<div class="bi-detail">' + detail + '</div>';
+  if (inlinePrefix) {
+    // Hybrid: name inline with title, remaining detail below
+    h += '<div class="bi-title"><span class="bi-tl">' + title + '</span><span class="bi-inline"> \u2014 ' + inlinePrefix + '</span></div>';
+    if (detail) h += '<div class="bi-detail">' + detail + '</div>';
+  } else if (inline && detail) {
+    h += '<div class="bi-title"><span class="bi-tl">' + title + '</span><span class="bi-inline"> \u2014 ' + detail + '</span></div>';
+  } else {
+    h += '<div class="bi-title">' + title + '</div>';
+    if (detail) h += '<div class="bi-detail">' + detail + '</div>';
+  }
   h += '</div></div>';
   return h;
 }
@@ -315,8 +324,26 @@ function render() {
         body += bSec(item.label);
       } else if (item.type === 'item') {
         if (item.label) {
-          var detail = x(item.value||'').replace(/\n/g, '<br>');
-          body += bItem(item.icon||'', x(item.label), detail);
+          var rawVal = item.value || '';
+          var alwaysInline = ['music1','music2','postlude'].indexOf(item.id) !== -1;
+          // Items where a short first line = person's name → inline, rest stacked below
+          var splitItems = ['scripture','theme','confession'];
+          if (splitItems.indexOf(item.id) !== -1 && rawVal.indexOf('\n') !== -1) {
+            var lines = rawVal.split('\n');
+            var firstLine = lines[0];
+            if (firstLine.length <= 60) {
+              var rest = x(lines.slice(1).join('\n')).replace(/\n/g, '<br>');
+              body += bItem(item.icon||'', x(item.label), rest, false, x(firstLine));
+            } else {
+              // First line is body text, not a name — keep fully stacked
+              var detail = x(rawVal).replace(/\n/g, '<br>');
+              body += bItem(item.icon||'', x(item.label), detail, false);
+            }
+          } else {
+            var detail = x(rawVal).replace(/\n/g, '<br>');
+            var isShort = rawVal.length > 0 && (alwaysInline || (rawVal.indexOf('\n') === -1 && rawVal.length <= 60));
+            body += bItem(item.icon||'', x(item.label), detail, isShort);
+          }
         }
       }
     }
@@ -576,14 +603,29 @@ function exportDocx() {
     } else {
       var tEl = el.querySelector('.bi-title');
       var dEl = el.querySelector('.bi-detail');
+      var tlEl = tEl ? tEl.querySelector('.bi-tl') : null;
+      var inEl = tEl ? tEl.querySelector('.bi-inline') : null;
       if (tEl && tEl.textContent.trim()) {
-        L.push('\\pard\\sb40 {\\b\\fs22\\cf3 ' + re(tEl.textContent.trim()) + '}\\par');
-        if (dEl) {
-          var detailText = elText(dEl);
-          if (detailText) {
-            // Each newline becomes a soft line break in RTF
-            var rtfDetail = re(detailText).replace(/\n/g, '\\line ');
-            L.push('\\pard\\sb0 {\\fs22\\cf3 ' + rtfDetail + '}\\par');
+        if (inEl && tlEl) {
+          // Inline mode: bold title + normal " — detail" on same line
+          L.push('\\pard\\sb40 {\\b\\fs22\\cf3 ' + re(tlEl.textContent.trim()) + '}{\\fs22\\cf3 ' + re(inEl.textContent) + '}\\par');
+          // Hybrid mode (e.g. scripture): also output any remaining detail below
+          if (dEl) {
+            var detailText = elText(dEl);
+            if (detailText) {
+              var rtfDetail = re(detailText).replace(/\n/g, '\\line ');
+              L.push('\\pard\\sb0 {\\fs22\\cf3 ' + rtfDetail + '}\\par');
+            }
+          }
+        } else {
+          L.push('\\pard\\sb40 {\\b\\fs22\\cf3 ' + re(tEl.textContent.trim()) + '}\\par');
+          if (dEl) {
+            var detailText = elText(dEl);
+            if (detailText) {
+              // Each newline becomes a soft line break in RTF
+              var rtfDetail = re(detailText).replace(/\n/g, '\\line ');
+              L.push('\\pard\\sb0 {\\fs22\\cf3 ' + rtfDetail + '}\\par');
+            }
           }
         }
       }
