@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worship Bulletin Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue:  #005891;
+  --blue2: #004373;
+  --blue3: #EAF3FA;
+  --blue4: #C5DCF0;
+  --cdk:   #EAE5DA;
+  --g50:   #F8F8F8;
+  --g200:  #E2E2E2;
+  --g400:  #A8A8A8;
+  --g500:  #686868;
+  --g700:  #363636;
+  --g900:  #161616;
+  --gold:  #B08A28;
+  --r:     5px;
+}
+html, body { height: 100%; font-family: 'Inter', system-ui, sans-serif; }
+body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700); }
+
+/* ─── EDITOR ─── */
+#editor { width: 460px; min-width: 360px; flex-shrink: 0; background: white; display: flex; flex-direction: column; border-right: 1px solid var(--g200); overflow: hidden; }
+#ed-head { background: var(--blue); color: white; padding: 13px 20px; flex-shrink: 0; }
+#ed-head h1 { font-size: 12px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; }
+#ed-head p  { font-size: 10.5px; opacity: .55; margin-top: 1px; }
+
+/* tabs */
+#tabs { display: flex; background: var(--cdk); border-bottom: 1px solid var(--g200); flex-shrink: 0; }
+.tab { flex: 1; padding: 9px 4px; font-size: 10.5px; font-weight: 500; border: none; background: none; cursor: pointer; color: var(--g500); border-bottom: 2px solid transparent; transition: all .15s; }
+.tab.active { background: white; color: var(--blue); border-bottom-color: var(--blue); }
+.tab:hover:not(.active) { background: white; }
+
+/* scroll panels */
+.panel { display: none; flex: 1; overflow-y: auto; padding: 15px 18px 6px; }
+.panel.on { display: block; }
+
+/* form */
+.fsec { margin-bottom: 18px; }
+.fsec-hd { display: flex; align-items: center; padding-bottom: 5px; margin-bottom: 9px; border-bottom: 1.5px solid var(--cdk); }
+.fsec-hd h3 { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); }
+.fr { margin-bottom: 7px; }
+.fr label { display: block; font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .3px; color: var(--g500); margin-bottom: 2px; }
+.fr input { width: 100%; padding: 6px 9px; border: 1px solid var(--g200); border-radius: var(--r); font-size: 12px; font-family: 'Inter', sans-serif; color: var(--g900); background: white; outline: none; transition: border .15s; }
+.fr input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,88,145,.07); }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+/* ─── ORDER TAB ─── */
+.order-tip { font-size: 11px; color: var(--g400); line-height: 1.6; margin-bottom: 10px; background: var(--blue3); border-radius: var(--r); padding: 8px 10px; }
+
+.oc { display: flex; align-items: flex-start; gap: 5px; padding: 6px 7px; border-radius: var(--r); margin-bottom: 3px; border: 1px solid transparent; transition: background .1s; cursor: default; }
+.oc.is-divider { background: var(--blue3); border-color: var(--blue4); }
+.oc.is-item    { background: var(--g50);  border-color: var(--g200); }
+.oc.drag-over  { border-color: var(--blue) !important; background: #D4E8F5 !important; outline: 2px solid var(--blue); }
+.oc.dragging   { opacity: .35; }
+
+.oc-grip { cursor: grab; color: var(--g400); font-size: 13px; padding: 3px 1px 0; line-height: 1; flex-shrink: 0; user-select: none; }
+.oc-grip:active { cursor: grabbing; }
+
+.oc-body { flex: 1; min-width: 0; }
+
+/* divider input */
+.oc-div-input { width: 100%; padding: 2px 4px; font-size: 11px; font-weight: 600; color: var(--blue); letter-spacing: .4px; text-transform: uppercase; border: 1px solid transparent; border-radius: 3px; background: transparent; font-family: 'Inter', sans-serif; outline: none; }
+.oc-div-input:focus { background: white; border-color: var(--blue4); }
+
+/* item row */
+.oc-item-top { display: flex; gap: 4px; align-items: center; margin-bottom: 3px; }
+.oc-icon-input { width: 30px; padding: 3px 2px; font-size: 14px; border: 1px solid var(--g200); border-radius: 3px; background: white; text-align: center; font-family: 'Inter', sans-serif; outline: none; flex-shrink: 0; }
+.oc-icon-input:focus { border-color: var(--blue); }
+.oc-lbl-input { flex: 1; padding: 4px 6px; font-size: 11.5px; font-weight: 500; border: 1px solid var(--g200); border-radius: 3px; font-family: 'Inter', sans-serif; outline: none; background: white; color: var(--g900); }
+.oc-lbl-input:focus { border-color: var(--blue); }
+.oc-val-textarea { width: 100%; padding: 4px 6px; font-size: 11px; border: 1px solid var(--g200); border-radius: 3px; font-family: 'Inter', sans-serif; outline: none; background: white; color: var(--g700); resize: none; line-height: 1.5; overflow: hidden; min-height: 24px; }
+.oc-val-textarea:focus { border-color: var(--blue); }
+
+.oc-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+.ocb { width: 20px; height: 20px; border: 1px solid var(--g200); border-radius: 3px; background: white; cursor: pointer; font-size: 10px; color: var(--g500); display: flex; align-items: center; justify-content: center; transition: all .12s; padding: 0; }
+.ocb:hover { background: var(--blue3); border-color: var(--blue); color: var(--blue); }
+.ocb.del:hover { background: #fff0f0; border-color: #dda0a0; color: #b83030; }
+
+.order-add-btns { display: flex; gap: 6px; margin-top: 8px; }
+.order-add-btns button { flex: 1; padding: 8px; border: 1.5px dashed var(--g200); border-radius: var(--r); background: none; cursor: pointer; color: var(--g400); font-size: 11px; font-family: 'Inter', sans-serif; transition: all .15s; }
+.order-add-btns button:hover { border-color: var(--blue); color: var(--blue); background: var(--blue3); }
+
+/* action bar */
+#action-bar { padding: 10px 18px; background: var(--g50); border-top: 1px solid var(--g200); display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+.btn { padding: 7px 13px; border-radius: var(--r); font-size: 11.5px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all .15s; white-space: nowrap; font-family: 'Inter', sans-serif; }
+.btn-p { background: var(--blue); color: white; }
+.btn-p:hover { background: var(--blue2); }
+.btn-g { background: white; color: var(--g700); border-color: var(--g200); }
+.btn-g:hover { background: var(--blue3); }
+.btn-print { background: var(--gold); color: white; }
+.btn-print:hover { background: #8A6A18; }
+
+/* ─── PREVIEW PANEL ─── */
+#preview { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+#prev-bar { background: #E4DFD6; border-bottom: 1px solid var(--g200); padding: 8px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+#prev-bar span { font-size: 11px; font-weight: 500; color: var(--g500); }
+#prev-scroll { flex: 1; overflow-y: auto; padding: 28px 20px; display: flex; justify-content: center; align-items: flex-start; }
+
+/* ─── BULLETIN ─── */
+#bulletin {
+  background: white; width: 650px; max-width: 100%;
+  padding: 28px 36px 32px;
+  box-shadow: 0 3px 20px rgba(0,0,0,.14);
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--g900);
+}
+.bh { margin-bottom: 15px; padding-bottom: 12px; border-bottom: 2px solid var(--blue); }
+.bh-church { font-size: 10px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 3px; }
+.bh-title  { font-size: 22px; font-weight: 700; color: var(--g900); line-height: 1.2; }
+.bh-lit    { font-size: 11.5px; color: var(--g900); margin-top: 3px; font-style: italic; }
+.bh-meta   { font-size: 11.5px; color: var(--g900); margin-top: 5px; }
+.bs { background: var(--blue3); border-left: 3px solid var(--blue); padding: 5px 11px; margin-top: 10px; margin-bottom: 0; font-size: 10px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .8px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+.bi { display: flex; align-items: flex-start; padding: 7px 9px; border-bottom: 1px solid #F2F2F2; }
+.bi-icon { width: 26px; flex-shrink: 0; font-size: 13px; padding-top: 1px; text-align: center; }
+.bi-body { flex: 1; min-width: 0; }
+.bi-title  { font-size: 11.5px; font-weight: 600; color: var(--g900); line-height: 1.6; }
+.bi-detail { font-size: 11.5px; color: var(--g700); margin-top: 0; line-height: 1.6; }
+.bf-rule { margin-top: 18px; border-top: 1px solid var(--g200); padding-top: 12px; }
+.bf-people { font-size: 11.5px; color: var(--g700); line-height: 1.7; }
+.bf-people strong { font-weight: 600; color: var(--g900); }
+.bf { margin-top: 11px; text-align: center; font-size: 10px; color: var(--g400); }
+
+/* toast */
+#toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(56px); background: var(--g900); color: white; padding: 8px 18px; border-radius: 18px; font-size: 12px; font-family: 'Inter', sans-serif; transition: transform .28s cubic-bezier(.34,1.56,.64,1); z-index: 999; pointer-events: none; }
+#toast.on { transform: translateX(-50%) translateY(0); }
+
+/* print */
+@media print {
+  @page { margin: .3in .4in; }
+  body   { display: block !important; background: white !important; overflow: visible !important; }
+  #editor, #prev-bar, #toast { display: none !important; }
+  #preview { display: block !important; overflow: visible !important; }
+  #prev-scroll { padding: 0 !important; background: white !important; overflow: visible !important; display: block !important; }
+  #bulletin { width: 100% !important; max-width: 100% !important; padding: .25in .35in !important; box-shadow: none !important; }
+  .bs { margin-top: 7px !important; padding: 4px 9px !important; }
+  .bi { padding: 5px 7px !important; }
+  .bh { margin-bottom: 10px !important; padding-bottom: 9px !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ EDITOR ═══════ -->
+<div id="editor">
+  <div id="ed-head">
+    <h1>✝ Bulletin Builder</h1>
+    <p id="ed-sub">Saint Paul's United Church of Christ</p>
+  </div>
+
+  <div id="tabs">
+    <button class="tab active" data-tab="form">📋 Header</button>
+    <button class="tab" data-tab="order">↕ Service Order</button>
+    <button class="tab" data-tab="settings">⚙️ Settings</button>
+  </div>
+
+  <!-- HEADER TAB -->
+  <div id="form-scroll" class="panel on">
+    <div class="fsec">
+      <div class="fsec-hd"><h3>📅 Service Details</h3></div>
+      <div class="fr g2">
+        <div><label>Date</label><input type="date" id="f_date"></div>
+        <div><label>Time</label><input type="text" id="f_time" placeholder="10:30 AM"></div>
+      </div>
+      <div class="fr"><label>Liturgical Sunday</label><input type="text" id="f_liturgical" placeholder="e.g. Fifth Sunday in Lent"></div>
+      <div class="fr g2">
+        <div><label>Acolyte</label><input type="text" id="f_acolyte"></div>
+        <div><label>Greeters</label><input type="text" id="f_greeters"></div>
+      </div>
+    </div>
+    <div class="fsec">
+      <div class="fsec-hd"><h3>💡 Tip</h3></div>
+      <p style="font-size:11px;color:var(--g500);line-height:1.7;">Fill in the service details above, then go to <strong>Service Order</strong> to edit each item, reorder, remove, or add new ones. Every item is fully editable.</p>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- SERVICE ORDER TAB -->
+  <div id="order-scroll" class="panel">
+    <p class="order-tip">Drag <strong>⠿</strong> or use <strong>↑↓</strong> to reorder. Edit icon, title, and detail on any item. <strong>×</strong> removes it. Use the buttons below to add items or section headers.</p>
+    <div id="order-list"><div class="oc is-divider" draggable="true" data-i="0"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="1"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="2"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="3"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="4"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="5"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-divider" draggable="true" data-i="6"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="7"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="8"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="9"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="10"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-divider" draggable="true" data-i="11"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="12"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="13"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="14"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="15"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="16"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-divider" draggable="true" data-i="17"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="18"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="19"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="20"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="21"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="22"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="23"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-divider" draggable="true" data-i="24"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="25"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="26"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="27"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="28"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div></div>
+    <div class="order-add-btns">
+      <button id="btn-add-item">+ Add Item</button>
+      <button id="btn-add-section">+ Add Section Header</button>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="settings-tab" class="panel">
+    <div class="fsec">
+      <div class="fsec-hd"><h3>⛪ Church Info</h3></div>
+      <div class="fr"><label>Church Name</label><input type="text" id="s_name" value="Saint Paul&#39;s United Church of Christ"></div>
+      <div class="fr"><label>Tagline</label><input type="text" id="s_sub" value="Open and Affirming"></div>
+    </div>
+    <div class="fsec">
+      <div class="fsec-hd"><h3>📂 Import Previous Bulletin</h3></div>
+      <p style="font-size:11px;color:var(--g500);line-height:1.6;margin-bottom:9px;">Load a saved JSON to reuse or edit for a new week.</p>
+      <button class="btn btn-g" onclick="document.getElementById(&#39;imp&#39;).click()" style="font-size:11.5px;">⬆ Import JSON</button>
+      <input type="file" id="imp" accept=".json" style="display:none">
+    </div>
+    <div class="fsec">
+      <div class="fsec-hd"><h3>ℹ️ Saving</h3></div>
+      <p style="font-size:11px;color:var(--g500);line-height:1.7;"><strong>📄 Export Word</strong> — downloads an .rtf file; upload to Google Drive and open with Google Docs.<br><strong>🖨 Print / PDF</strong> — opens print dialog; choose "Save as PDF."<br><strong>⬇ Save JSON</strong> — saves everything for reuse next week.</p>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <div id="action-bar">
+    <button class="btn btn-p" id="btn-clear">🗒 New Week</button>
+    <button class="btn btn-g" id="btn-save">⬇ Save JSON</button>
+    <button class="btn btn-g" id="btn-docx">📄 Export Word</button>
+    <button class="btn btn-print" onclick="window.print()">🖨 Print / PDF</button>
+  </div>
+</div>
+
+<!-- ═══════ PREVIEW ═══════ -->
+<div id="preview">
+  <div id="prev-bar">
+    <span>Live Preview</span>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-g" id="btn-save2">⬇ Save JSON</button>
+      <button class="btn btn-g" id="btn-docx2">📄 Export Word</button>
+      <button class="btn btn-print" onclick="window.print()">🖨 Print / PDF</button>
+    </div>
+  </div>
+  <div id="prev-scroll">
+    <div id="bulletin"><div class="bh"><div class="bh-church">Saint Paul's United Church of Christ  •  Open and Affirming</div><div class="bh-title">Worship Service</div><div class="bh-lit">Fifth Sunday in Lent</div><div class="bh-meta">Sunday, March 22, 2026 | 10:30 AM</div></div><div class="bs">We Gather</div><div class="bi"><div class="bi-icon">📢</div><div class="bi-body"><div class="bi-title">Welcome &amp; Announcements</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Prelude</div><div class="bi-detail">“In the Garden” by C. Austin Miles – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">💡</div><div class="bi-body"><div class="bi-title">Introduction of the Worship Theme</div><div class="bi-detail">Jules Drewes<br>with ticking clock and piano to the tune of “Come and Find the Quiet Center” – we continue right into singing the song</div></div></div><div class="bi"><div class="bi-icon">🎶</div><div class="bi-body"><div class="bi-title">Tuning Hymn</div><div class="bi-detail">“Come and Find the Quiet Center” – verse 1</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Praise</div><div class="bi-detail">#20 All Things Bright and Beautiful (all verses)</div></div></div><div class="bs">We Confess and Are Forgiven</div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayer of Confession</div><div class="bi-detail">Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.<br><br>(Silence for personal prayer and reflection)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Kyrie</div><div class="bi-detail">#474 As a Child Rests (refrain, verse 2, refrain)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Assurance</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Gloria</div><div class="bi-detail">#447 We Are Forgiven (sing twice)</div></div></div><div class="bs">We Receive the Word</div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Kyrie” – Celebration Ringers</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn</div><div class="bi-detail">#188 Jesus Loves Me</div></div></div><div class="bi"><div class="bi-icon">⭐</div><div class="bi-body"><div class="bi-title">Children's Message</div><div class="bi-detail">Linda Gruenberg</div></div></div><div class="bi"><div class="bi-icon">📖</div><div class="bi-body"><div class="bi-title">Scripture Readings</div><div class="bi-detail">Kevin Smyth<br>Old Testament: Ecclesiastes 3:1–13<br>Gospel: Luke 13:6–14<br>“This is God’s Word for the people of God” (sung)</div></div></div><div class="bi"><div class="bi-icon">💬</div><div class="bi-body"><div class="bi-title">Message / Sermon</div><div class="bi-detail">“A Time for God, a Time to Flip Tables, a Time for Peacemaking” – Rev. Darin Namminga</div></div></div><div class="bs">We Respond</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Thanksgiving</div><div class="bi-detail">#250 In the Bulb There Is a Flower (all three verses)</div></div></div><div class="bi"><div class="bi-icon">🎁</div><div class="bi-body"><div class="bi-title">Offering Announcement</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Lord I’m Available to You” by Carlis L. Moody Jr. – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">✨</div><div class="bi-body"><div class="bi-title">Doxology</div><div class="bi-detail">For time to savor God’s good gifts,<br>For space to breathe and hearts to lift,<br>For ways to reach out and to give,<br>We offer thanks and vow to live!</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayers of the People</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">The Lord's Prayer</div></div></div><div class="bs">We Are Sent</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Mission</div><div class="bi-detail">#488 I Was There to Hear Your Borning Cry (all verses)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Blessing</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Benediction Response</div><div class="bi-detail">#542 God Be with You Till We Meet Again (verse 1)</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Postlude</div><div class="bi-detail">“I’m Gonna Live So God Can Use Me” by Wendell P. Whalum – Micah Kammerer</div></div></div><div class="bf-rule"><div class="bf-people"><strong>Acolyte:</strong> Oliver Namminga</div><div class="bf-people"><strong>Greeters:</strong> Doug &amp; Lori Ettinger</div></div><div class="bf">Saint Paul's United Church of Christ &nbsp;·&nbsp; All are welcome.</div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── HELPERS ───
+function x(s) { if (s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function v(id) { var e=document.getElementById(id); return e?e.value.trim():''; }
+function sv(id,val) { var e=document.getElementById(id); if(e) e.value=(val==null)?'':String(val); }
+
+// ─── SERVICE ORDER ───
+// Each item: type='divider' (label only) or type='item' (icon + label + value)
+var svcOrder = [
+  {id:'dv_gather',    type:'divider', label:'We Gather'},
+  {id:'welcome',      type:'item', icon:'📢', label:'Welcome & Announcements', value:''},
+  {id:'prelude',      type:'item', icon:'🎵', label:'Prelude', value:''},
+  {id:'theme',        type:'item', icon:'💡', label:'Introduction of the Worship Theme', value:''},
+  {id:'tuning',       type:'item', icon:'🎶', label:'Tuning Hymn', value:''},
+  {id:'praise',       type:'item', icon:'🎼', label:'Hymn of Praise', value:''},
+  {id:'dv_confess',   type:'divider', label:'We Confess and Are Forgiven'},
+  {id:'confession',   type:'item', icon:'🙏', label:'Prayer of Confession', value:''},
+  {id:'kyrie',        type:'item', icon:'✝', label:'Kyrie', value:''},
+  {id:'assurance',    type:'item', icon:'✝', label:'Assurance', value:''},
+  {id:'gloria',       type:'item', icon:'🎼', label:'Gloria', value:''},
+  {id:'dv_word',      type:'divider', label:'We Receive the Word'},
+  {id:'music1',       type:'item', icon:'🎵', label:'Offering of Music', value:''},
+  {id:'hymn1',        type:'item', icon:'🎼', label:'Hymn', value:''},
+  {id:'childrens',    type:'item', icon:'⭐', label:"Children's Message", value:''},
+  {id:'scripture',    type:'item', icon:'📖', label:'Scripture Readings', value:''},
+  {id:'sermon',       type:'item', icon:'💬', label:'Message / Sermon', value:''},
+  {id:'dv_respond',   type:'divider', label:'We Respond'},
+  {id:'thanks',       type:'item', icon:'🎼', label:'Hymn of Thanksgiving', value:''},
+  {id:'offering',     type:'item', icon:'🎁', label:'Offering Announcement', value:''},
+  {id:'music2',       type:'item', icon:'🎵', label:'Offering of Music', value:''},
+  {id:'doxology',     type:'item', icon:'✨', label:'Doxology', value:''},
+  {id:'prayers',      type:'item', icon:'🙏', label:'Prayers of the People', value:''},
+  {id:'lords_prayer', type:'item', icon:'🙏', label:"The Lord's Prayer", value:''},
+  {id:'dv_send',      type:'divider', label:'We Are Sent'},
+  {id:'mission',      type:'item', icon:'🎼', label:'Hymn of Mission', value:''},
+  {id:'blessing',     type:'item', icon:'✝', label:'Blessing', value:''},
+  {id:'benediction',  type:'item', icon:'🎼', label:'Benediction Response', value:''},
+  {id:'postlude',     type:'item', icon:'🎵', label:'Postlude', value:''},
+];
+var iCounter = 0;
+
+// ─── BULLETIN HELPERS ───
+function bItem(icon, title, detail) {
+  if (!title) return '';
+  var h = '<div class="bi"><div class="bi-icon">' + (icon||'') + '</div><div class="bi-body">';
+  h += '<div class="bi-title">' + title + '</div>';
+  if (detail) h += '<div class="bi-detail">' + detail + '</div>';
+  h += '</div></div>';
+  return h;
+}
+function bSec(label) { return '<div class="bs">' + x(label) + '</div>'; }
+
+// ─── MAIN RENDER ───
+function render() {
+  try {
+    var sn = v('s_name') || "Saint Paul's United Church of Christ";
+    var ss = v('s_sub');
+    var dt = v('f_date'), tm = v('f_time'), lit = v('f_liturgical');
+    var ac = v('f_acolyte'), gr = v('f_greeters');
+
+    var dstr = '';
+    if (dt) { try { var d=new Date(dt+'T12:00:00'); dstr=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}); } catch(e){dstr=dt;} }
+
+    var metaLine  = [dstr, tm].filter(Boolean).join(' | ');
+    var peopleLine = [ac?'Acolyte: '+ac:'', gr?'Greeters: '+gr:''].filter(Boolean).join('  \u2022  ');
+
+    var hdr = '<div class="bh">'
+      + '<div class="bh-church">' + x(sn) + (ss ? '  &bull;  ' + x(ss) : '') + '</div>'
+      + '<div class="bh-title">Worship Service</div>'
+      + (lit ? '<div class="bh-lit">' + x(lit) + '</div>' : '')
+      + (metaLine ? '<div class="bh-meta">' + x(metaLine) + '</div>' : '')
+      + '</div>';
+
+    var body = '';
+    for (var i=0; i<svcOrder.length; i++) {
+      var item = svcOrder[i];
+      if (item.type === 'divider') {
+        body += bSec(item.label);
+      } else if (item.type === 'item') {
+        if (item.label) {
+          var detail = x(item.value||'').replace(/\n/g, '<br>');
+          body += bItem(item.icon||'', x(item.label), detail);
+        }
+      }
+    }
+
+    var peoplePart = '';
+    if (ac || gr) {
+      peoplePart = '<div class="bf-rule">';
+      if (ac) peoplePart += '<div class="bf-people"><strong>Acolyte:</strong> ' + x(ac) + '</div>';
+      if (gr) peoplePart += '<div class="bf-people"><strong>Greeters:</strong> ' + x(gr) + '</div>';
+      peoplePart += '</div>';
+    }
+    var ftr = peoplePart + '<div class="bf">' + x(sn) + ' &nbsp;&middot;&nbsp; All are welcome.</div>';
+
+    document.getElementById('bulletin').innerHTML = hdr + body + ftr;
+    var es = document.getElementById('ed-sub'); if(es) es.textContent = sn;
+  } catch(e) { console.error('Render error:', e); }
+}
+
+// ─── AUTO-RESIZE TEXTAREA ───
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+
+// ─── ORDER LIST UI ───
+var dragIdx = null;
+
+function buildOrderUI() {
+  var list = document.getElementById('order-list');
+  list.innerHTML = '';
+  svcOrder.forEach(function(item, i) {
+    var card = document.createElement('div');
+    card.className = 'oc is-' + item.type;
+    card.draggable = true;
+    card.dataset.i = i;
+
+    // grip
+    var grip = document.createElement('span');
+    grip.className = 'oc-grip'; grip.textContent = '⠿';
+    card.appendChild(grip);
+
+    // body
+    var body = document.createElement('div');
+    body.className = 'oc-body';
+
+    if (item.type === 'divider') {
+      var di = document.createElement('input');
+      di.className = 'oc-div-input'; di.type = 'text';
+      di.value = item.label; di.placeholder = 'Section Name';
+      di.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].label=this.value; render(); }; })(i));
+      body.appendChild(di);
+    } else {
+      // top row: icon + label
+      var top = document.createElement('div');
+      top.className = 'oc-item-top';
+
+      var icoIn = document.createElement('input');
+      icoIn.className = 'oc-icon-input'; icoIn.type = 'text';
+      icoIn.value = item.icon||''; icoIn.title = 'Icon (emoji)';
+      icoIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].icon=this.value; render(); }; })(i));
+
+      var lblIn = document.createElement('input');
+      lblIn.className = 'oc-lbl-input'; lblIn.type = 'text';
+      lblIn.value = item.label||''; lblIn.placeholder = 'Item title';
+      lblIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].label=this.value; render(); }; })(i));
+
+      top.appendChild(icoIn); top.appendChild(lblIn);
+      body.appendChild(top);
+
+      // value textarea
+      var valTa = document.createElement('textarea');
+      valTa.className = 'oc-val-textarea';
+      valTa.value = item.value||''; valTa.placeholder = 'Detail / description (optional — press Enter for new line)';
+      valTa.rows = 1;
+      valTa.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].value=this.value; render(); autoResize(this); }; })(i));
+      body.appendChild(valTa);
+      setTimeout((function(ta){ return function(){ autoResize(ta); }; })(valTa), 0);
+    }
+    card.appendChild(body);
+
+    // buttons: up, down, delete (all items)
+    var btns = document.createElement('div');
+    btns.className = 'oc-btns';
+    var up = document.createElement('button'); up.className='ocb'; up.textContent='↑'; up.title='Move up';
+    up.addEventListener('click', (function(idx){ return function(){ move(idx,-1); }; })(i));
+    var dn = document.createElement('button'); dn.className='ocb'; dn.textContent='↓'; dn.title='Move down';
+    dn.addEventListener('click', (function(idx){ return function(){ move(idx,1); }; })(i));
+    var del = document.createElement('button'); del.className='ocb del'; del.textContent='×'; del.title='Remove';
+    del.addEventListener('click', (function(idx){ return function(){
+      if(confirm('Remove "' + (svcOrder[idx].label||'this item') + '"?')) { svcOrder.splice(idx,1); buildOrderUI(); render(); }
+    }; })(i));
+    btns.appendChild(up); btns.appendChild(dn); btns.appendChild(del);
+    card.appendChild(btns);
+
+    // drag events
+    card.addEventListener('dragstart', function(e){ dragIdx=parseInt(this.dataset.i); e.dataTransfer.effectAllowed='move'; this.classList.add('dragging'); });
+    card.addEventListener('dragover',  function(e){ e.preventDefault(); e.dataTransfer.dropEffect='move'; document.querySelectorAll('.oc').forEach(function(c){c.classList.remove('drag-over');}); this.classList.add('drag-over'); });
+    card.addEventListener('dragleave', function(){ this.classList.remove('drag-over'); });
+    card.addEventListener('drop', function(e){
+      e.stopPropagation(); this.classList.remove('drag-over');
+      var ti = parseInt(this.dataset.i);
+      if (dragIdx!==null && dragIdx!==ti) { var m=svcOrder.splice(dragIdx,1)[0]; svcOrder.splice(ti,0,m); buildOrderUI(); render(); }
+      dragIdx = null;
+    });
+    card.addEventListener('dragend', function(){ this.classList.remove('dragging'); document.querySelectorAll('.oc').forEach(function(c){c.classList.remove('drag-over');}); });
+
+    list.appendChild(card);
+  });
+}
+
+function move(idx, dir) {
+  var ni=idx+dir; if(ni<0||ni>=svcOrder.length) return;
+  var t=svcOrder[idx]; svcOrder[idx]=svcOrder[ni]; svcOrder[ni]=t;
+  buildOrderUI(); render();
+}
+
+// ─── TABS ───
+document.querySelectorAll('.tab').forEach(function(b){
+  b.addEventListener('click', function(){
+    var tab = this.dataset.tab;
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('on'); });
+    var map = {form:'form-scroll', order:'order-scroll', settings:'settings-tab'};
+    var el = document.getElementById(map[tab]); if(el) el.classList.add('on');
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('active', t.dataset.tab===tab); });
+    if(tab==='order') buildOrderUI();
+  });
+});
+
+// ─── HEADER FIELD IDs ───
+var HFID = ['f_date','f_time','f_liturgical','f_acolyte','f_greeters','s_name','s_sub'];
+
+function wireInputs() {
+  HFID.forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', render); });
+}
+
+// ─── COLLECT / APPLY ───
+function collect() {
+  var d = {};
+  HFID.forEach(function(id){ var e=document.getElementById(id); if(e) d[id]=e.value; });
+  d._order = JSON.parse(JSON.stringify(svcOrder));
+  return d;
+}
+
+function applyData(d) {
+  HFID.forEach(function(id){ if(d[id]!==undefined) sv(id, d[id]); });
+  if (d._order && Array.isArray(d._order)) {
+    // Support old format (fixed/custom types) by converting to new 'item' type
+    svcOrder = d._order.map(function(item){
+      if (item.type === 'fixed')  return {id:item.id, type:'item', icon:item.icon||'', label:item.label||'', value:''};
+      if (item.type === 'custom') return {id:item.id, type:'item', icon:item.icon||'✦', label:item.cLabel||'', value:item.cVal||''};
+      return item;
+    });
+  }
+  buildOrderUI(); render();
+}
+
+// ─── SAVE / IMPORT ───
+function saveJSON() {
+  var d=collect(), dt=v('f_date')||'bulletin';
+  var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob); var a=document.createElement('a');
+  a.href=url; a.download='worship-bulletin-'+dt+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('Saved as JSON!');
+}
+document.getElementById('imp').addEventListener('change', function(e){
+  var file=e.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(ev){ try{ applyData(JSON.parse(ev.target.result)); toast('Bulletin loaded!'); } catch(err){ alert('Could not read that file.'); } };
+  r.readAsText(file); e.target.value='';
+});
+
+// ─── ADD ITEM / SECTION ───
+document.getElementById('btn-add-item').addEventListener('click', function(){
+  iCounter++;
+  svcOrder.push({id:'ci'+iCounter, type:'item', icon:'✦', label:'', value:''});
+  buildOrderUI(); render();
+  var os=document.getElementById('order-scroll'); if(os) os.scrollTop=os.scrollHeight;
+  toast('New item added — fill in the title and detail');
+});
+document.getElementById('btn-add-section').addEventListener('click', function(){
+  iCounter++;
+  svcOrder.push({id:'cd'+iCounter, type:'divider', label:'New Section'});
+  buildOrderUI(); render();
+  var os=document.getElementById('order-scroll'); if(os) os.scrollTop=os.scrollHeight;
+  toast('New section header added');
+});
+
+// ─── CLEAR ───
+function clearForm() {
+  if(!confirm('Clear all content and reset to a blank order of service?')) return;
+  HFID.forEach(function(id){
+    var e=document.getElementById(id); if(!e) return;
+    if(id==='s_name') e.value="Saint Paul's United Church of Christ";
+    else if(id==='s_sub') e.value='Open and Affirming';
+    else e.value='';
+  });
+  // Remove dynamically added items, clear values on defaults
+  svcOrder = svcOrder.filter(function(item){ return !item.id.startsWith('ci') && !item.id.startsWith('cd'); });
+  svcOrder.forEach(function(item){ if(item.type==='item') item.value=''; });
+  buildOrderUI(); render(); toast('Ready for a new week!');
+}
+
+// ─── BUTTONS ───
+document.getElementById('btn-clear').addEventListener('click', clearForm);
+document.getElementById('btn-save').addEventListener('click', saveJSON);
+document.getElementById('btn-save2').addEventListener('click', saveJSON);
+
+// ─── TOAST ───
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2800); }
+
+// ─── EXPORT WORD (RTF — no external library needed) ───
+function exportDocx() {
+  var dt = v('f_date') || 'bulletin';
+  var bulletinEl = document.getElementById('bulletin');
+  if (!bulletinEl) { alert('Nothing to export yet.'); return; }
+
+  function re(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/\\/g, '\\\\')
+      .replace(/\{/g, '\\{')
+      .replace(/\}/g, '\\}')
+      .replace(/[^\x00-\x7F]/g, function(c){ return '\\u' + c.charCodeAt(0) + '?'; });
+  }
+
+  // Extract text from element, converting <br> to newlines
+  function elText(el) {
+    if (!el) return '';
+    var clone = el.cloneNode(true);
+    clone.querySelectorAll('br').forEach(function(br){ br.replaceWith('\n'); });
+    return clone.textContent.trim();
+  }
+
+  var L = [];
+  L.push('{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033');
+  L.push('{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}}');
+  L.push('{\\colortbl ;\\red0\\green88\\blue145;\\red234\\green243\\blue250;\\red54\\green54\\blue54;\\red136\\green136\\blue136;}');
+  // color1=UCC blue, color2=light blue bg, color3=dark body text, color4=light gray
+  L.push('\\paperw12240\\paperh15840\\margl1080\\margr1080\\margt1080\\margb1080\\f0\\fs24\\widowctrl');
+
+  // Header block
+  var bhChurch = bulletinEl.querySelector('.bh-church');
+  var bhTitle  = bulletinEl.querySelector('.bh-title');
+  var bhLit    = bulletinEl.querySelector('.bh-lit');
+  var bhMeta   = bulletinEl.querySelector('.bh-meta');
+  if (bhChurch) L.push('\\pard {\\b\\cf1\\fs18 ' + re(bhChurch.textContent.trim()) + '}\\par');
+  if (bhTitle)  L.push('\\pard {\\b\\fs44 ' + re(bhTitle.textContent.trim()) + '}\\par');
+  if (bhLit)    L.push('\\pard {\\i\\fs22\\cf3 ' + re(bhLit.textContent.trim()) + '}\\par');
+  if (bhMeta)   L.push('\\pard {\\fs22\\cf3 ' + re(bhMeta.textContent.trim()) + '}\\par');
+  L.push('\\pard \\par');
+
+  // Service body
+  bulletinEl.querySelectorAll('.bs, .bi').forEach(function(el) {
+    if (el.classList.contains('bs')) {
+      L.push('\\pard\\sb100\\cbpat2 {\\b\\cf1\\fs22 ' + re(el.textContent.trim()) + '}\\par');
+    } else {
+      var tEl = el.querySelector('.bi-title');
+      var dEl = el.querySelector('.bi-detail');
+      if (tEl && tEl.textContent.trim()) {
+        L.push('\\pard\\sb40 {\\b\\fs22\\cf3 ' + re(tEl.textContent.trim()) + '}\\par');
+        if (dEl) {
+          var detailText = elText(dEl);
+          if (detailText) {
+            // Each newline becomes a soft line break in RTF
+            var rtfDetail = re(detailText).replace(/\n/g, '\\line ');
+            L.push('\\pard\\sb0 {\\fs22\\cf3 ' + rtfDetail + '}\\par');
+          }
+        }
+      }
+    }
+  });
+
+  // Ruled people section (acolyte / greeters)
+  var ruleEl = bulletinEl.querySelector('.bf-rule');
+  if (ruleEl) {
+    L.push('\\pard\\sb240 \\brdrb\\brdrs\\brdrw10\\brsp20 \\par'); // horizontal rule
+    ruleEl.querySelectorAll('.bf-people').forEach(function(p){
+      var clone = p.cloneNode(true);
+      clone.querySelectorAll('br').forEach(function(br){ br.replaceWith('\n'); });
+      L.push('\\pard\\sb40 {\\fs22\\cf3 ' + re(clone.textContent.trim()) + '}\\par');
+    });
+  }
+  // Church credit line
+  var bfEl = bulletinEl.querySelector('.bf');
+  if (bfEl) {
+    L.push('\\pard\\sb160\\qc {\\fs20\\cf3 ' + re(bfEl.textContent.trim()) + '}\\par');
+  }
+  L.push('}');
+
+  try {
+    var blob = new Blob([L.join('\n')], {type:'application/rtf'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'worship-bulletin-' + dt + '.rtf';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    toast('Exported! Upload to Google Drive \u2192 open with Google Docs.');
+  } catch(e) { alert('Export failed: ' + e.message); }
+}
+document.getElementById('btn-docx').addEventListener('click', exportDocx);
+document.getElementById('btn-docx2').addEventListener('click', exportDocx);
+
+// ─── INIT ───
+function init() {
+  wireInputs();
+  sv('f_date','2026-03-22');
+  sv('f_time','10:30 AM');
+  sv('f_liturgical','Fifth Sunday in Lent');
+  sv('f_acolyte','Oliver Namminga');
+  sv('f_greeters','Doug & Lori Ettinger');
+
+  var vals = {
+    'welcome':      'Rev. Darin Namminga',
+    'prelude':      '\u201cIn the Garden\u201d by C. Austin Miles \u2013 Micah Kammerer',
+    'theme':        'Jules Drewes\nwith ticking clock and piano to the tune of \u201cCome and Find the Quiet Center\u201d \u2013 we continue right into singing the song',
+    'tuning':       '\u201cCome and Find the Quiet Center\u201d \u2013 verse 1',
+    'praise':       '#20 All Things Bright and Beautiful (all verses)',
+    'confession':   'Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.\n\n(Silence for personal prayer and reflection)',
+    'kyrie':        '#474 As a Child Rests (refrain, verse 2, refrain)',
+    'assurance':    'Rev. Darin Namminga',
+    'gloria':       '#447 We Are Forgiven (sing twice)',
+    'music1':       '\u201cKyrie\u201d \u2013 Celebration Ringers',
+    'hymn1':        '#188 Jesus Loves Me',
+    'childrens':    'Linda Gruenberg',
+    'scripture':    'Kevin Smyth\nOld Testament: Ecclesiastes 3:1\u201313\nGospel: Luke 13:6\u201314\n\u201cThis is God\u2019s Word for the people of God\u201d (sung)',
+    'sermon':       '\u201cA Time for God, a Time to Flip Tables, a Time for Peacemaking\u201d \u2013 Rev. Darin Namminga',
+    'thanks':       '#250 In the Bulb There Is a Flower (all three verses)',
+    'offering':     'Rev. Darin Namminga',
+    'music2':       '\u201cLord I\u2019m Available to You\u201d by Carlis L. Moody Jr. \u2013 Micah Kammerer',
+    'doxology':     'For time to savor God\u2019s good gifts,\nFor space to breathe and hearts to lift,\nFor ways to reach out and to give,\nWe offer thanks and vow to live!',
+    'mission':      '#488 I Was There to Hear Your Borning Cry (all verses)',
+    'blessing':     'Rev. Darin Namminga',
+    'benediction':  '#542 God Be with You Till We Meet Again (verse 1)',
+    'postlude':     '\u201cI\u2019m Gonna Live So God Can Use Me\u201d by Wendell P. Whalum \u2013 Micah Kammerer'
+  };
+
+  svcOrder.forEach(function(item){
+    if (item.type === 'item' && vals[item.id] !== undefined) item.value = vals[item.id];
+  });
+
+  buildOrderUI();
+  render();
+}
+init();
+</script>
+
+
+</body></html>
