@@ -133,6 +133,28 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 #toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(56px); background: var(--g900); color: white; padding: 8px 18px; border-radius: 18px; font-size: 12px; font-family: 'Inter', sans-serif; transition: transform .28s cubic-bezier(.34,1.56,.64,1); z-index: 999; pointer-events: none; }
 #toast.on { transform: translateX(-50%) translateY(0); }
 
+/* ─── EMAIL IMPORT MODAL ─── */
+.em-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+.em-bg.open { display:flex; }
+.em-box { background:white; border-radius:10px; width:520px; max-width:95vw; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 8px 40px rgba(0,0,0,.25); }
+.em-hd { padding:14px 16px 11px; border-bottom:1px solid var(--g200); display:flex; align-items:center; justify-content:space-between; }
+.em-hd h3 { margin:0; font-size:13px; font-weight:600; }
+.em-body { padding:13px 16px; overflow-y:auto; flex:1; }
+.em-body p { font-size:11px; color:var(--g500); margin:0 0 8px; line-height:1.6; }
+.em-ta { width:100%; height:130px; font-size:11.5px; font-family:'Inter',sans-serif; border:1px solid var(--g200); border-radius:5px; padding:8px; resize:vertical; outline:none; color:var(--g700); }
+.em-ta:focus { border-color:var(--blue); }
+.em-results { margin-top:11px; }
+.em-ri { border:1px solid var(--g200); border-radius:6px; padding:8px 10px; margin-bottom:6px; display:flex; align-items:flex-start; gap:8px; transition:opacity .15s; }
+.em-ri.skipped { opacity:.4; }
+.em-ri input[type=checkbox] { margin-top:2px; flex-shrink:0; accent-color:var(--blue); }
+.em-rl { font-size:11.5px; font-weight:600; color:var(--g700); }
+.em-ra { font-size:10.5px; color:var(--blue); margin-top:2px; }
+.em-rn { font-size:10.5px; color:var(--g400); margin-top:1px; }
+.em-none { font-size:11.5px; color:var(--g400); text-align:center; padding:18px 0; }
+.em-ft { padding:11px 16px; border-top:1px solid var(--g200); display:flex; gap:8px; justify-content:flex-end; }
+.em-import-btn { font-size:10.5px; padding:3px 9px; background:var(--blue3); color:var(--blue); border:1px solid var(--blue4); border-radius:4px; cursor:pointer; font-family:'Inter',sans-serif; font-weight:500; }
+.em-import-btn:hover { background:var(--blue4); }
+
 /* print */
 @media print {
   @page { margin: .3in .4in; }
@@ -165,7 +187,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
   <!-- HEADER TAB -->
   <div id="form-scroll" class="panel on">
     <div class="fsec">
-      <div class="fsec-hd"><h3>📅 Service Details</h3></div>
+      <div class="fsec-hd" style="display:flex;align-items:center;justify-content:space-between;"><h3>📅 Service Details</h3><button class="em-import-btn" onclick="openEmailModal()">📧 Import from Email</button></div>
       <div class="fr g2">
         <div><label>Date</label><input type="date" id="f_date"></div>
         <div><label>Time</label><input type="text" id="f_time" placeholder="10:30 AM"></div>
@@ -297,7 +319,16 @@ function bItem(icon, label, iHymn, iTitle, iDetail) {
   var h = '<div class="bi"><div class="bi-icon">' + (icon||'') + '</div><div class="bi-body">';
   var pieceParts = [];
   if (iHymn)  pieceParts.push('#' + iHymn.replace(/^#+/, ''));
-  if (iTitle) pieceParts.push('\u201c' + iTitle + '\u201d');
+  if (iTitle) {
+    // Split composer/arranger out of quotes if present
+    // Handles: "Song Title by Composer" and "Song Title (Composer)"
+    var titleCore = iTitle, titleExtra = '';
+    var byM = iTitle.match(/^(.+?)\s+(by\s+.+)$/i);
+    var paM = iTitle.match(/^(.+?)\s+(\([^)]+\))\s*$/);
+    if (byM)      { titleCore = byM[1];  titleExtra = ' ' + byM[2]; }
+    else if (paM) { titleCore = paM[1];  titleExtra = ' ' + paM[2]; }
+    pieceParts.push('\u201c' + titleCore + '\u201d' + titleExtra);
+  }
   var pieceStr = pieceParts.join(' ');
   var inlineParts = [];
   if (pieceStr)   inlineParts.push(pieceStr);
@@ -713,6 +744,358 @@ function exportDocx() {
 document.getElementById('btn-docx').addEventListener('click', exportDocx);
 document.getElementById('btn-docx2').addEventListener('click', exportDocx);
 
+// ─── EMAIL IMPORT ───
+var emParsed = [];
+var emSender = null; // { type:'musician'|'pastor', name:'Full Name', isDietmar:bool }
+
+function openEmailModal() {
+  document.getElementById('em-ta').value = '';
+  document.getElementById('em-results').innerHTML = '';
+  document.getElementById('em-count').textContent = '';
+  document.getElementById('em-sender').textContent = '';
+  document.getElementById('em-apply-btn').style.display = 'none';
+  emSender = null;
+  document.getElementById('em-bg').classList.add('open');
+}
+
+// Detect who sent the email so we can auto-attribute names to service items
+function detectEmailSender(raw) {
+  var tail = raw.slice(-500); // sign-off area
+  var full = raw;
+  // Musicians — check full name first, then first name in sign-off
+  if (/\bMicah\s+Kammerer\b/i.test(full) || /\bMicah\b/i.test(tail)) {
+    return { type:'musician', name:'Micah Kammerer', isDietmar:false };
+  }
+  if (/\bJaime\s+Namminga\b/i.test(full) || /\bJaime\b/i.test(tail)) {
+    return { type:'musician', name:'Jaime Namminga', isDietmar:false };
+  }
+  // Dietmar (pastor)
+  if (/\bDietmar\b/i.test(full)) {
+    return { type:'pastor', name:'Rev. Dr. Dietmar Plajer', isDietmar:true };
+  }
+  // Other pastors — e.g. "Rev. Darin Namminga" or "Rev. Dr. Firstname Lastname"
+  var revM = full.match(/\bRev\.?\s+(?:Dr\.?\s+)?([A-Z][a-z]+\s+[A-Z][a-z]+)\b/);
+  if (revM) {
+    return { type:'pastor', name:revM[0].replace(/\s+/g,' ').trim(), isDietmar:false };
+  }
+  return null;
+}
+
+// Return the right pastoral name: Dietmar uses full credentials first, short form after;
+// all other pastors keep full name throughout
+function getPastoralName(sender, firstDone) {
+  if (sender.isDietmar) return firstDone ? 'Pastor Dietmar' : 'Rev. Dr. Dietmar Plajer';
+  return sender.name;
+}
+
+function parseEmailText(raw) {
+  var results = [];
+  var lines = raw.split('\n').map(function(l){ return l.trim(); });
+  var ne = lines.filter(function(l){ return l.length > 0; });
+
+  // ── MUSIC ITEMS ──
+  // Format A: keyword on its own line, title on next line, optional "By Composer" after
+  // Format B: "Keyword - Title (Composer)"   ← paren style
+  // Format C: "Keyword - Title by Composer"  ← by style
+  var musicDefs = [
+    { keys:['prelude'],                                  sid:'prelude',  label:'Prelude' },
+    { keys:['offertory','offering of music','offering'], sid:'offering', label:'Offering of Music' },
+    { keys:['postlude'],                                 sid:'postlude', label:'Postlude' },
+  ];
+
+  // Helper: given "Title (Composer)" or "Title by Composer" or just "Title", split cleanly
+  function splitTitleComposer(str) {
+    // Try properly closed "(Composer)" at end
+    var pm = str.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+    if (pm && pm[1].trim()) return { title: pm[1].trim(), composer: pm[2].trim() };
+    // Try unclosed paren "Title (Composer  — still extract composer after the (
+    var upm = str.match(/^(.*?)\s*\(([^)]+)$/);
+    if (upm && upm[1].trim()) return { title: upm[1].trim(), composer: upm[2].trim() };
+    // Try " by Composer"
+    var bm = str.match(/^(.*?)\s+by\s+(.+)$/i);
+    if (bm && bm[1].trim()) return { title: bm[1].trim(), composer: bm[2].trim() };
+    return { title: str.trim(), composer: '' };
+  }
+
+  musicDefs.forEach(function(md) {
+    var found = false;
+    var kwPat = new RegExp('^(?:' + md.keys.join('|') + ')\\s*[-:–]?\\s*$', 'i');
+    var linePat = new RegExp('^(?:' + md.keys.join('|') + ')\\s*[-:–]\\s*(.+)$', 'i');
+
+    for (var j = 0; j < ne.length && !found; j++) {
+      // Format A: keyword alone on line
+      if (kwPat.test(ne[j])) {
+        var nxt = ne[j+1] || '';
+        var isKw = musicDefs.some(function(md2){ return new RegExp('^(?:'+md2.keys.join('|')+')\\s*$','i').test(nxt); });
+        if (nxt && !isKw && !(/^\d{3}\s/.test(nxt))) {
+          var comp = ne[j+2] || '';
+          var composer = '';
+          if (/^by\s+/i.test(comp)) composer = comp.replace(/^by\s+/i, '');
+          else if (/^\([^)]+\)$/.test(comp)) composer = comp.replace(/^\(|\)$/g, '');
+          results.push({ type:'music', sid:md.sid, label:md.label, title:nxt, composer:composer });
+          found = true;
+        }
+      }
+      // Formats B/C: "Keyword - Title (Composer)" or "Keyword - Title by Composer"
+      if (!found) {
+        var lm = ne[j].match(linePat);
+        if (lm) {
+          var tc = splitTitleComposer(lm[1]);
+          results.push({ type:'music', sid:md.sid, label:md.label, title:tc.title, composer:tc.composer });
+          found = true;
+        }
+      }
+    }
+  });
+
+  // ── HYMNS ──
+  // Matches: optional "Label: " + 3-digit number + title  e.g. "510 We Gather Here"  "Kyrie: 474 As a Child Rests (refrain)"
+  var hymnTargets = {
+    'kyrie':'kyrie', 'gloria':'gloria',
+    'hymn of praise':'praise', 'opening hymn':'praise',
+    'hymn of thanksgiving':'thanks',
+    'hymn of mission':'mission', 'closing hymn':'mission',
+    'benediction response':'benediction',
+    'communion':'communion', 'communion song':'communion',
+    'tuning hymn':'tuning',
+    'second hymn':'hymn1', 'hymn':'hymn1'
+  };
+  ne.forEach(function(line) {
+    var m = line.match(/^(?:([^:0-9\n]{2,30}):\s*)?(\d{3})\s+[\u201c\u201d"]?(.+?)[\u201c\u201d"]?(?:\s+\(([^)]+)\))?(?:\s+as\s+(.+?))?\.?\s*$/i);
+    if (m) {
+      var lh   = (m[1]||'').trim().toLowerCase();
+      var num  = m[2];
+      var title= m[3].replace(/[\u201c\u201d"]/g,'').trim();
+      var det  = m[4]||'';
+      var role = (m[5]||'').toLowerCase();
+      var tid  = hymnTargets[lh] || null;
+      if (!tid && role.indexOf('communion') !== -1) tid = 'communion';
+      results.push({ type:'hymn', num:num, title:title, detail:det, hint:lh||role, tid:tid });
+    }
+  });
+
+  // ── DOXOLOGY custom text ──
+  // Look for "For time to savor" block, or 4+ consecutive short poetic lines after "doxology"
+  var doxRe = /For time to savor[\s\S]*?(?=\n\n|\n[A-Z][a-z]{2,}[\s,]|$)/i;
+  var dm = raw.match(doxRe);
+  if (!dm) {
+    // Fallback: lines after "doxology" keyword that look like verse lines
+    var di = raw.toLowerCase().indexOf('doxology');
+    if (di !== -1) {
+      var after = raw.slice(di+8).trim();
+      var vlines = after.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>5 && l.length<80;});
+      if (vlines.length >= 3) dm = [vlines.slice(0,4).join('\n')];
+    }
+  }
+  if (dm) results.push({ type:'doxology', text:dm[0].trim() });
+
+  // ── SERMON / THEME FOCUS ──
+  var sm = raw.match(/(?:specific focus[^:\n]*|focus for this[^:\n]*):\s*[\u201c"]?([^\u201d"\n]{5,120})[\u201d"]?/i);
+  if (sm) results.push({ type:'sermon', text:sm[1].trim().replace(/[\u201c\u201d"]/g,'') });
+
+  // ── SCRIPTURE PASSAGES ──
+  var books = 'psalm|genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|samuel|kings|chronicles|ezra|nehemiah|esther|job|proverbs|ecclesiastes|song|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|matthew|mark|luke|john|acts|romans|corinthians|galatians|ephesians|philippians|colossians|thessalonians|timothy|titus|philemon|hebrews|james|peter|revelation';
+  var scrLines = [];
+  ne.forEach(function(line) {
+    if (new RegExp('\\b(?:'+books+')\\s+\\d','i').test(line)) scrLines.push(line.replace(/^[-–•]\s*/,''));
+  });
+  if (scrLines.length > 0) results.push({ type:'scripture', lines:scrLines });
+
+  return results;
+}
+
+function emFindItem(sid, hymnNum) {
+  // Special case FIRST: 'offering' (offertory) must find the Offering of Music
+  // that comes AFTER the Offering Announcement — NOT the Offering Announcement itself
+  // (which has id='offering', so we must intercept before the direct id match below)
+  if (sid === 'offering') {
+    var anchorIdx = -1;
+    for (var oi = 0; oi < svcOrder.length; oi++) {
+      var lbl = (svcOrder[oi].label || '').toLowerCase();
+      if (lbl.indexOf('offering announcement') !== -1 || svcOrder[oi].id === 'offering') {
+        anchorIdx = oi; break;
+      }
+    }
+    if (anchorIdx !== -1) {
+      for (var oi2 = anchorIdx + 1; oi2 < svcOrder.length; oi2++) {
+        if (svcOrder[oi2].type === 'item' && (svcOrder[oi2].label || '').toLowerCase().indexOf('offering') !== -1) {
+          return svcOrder[oi2];
+        }
+      }
+    }
+    // fallback: first Offering of Music found anywhere
+    var fb = svcOrder.find(function(s){ return s.type==='item' && (s.label||'').toLowerCase().indexOf('offering of music') !== -1; });
+    if (fb) return fb;
+    return null;
+  }
+  // Direct id match (all other cases)
+  var it = svcOrder.find(function(s){ return s.id === sid; });
+  if (it) return it;
+  // Label keyword match
+  var kmap = {
+    prelude:['prelude'], postlude:['postlude'],
+    kyrie:['kyrie'], gloria:['gloria'], praise:['hymn of praise'],
+    thanks:['hymn of thanksgiving'], mission:['hymn of mission'],
+    benediction:['benediction response'], sermon:['sermon','message'],
+    scripture:['scripture'], doxology:['doxology'], tuning:['tuning'],
+    communion:['communion'], hymn1:['hymn']
+  };
+  var kws = kmap[sid] || [sid];
+  it = svcOrder.find(function(s){ return s.type==='item' && kws.some(function(k){ return (s.label||'').toLowerCase().indexOf(k) !== -1; }); });
+  if (it) return it;
+  // Hymn number match
+  if (hymnNum) {
+    it = svcOrder.find(function(s){ return s.type==='item' && s.iHymn === hymnNum; });
+    if (it) return it;
+  }
+  return null;
+}
+
+function runEmailParse() {
+  var raw = document.getElementById('em-ta').value;
+  if (!raw.trim()) return;
+  emSender = detectEmailSender(raw);
+  emParsed = parseEmailText(raw);
+  var ctr = document.getElementById('em-count');
+  var res = document.getElementById('em-results');
+  var senderEl = document.getElementById('em-sender');
+
+  // Show detected sender
+  if (emSender) {
+    var icon = emSender.type === 'musician' ? '🎵' : '✝️';
+    var senderNote = emSender.isDietmar ? ' (first mention: full credentials; after: Pastor Dietmar)' : '';
+    senderEl.textContent = icon + ' Sender detected: ' + emSender.name + senderNote;
+    senderEl.style.color = '#2a7a5a';
+  } else {
+    senderEl.textContent = '';
+  }
+
+  if (emParsed.length === 0) {
+    res.innerHTML = '<div class="em-none">Nothing recognizable found. Try pasting a different email.</div>';
+    ctr.textContent = '';
+    document.getElementById('em-apply-btn').style.display = 'none';
+    return;
+  }
+
+  ctr.textContent = emParsed.length + ' match' + (emParsed.length !== 1 ? 'es' : '') + ' found';
+  var html = '';
+  emParsed.forEach(function(r, idx) {
+    var label = '', arrow = '', note = '';
+    if (r.type === 'music') {
+      label = r.label + ': <em>' + x(r.title) + '</em>' + (r.composer ? ' &mdash; ' + x(r.composer) : '');
+      var it = emFindItem(r.sid, null);
+      arrow = it ? '&rarr; Updates &ldquo;' + x(it.label) + '&rdquo;' : '&rarr; No matching item found in service order';
+      var perfNote = (emSender && emSender.type === 'musician') ? '  |  Performer: ' + x(emSender.name) : '';
+      note = 'Title: \u201c' + x(r.title) + '\u201d' + (r.composer ? '  |  Composer: ' + x(r.composer) : '') + perfNote;
+    } else if (r.type === 'hymn') {
+      var lh = r.hint ? r.hint.charAt(0).toUpperCase()+r.hint.slice(1)+': ' : 'Hymn: ';
+      label = lh + '#' + r.num + ' <em>' + x(r.title) + '</em>' + (r.detail ? ' (' + x(r.detail) + ')' : '');
+      var it = emFindItem(r.tid, r.num);
+      arrow = it ? '&rarr; Updates &ldquo;' + x(it.label) + '&rdquo;' : '&rarr; Will fill next available hymn slot';
+    } else if (r.type === 'doxology') {
+      label = 'Custom Doxology text';
+      arrow = '&rarr; Updates Doxology item';
+      note  = r.text.split('\n').slice(0,2).join(' / ');
+    } else if (r.type === 'sermon') {
+      label = 'Sermon title: <em>' + x(r.text) + '</em>';
+      arrow = '&rarr; Updates Message / Sermon title';
+    } else if (r.type === 'scripture') {
+      label = 'Scripture passages (' + r.lines.length + ' found)';
+      arrow = '&rarr; Updates Scripture Readings detail';
+      note  = r.lines.join(' · ');
+    }
+    html += '<div class="em-ri" id="emri-'+idx+'">'
+      + '<input type="checkbox" id="emcb-'+idx+'" checked onchange="emToggle('+idx+')">'
+      + '<div style="flex:1">'
+      + '<div class="em-rl">'+label+'</div>'
+      + '<div class="em-ra">'+arrow+'</div>'
+      + (note ? '<div class="em-rn">'+x(note)+'</div>' : '')
+      + '</div></div>';
+  });
+  res.innerHTML = html;
+  document.getElementById('em-apply-btn').style.display = '';
+}
+
+function emToggle(idx) {
+  var cb = document.getElementById('emcb-'+idx);
+  document.getElementById('emri-'+idx).classList.toggle('skipped', !cb.checked);
+}
+
+function applyEmailResults() {
+  var applied = 0, skipped = 0;
+  var dietmarFirstDone = false; // tracks whether full Dietmar credentials have been placed yet
+  try {
+    for (var idx = 0; idx < emParsed.length; idx++) {
+      var cb = document.getElementById('emcb-'+idx);
+      if (!cb || !cb.checked) { skipped++; continue; }
+      var r = emParsed[idx];
+      var match = null;
+
+      if (r.type === 'music') {
+        match = emFindItem(r.sid, null);
+        if (match) {
+          // Build "Title by Composer" for iTitle so bItem() can split and display properly
+          var fullTitle = r.title || '';
+          if (r.composer) fullTitle = fullTitle + ' by ' + r.composer;
+          if (fullTitle) match.iTitle = fullTitle;
+          // Set performer: use sender name if it's a musician, otherwise leave existing iDetail
+          if (emSender && emSender.type === 'musician') {
+            match.iDetail = emSender.name;
+          }
+          applied++;
+        }
+      } else if (r.type === 'hymn') {
+        match = emFindItem(r.tid, r.num);
+        if (!match) match = svcOrder.find(function(s){ return s.type==='item' && !s.iHymn && (s.label||'').toLowerCase().indexOf('hymn') !== -1; });
+        if (match) {
+          if (r.num)    match.iHymn  = r.num;
+          if (r.title)  match.iTitle = r.title;
+          if (r.detail) match.iDetail = r.detail;
+          applied++;
+        }
+      } else if (r.type === 'doxology') {
+        match = emFindItem('doxology', null);
+        if (match) { match.iDetail = '\n' + r.text; applied++; }
+      } else if (r.type === 'sermon') {
+        match = emFindItem('sermon', null);
+        if (match) {
+          match.iTitle = r.text;
+          // Attribute to sending pastor
+          if (emSender && emSender.type === 'pastor') {
+            match.iDetail = getPastoralName(emSender, dietmarFirstDone);
+            dietmarFirstDone = true;
+          }
+          applied++;
+        }
+      } else if (r.type === 'scripture') {
+        match = emFindItem('scripture', null);
+        if (match) {
+          var lines = (match.iDetail || '').split('\n');
+          // If sender is pastor, update the reader attribution (first line)
+          if (emSender && emSender.type === 'pastor') {
+            lines[0] = getPastoralName(emSender, dietmarFirstDone);
+            dietmarFirstDone = true;
+          }
+          // Replace scripture reference lines (everything after line 0)
+          match.iDetail = lines[0] + '\n' + r.lines.join('\n');
+          applied++;
+        }
+      }
+    }
+  } catch(e) {
+    alert('Email import error: ' + e.message);
+    return;
+  }
+  render();
+  buildOrderUI();
+  document.getElementById('em-bg').classList.remove('open');
+  if (applied === 0) {
+    toast('No matches could be applied — check the Service Order tab has matching items.');
+  } else {
+    toast('Applied ' + applied + ' update' + (applied !== 1 ? 's' : '') + ' from email!');
+  }
+}
+
 // ─── INIT ───
 function init() {
   wireInputs();
@@ -722,5 +1105,29 @@ function init() {
 init();
 </script>
 
+
+<!-- EMAIL IMPORT MODAL -->
+<div class="em-bg" id="em-bg">
+  <div class="em-box">
+    <div class="em-hd">
+      <h3>📧 Import from Email</h3>
+      <button class="ocb" onclick="document.getElementById('em-bg').classList.remove('open')" title="Close">×</button>
+    </div>
+    <div class="em-body">
+      <p>Paste an email from your music director or pastor below. The app will find hymn numbers, song titles, performers, and more.</p>
+      <textarea class="em-ta" id="em-ta" placeholder="Paste email text here..."></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+        <button class="btn" onclick="runEmailParse()" style="font-size:11.5px;">🔍 Find Matches</button>
+        <span id="em-count" style="font-size:11px;color:var(--g400);"></span>
+      </div>
+      <div id="em-sender" style="font-size:11px;margin-top:5px;font-style:italic;"></div>
+      <div class="em-results" id="em-results"></div>
+    </div>
+    <div class="em-ft">
+      <button class="btn btn-g" onclick="document.getElementById('em-bg').classList.remove('open')">Cancel</button>
+      <button class="btn" id="em-apply-btn" onclick="applyEmailResults()" style="display:none">✓ Apply Selected</button>
+    </div>
+  </div>
+</div>
 
 </body></html>
