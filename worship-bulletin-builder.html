@@ -75,6 +75,9 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .oc-lbl-input:focus { border-color: var(--blue); }
 .oc-val-textarea { width: 100%; padding: 4px 6px; font-size: 11px; border: 1px solid var(--g200); border-radius: 3px; font-family: 'Inter', sans-serif; outline: none; background: white; color: var(--g700); resize: none; line-height: 1.5; overflow: hidden; min-height: 24px; }
 .oc-val-textarea:focus { border-color: var(--blue); }
+.oc-val-input { width: 100%; padding: 4px 6px; font-size: 11px; border: 1px solid var(--g200); border-radius: 3px; font-family: 'Inter', sans-serif; outline: none; background: white; color: var(--g700); margin-top: 3px; }
+.oc-val-input:focus { border-color: var(--blue); }
+.ocb.hymn-on { background: var(--blue); color: white; border-color: var(--blue); }
 
 .oc-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
 .ocb { width: 20px; height: 20px; border: 1px solid var(--g200); border-radius: 3px; background: white; cursor: pointer; font-size: 10px; color: var(--g500); display: flex; align-items: center; justify-content: center; transition: all .12s; padding: 0; }
@@ -119,8 +122,8 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .bi-icon { width: 26px; flex-shrink: 0; font-size: 13px; padding-top: 1px; text-align: center; }
 .bi-body { flex: 1; min-width: 0; }
 .bi-title  { font-size: 11.5px; font-weight: 600; color: var(--g900); line-height: 1.6; }
-.bi-detail { font-size: 11.5px; color: var(--g700); margin-top: 0; line-height: 1.6; }
-.bi-inline { font-weight: 400; color: var(--g500); }
+.bi-detail { font-size: 11.5px; color: var(--g900); margin-top: 0; line-height: 1.6; }
+.bi-inline { font-weight: 400; color: var(--g900); }
 .bf-rule { margin-top: 18px; border-top: 1px solid var(--g200); padding-top: 12px; }
 .bf-people { font-size: 11.5px; color: var(--g700); line-height: 1.7; }
 .bf-people strong { font-weight: 600; color: var(--g900); }
@@ -246,51 +249,66 @@ function sv(id,val) { var e=document.getElementById(id); if(e) e.value=(val==nul
 // Each item: type='divider' (label only) or type='item' (icon + label + value)
 var svcOrder = [
   {id:'dv_gather',    type:'divider', label:'We Gather'},
-  {id:'welcome',      type:'item', icon:'📢', label:'Welcome & Announcements', value:''},
-  {id:'prelude',      type:'item', icon:'🎵', label:'Prelude', value:''},
-  {id:'theme',        type:'item', icon:'💡', label:'Introduction of the Worship Theme', value:''},
-  {id:'tuning',       type:'item', icon:'🎶', label:'Tuning Hymn', value:''},
-  {id:'praise',       type:'item', icon:'🎼', label:'Hymn of Praise', value:''},
+  {id:'welcome',      type:'item', icon:'📢', label:'Welcome & Announcements', iHymn:'', iTitle:'', iDetail:''},
+  {id:'prelude',      type:'item', icon:'🎵', label:'Prelude', iHymn:'', iTitle:'', iDetail:''},
+  {id:'theme',        type:'item', icon:'💡', label:'Introduction of the Worship Theme', iHymn:'', iTitle:'', iDetail:''},
+  {id:'tuning',       type:'item', icon:'🎶', label:'Tuning Hymn', iHymn:'', iTitle:'', iDetail:''},
+  {id:'praise',       type:'item', icon:'🎼', label:'Hymn of Praise', iHymn:'', iTitle:'', iDetail:''},
   {id:'dv_confess',   type:'divider', label:'We Confess and Are Forgiven'},
-  {id:'confession',   type:'item', icon:'🙏', label:'Prayer of Confession', value:''},
-  {id:'kyrie',        type:'item', icon:'✝', label:'Kyrie', value:''},
-  {id:'assurance',    type:'item', icon:'✝', label:'Assurance', value:''},
-  {id:'gloria',       type:'item', icon:'🎼', label:'Gloria', value:''},
+  {id:'confession',   type:'item', icon:'🙏', label:'Prayer of Confession', iHymn:'', iTitle:'', iDetail:''},
+  {id:'kyrie',        type:'item', icon:'✝', label:'Kyrie', iHymn:'', iTitle:'', iDetail:''},
+  {id:'assurance',    type:'item', icon:'✝', label:'Assurance', iHymn:'', iTitle:'', iDetail:''},
+  {id:'gloria',       type:'item', icon:'🎼', label:'Gloria', iHymn:'', iTitle:'', iDetail:''},
   {id:'dv_word',      type:'divider', label:'We Receive the Word'},
-  {id:'music1',       type:'item', icon:'🎵', label:'Offering of Music', value:''},
-  {id:'hymn1',        type:'item', icon:'🎼', label:'Hymn', value:''},
-  {id:'childrens',    type:'item', icon:'⭐', label:"Children's Message", value:''},
-  {id:'scripture',    type:'item', icon:'📖', label:'Scripture Readings', value:''},
-  {id:'sermon',       type:'item', icon:'💬', label:'Message / Sermon', value:''},
+  {id:'music1',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'', iTitle:'', iDetail:''},
+  {id:'hymn1',        type:'item', icon:'🎼', label:'Hymn', iHymn:'', iTitle:'', iDetail:''},
+  {id:'childrens',    type:'item', icon:'⭐', label:"Children's Message", iHymn:'', iTitle:'', iDetail:''},
+  {id:'scripture',    type:'item', icon:'📖', label:'Scripture Readings', iHymn:'', iTitle:'', iDetail:''},
+  {id:'sermon',       type:'item', icon:'💬', label:'Message / Sermon', iHymn:'', iTitle:'', iDetail:''},
   {id:'dv_respond',   type:'divider', label:'We Respond'},
-  {id:'thanks',       type:'item', icon:'🎼', label:'Hymn of Thanksgiving', value:''},
-  {id:'offering',     type:'item', icon:'🎁', label:'Offering Announcement', value:''},
-  {id:'music2',       type:'item', icon:'🎵', label:'Offering of Music', value:''},
-  {id:'doxology',     type:'item', icon:'✨', label:'Doxology', value:''},
-  {id:'prayers',      type:'item', icon:'🙏', label:'Prayers of the People', value:''},
-  {id:'lords_prayer', type:'item', icon:'🙏', label:"The Lord's Prayer", value:''},
+  {id:'thanks',       type:'item', icon:'🎼', label:'Hymn of Thanksgiving', iHymn:'', iTitle:'', iDetail:''},
+  {id:'offering',     type:'item', icon:'🎁', label:'Offering Announcement', iHymn:'', iTitle:'', iDetail:''},
+  {id:'music2',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'', iTitle:'', iDetail:''},
+  {id:'doxology',     type:'item', icon:'✨', label:'Doxology', iHymn:'', iTitle:'', iDetail:''},
+  {id:'prayers',      type:'item', icon:'🙏', label:'Prayers of the People', iHymn:'', iTitle:'', iDetail:''},
+  {id:'lords_prayer', type:'item', icon:'🙏', label:"The Lord's Prayer", iHymn:'', iTitle:'', iDetail:''},
   {id:'dv_send',      type:'divider', label:'We Are Sent'},
-  {id:'mission',      type:'item', icon:'🎼', label:'Hymn of Mission', value:''},
-  {id:'blessing',     type:'item', icon:'✝', label:'Blessing', value:''},
-  {id:'benediction',  type:'item', icon:'🎼', label:'Benediction Response', value:''},
-  {id:'postlude',     type:'item', icon:'🎵', label:'Postlude', value:''},
+  {id:'mission',      type:'item', icon:'🎼', label:'Hymn of Mission', iHymn:'', iTitle:'', iDetail:''},
+  {id:'blessing',     type:'item', icon:'✝', label:'Blessing', iHymn:'', iTitle:'', iDetail:''},
+  {id:'benediction',  type:'item', icon:'🎼', label:'Benediction Response', iHymn:'', iTitle:'', iDetail:''},
+  {id:'postlude',     type:'item', icon:'🎵', label:'Postlude', iHymn:'', iTitle:'', iDetail:''},
 ];
 var iCounter = 0;
 
 // ─── BULLETIN HELPERS ───
-function bItem(icon, title, detail, inline, inlinePrefix) {
-  if (!title) return '';
-  var h = '<div class="bi"><div class="bi-icon">' + (icon||'') + '</div><div class="bi-body">';
-  if (inlinePrefix) {
-    // Hybrid: name inline with title, remaining detail below
-    h += '<div class="bi-title"><span class="bi-tl">' + title + '</span><span class="bi-inline"> \u2014 ' + inlinePrefix + '</span></div>';
-    if (detail) h += '<div class="bi-detail">' + detail + '</div>';
-  } else if (inline && detail) {
-    h += '<div class="bi-title"><span class="bi-tl">' + title + '</span><span class="bi-inline"> \u2014 ' + detail + '</span></div>';
-  } else {
-    h += '<div class="bi-title">' + title + '</div>';
-    if (detail) h += '<div class="bi-detail">' + detail + '</div>';
+function bItem(icon, label, iHymn, iTitle, iDetail) {
+  if (!label) return '';
+  // Parse combined detail: starts with \n = all below; otherwise first line inline, rest below
+  var inlineDet = '', blockDet = '';
+  if (iDetail) {
+    if (iDetail.charAt(0) === '\n') {
+      blockDet = x(iDetail.slice(1)).replace(/\n/g,'<br>');
+    } else {
+      var nl = iDetail.indexOf('\n');
+      if (nl === -1) { inlineDet = x(iDetail); }
+      else { inlineDet = x(iDetail.slice(0, nl)); blockDet = x(iDetail.slice(nl+1)).replace(/\n/g,'<br>'); }
+    }
   }
+  var h = '<div class="bi"><div class="bi-icon">' + (icon||'') + '</div><div class="bi-body">';
+  var pieceParts = [];
+  if (iHymn)  pieceParts.push('#' + iHymn.replace(/^#+/, ''));
+  if (iTitle) pieceParts.push('\u201c' + iTitle + '\u201d');
+  var pieceStr = pieceParts.join(' ');
+  var inlineParts = [];
+  if (pieceStr)   inlineParts.push(pieceStr);
+  if (inlineDet)  inlineParts.push(inlineDet);
+  var inlineStr = inlineParts.join(' \u2014 ');
+  if (inlineStr) {
+    h += '<div class="bi-title"><span class="bi-tl">' + label + '</span><span class="bi-inline"> \u2014 ' + inlineStr + '</span></div>';
+  } else {
+    h += '<div class="bi-title">' + label + '</div>';
+  }
+  if (blockDet) h += '<div class="bi-detail">' + blockDet + '</div>';
   h += '</div></div>';
   return h;
 }
@@ -324,26 +342,13 @@ function render() {
         body += bSec(item.label);
       } else if (item.type === 'item') {
         if (item.label) {
-          var rawVal = item.value || '';
-          var alwaysInline = ['music1','music2','postlude'].indexOf(item.id) !== -1;
-          // Items where a short first line = person's name → inline, rest stacked below
-          var splitItems = ['scripture','theme','confession'];
-          if (splitItems.indexOf(item.id) !== -1 && rawVal.indexOf('\n') !== -1) {
-            var lines = rawVal.split('\n');
-            var firstLine = lines[0];
-            if (firstLine.length <= 60) {
-              var rest = x(lines.slice(1).join('\n')).replace(/\n/g, '<br>');
-              body += bItem(item.icon||'', x(item.label), rest, false, x(firstLine));
-            } else {
-              // First line is body text, not a name — keep fully stacked
-              var detail = x(rawVal).replace(/\n/g, '<br>');
-              body += bItem(item.icon||'', x(item.label), detail, false);
-            }
-          } else {
-            var detail = x(rawVal).replace(/\n/g, '<br>');
-            var isShort = rawVal.length > 0 && (alwaysInline || (rawVal.indexOf('\n') === -1 && rawVal.length <= 60));
-            body += bItem(item.icon||'', x(item.label), detail, isShort);
-          }
+          body += bItem(
+            item.icon||'',
+            x(item.label),
+            x(item.iHymn||''),
+            x(item.iTitle||''),
+            item.iDetail||''
+          );
         }
       }
     }
@@ -410,15 +415,43 @@ function buildOrderUI() {
       lblIn.value = item.label||''; lblIn.placeholder = 'Item title';
       lblIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].label=this.value; render(); }; })(i));
 
-      top.appendChild(icoIn); top.appendChild(lblIn);
+      // Hymn toggle button in top row
+      var hymnToggle = document.createElement('button');
+      hymnToggle.className = 'ocb' + (item.iShowHymn ? ' hymn-on' : '');
+      hymnToggle.textContent = '♯'; hymnToggle.title = 'Toggle hymn number';
+      hymnToggle.type = 'button';
+      hymnToggle.addEventListener('click', (function(idx){ return function(){
+        svcOrder[idx].iShowHymn = !svcOrder[idx].iShowHymn;
+        if (!svcOrder[idx].iShowHymn) { svcOrder[idx].iHymn = ''; render(); }
+        buildOrderUI();
+      }; })(i));
+
+      top.appendChild(icoIn); top.appendChild(lblIn); top.appendChild(hymnToggle);
       body.appendChild(top);
 
-      // value textarea
+      // Hymn # input — only shown when toggled on
+      if (item.iShowHymn) {
+        var hymnIn = document.createElement('input');
+        hymnIn.className = 'oc-val-input'; hymnIn.type = 'text';
+        hymnIn.value = item.iHymn||''; hymnIn.placeholder = 'Hymn # (e.g. 488)';
+        hymnIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iHymn=this.value.replace(/^#+/,''); render(); }; })(i));
+        body.appendChild(hymnIn);
+      }
+
+      // Title input (Box 2 — shown in quotes)
+      var titleIn = document.createElement('input');
+      titleIn.className = 'oc-val-input'; titleIn.type = 'text';
+      titleIn.value = item.iTitle||''; titleIn.placeholder = 'Title (shown in quotes)';
+      titleIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iTitle=this.value; render(); }; })(i));
+      body.appendChild(titleIn);
+
+      // Combined details textarea
       var valTa = document.createElement('textarea');
       valTa.className = 'oc-val-textarea';
-      valTa.value = item.value||''; valTa.placeholder = 'Detail / description (optional — press Enter for new line)';
+      valTa.style.marginTop = '3px';
+      valTa.value = item.iDetail||''; valTa.placeholder = 'Details — type to add inline, or press Enter first to start on new line';
       valTa.rows = 1;
-      valTa.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].value=this.value; render(); autoResize(this); }; })(i));
+      valTa.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iDetail=this.value; render(); autoResize(this); }; })(i));
       body.appendChild(valTa);
       setTimeout((function(ta){ return function(){ autoResize(ta); }; })(valTa), 0);
     }
@@ -433,7 +466,7 @@ function buildOrderUI() {
     dn.addEventListener('click', (function(idx){ return function(){ move(idx,1); }; })(i));
     var del = document.createElement('button'); del.className='ocb del'; del.textContent='×'; del.title='Remove';
     del.addEventListener('click', (function(idx){ return function(){
-      if(confirm('Remove "' + (svcOrder[idx].label||'this item') + '"?')) { svcOrder.splice(idx,1); buildOrderUI(); render(); }
+      svcOrder.splice(idx,1); buildOrderUI(); render();
     }; })(i));
     btns.appendChild(up); btns.appendChild(dn); btns.appendChild(del);
     card.appendChild(btns);
@@ -492,9 +525,27 @@ function applyData(d) {
   if (d._order && Array.isArray(d._order)) {
     // Support old format (fixed/custom types) by converting to new 'item' type
     svcOrder = d._order.map(function(item){
-      if (item.type === 'fixed')  return {id:item.id, type:'item', icon:item.icon||'', label:item.label||'', value:''};
-      if (item.type === 'custom') return {id:item.id, type:'item', icon:item.icon||'✦', label:item.cLabel||'', value:item.cVal||''};
+      if (item.type === 'fixed')  return {id:item.id, type:'item', icon:item.icon||'', label:item.label||'', iHymn:'', iTitle:'', iDetail:''};
+      if (item.type === 'custom') return {id:item.id, type:'item', icon:item.icon||'✦', label:item.cLabel||'', iTitle:'', iDetail:item.cVal||''};
+      // Migrate old single-field 'value' format
+      if (item.value !== undefined && item.iDetail === undefined) {
+        return {id:item.id, type:item.type, icon:item.icon||'', label:item.label||'', iHymn:'', iTitle:'', iDetail:item.value||''};
+      }
+      if (item.iHymn === undefined) { item.iHymn = ''; }
+      // Migrate old iName + iDetail → single combined iDetail
+      if (item.iName !== undefined) {
+        var merged = '';
+        if (item.iName && item.iDetail) merged = item.iName + '\n' + item.iDetail;
+        else if (item.iName) merged = item.iName;
+        else merged = item.iDetail || '';
+        item.iDetail = merged;
+        delete item.iName;
+      }
       return item;
+    });
+    // Derive iShowHymn from whether iHymn has a value
+    svcOrder.forEach(function(item){
+      if (item.type === 'item') item.iShowHymn = !!(item.iHymn && item.iHymn.trim());
     });
   }
   buildOrderUI(); render();
@@ -519,7 +570,7 @@ document.getElementById('imp').addEventListener('change', function(e){
 // ─── ADD ITEM / SECTION ───
 document.getElementById('btn-add-item').addEventListener('click', function(){
   iCounter++;
-  svcOrder.push({id:'ci'+iCounter, type:'item', icon:'✦', label:'', value:''});
+  svcOrder.push({id:'ci'+iCounter, type:'item', icon:'✦', label:'', iHymn:'', iTitle:'', iDetail:''});
   buildOrderUI(); render();
   var os=document.getElementById('order-scroll'); if(os) os.scrollTop=os.scrollHeight;
   toast('New item added — fill in the title and detail');
@@ -543,7 +594,7 @@ function clearForm() {
   });
   // Remove dynamically added items, clear values on defaults
   svcOrder = svcOrder.filter(function(item){ return !item.id.startsWith('ci') && !item.id.startsWith('cd'); });
-  svcOrder.forEach(function(item){ if(item.type==='item') item.value=''; });
+  svcOrder.forEach(function(item){ if(item.type==='item') { item.iHymn=''; item.iTitle=''; item.iDetail=''; } });
   buildOrderUI(); render(); toast('Ready for a new week!');
 }
 
@@ -665,43 +716,8 @@ document.getElementById('btn-docx2').addEventListener('click', exportDocx);
 // ─── INIT ───
 function init() {
   wireInputs();
-  sv('f_date','2026-03-22');
-  sv('f_time','10:30 AM');
-  sv('f_liturgical','Fifth Sunday in Lent');
-  sv('f_acolyte','Oliver Namminga');
-  sv('f_greeters','Doug & Lori Ettinger');
-
-  var vals = {
-    'welcome':      'Rev. Darin Namminga',
-    'prelude':      '\u201cIn the Garden\u201d by C. Austin Miles \u2013 Micah Kammerer',
-    'theme':        'Jules Drewes\nwith ticking clock and piano to the tune of \u201cCome and Find the Quiet Center\u201d \u2013 we continue right into singing the song',
-    'tuning':       '\u201cCome and Find the Quiet Center\u201d \u2013 verse 1',
-    'praise':       '#20 All Things Bright and Beautiful (all verses)',
-    'confession':   'Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.\n\n(Silence for personal prayer and reflection)',
-    'kyrie':        '#474 As a Child Rests (refrain, verse 2, refrain)',
-    'assurance':    'Rev. Darin Namminga',
-    'gloria':       '#447 We Are Forgiven (sing twice)',
-    'music1':       '\u201cKyrie\u201d \u2013 Celebration Ringers',
-    'hymn1':        '#188 Jesus Loves Me',
-    'childrens':    'Linda Gruenberg',
-    'scripture':    'Kevin Smyth\nOld Testament: Ecclesiastes 3:1\u201313\nGospel: Luke 13:6\u201314\n\u201cThis is God\u2019s Word for the people of God\u201d (sung)',
-    'sermon':       '\u201cA Time for God, a Time to Flip Tables, a Time for Peacemaking\u201d \u2013 Rev. Darin Namminga',
-    'thanks':       '#250 In the Bulb There Is a Flower (all three verses)',
-    'offering':     'Rev. Darin Namminga',
-    'music2':       '\u201cLord I\u2019m Available to You\u201d by Carlis L. Moody Jr. \u2013 Micah Kammerer',
-    'doxology':     'For time to savor God\u2019s good gifts,\nFor space to breathe and hearts to lift,\nFor ways to reach out and to give,\nWe offer thanks and vow to live!',
-    'mission':      '#488 I Was There to Hear Your Borning Cry (all verses)',
-    'blessing':     'Rev. Darin Namminga',
-    'benediction':  '#542 God Be with You Till We Meet Again (verse 1)',
-    'postlude':     '\u201cI\u2019m Gonna Live So God Can Use Me\u201d by Wendell P. Whalum \u2013 Micah Kammerer'
-  };
-
-  svcOrder.forEach(function(item){
-    if (item.type === 'item' && vals[item.id] !== undefined) item.value = vals[item.id];
-  });
-
-  buildOrderUI();
-  render();
+  var defaultData = {"f_date":"2026-03-22","f_time":"10:30 AM","f_liturgical":"Fifth Sunday in Lent","f_acolyte":"Oliver Namminga","f_greeters":"Doug & Lori Ettinger","s_name":"Saint Paul's United Church of Christ","s_sub":"Open and Affirming","_order":[{"id":"dv_gather","type":"divider","label":"We Gather"},{"id":"welcome","type":"item","icon":"\ud83d\udce2","label":"Welcome & Announcements","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga"},{"id":"prelude","type":"item","icon":"\ud83c\udfb5","label":"Prelude","iHymn":"","iTitle":"In the Garden by C. Austin Miles","iDetail":"Micah Kammerer"},{"id":"theme","type":"item","icon":"\ud83d\udca1","label":"Introduction of the Worship Theme","iHymn":"","iTitle":"","iDetail":"Jules Drewes, Sara Adams, and Jon Stante\nwith ticking clock and piano to the tune of \u201cCome and Find the Quiet Center\u201d \u2013 we continue right into singing the song"},{"id":"tuning","type":"item","icon":"\ud83c\udfb6","label":"Tuning Hymn","iHymn":"","iTitle":"Come and Find the Quiet Center","iDetail":"Verse !"},{"id":"praise","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Praise","iHymn":"20","iTitle":"All Things Bright and Beautiful","iDetail":"all verses"},{"id":"dv_confess","type":"divider","label":"We Confess and Are Forgiven"},{"id":"confession","type":"item","icon":"\ud83d\ude4f","label":"Prayer of Confession","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga\nAlmighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice. (Silence for personal prayer and reflection)"},{"id":"kyrie","type":"item","icon":"\u271d","label":"Kyrie","iHymn":"474","iTitle":"As a Child Rests","iDetail":"refrain, verse 2, refrain"},{"id":"assurance","type":"item","icon":"\u271d","label":"Assurance","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga"},{"id":"gloria","type":"item","icon":"\ud83c\udfbc","label":"Gloria","iHymn":"447","iTitle":"We Are Forgiven (sing twice)","iDetail":""},{"id":"dv_word","type":"divider","label":"We Receive the Word"},{"id":"music1","type":"item","icon":"\ud83c\udfb5","label":"Offering of Music","iHymn":"","iTitle":"Kyrie","iDetail":"Celebration Ringers"},{"id":"hymn1","type":"item","icon":"\ud83c\udfbc","label":"Hymn","iHymn":"188","iTitle":"Jesus Loves Me","iDetail":""},{"id":"childrens","type":"item","icon":"\u2b50","label":"Children's Message","iHymn":"","iTitle":"","iDetail":"Linda Gruenberg"},{"id":"scripture","type":"item","icon":"\ud83d\udcd6","label":"Scripture Readings","iHymn":"","iTitle":"","iDetail":"Kevin Smyth\nOld Testament: Ecclesiastes 3:1\u201313\nGospel: Luke 13:6\u201314\n\u201cThis is God\u2019s Word for the people of God\u201d (sung)"},{"id":"sermon","type":"item","icon":"\ud83d\udcac","label":"Message / Sermon","iHymn":"","iTitle":"A Time for God, a Time to Flip Tables, a Time for Peacemaking","iDetail":"Rev. Darin Namminga"},{"id":"dv_respond","type":"divider","label":"We Respond"},{"id":"thanks","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Thanksgiving","iHymn":"250","iTitle":"In the Bulb There Is a Flower","iDetail":"all three verses"},{"id":"offering","type":"item","icon":"\ud83c\udf81","label":"Offering Announcement","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga"},{"id":"music2","type":"item","icon":"\ud83c\udfb5","label":"Offering of Music","iHymn":"","iTitle":"Lord I\u2019m Available to You by Carlis L. Moody Jr.","iDetail":"Micah Kammerer"},{"id":"doxology","type":"item","icon":"\u2728","label":"Doxology","iHymn":"","iTitle":"","iDetail":"\nFor time to savor God\u2019s good gifts,\nFor space to breathe and hearts to lift,\nFor ways to reach out and to give,\nWe offer thanks and vow to live!"},{"id":"prayers","type":"item","icon":"\ud83d\ude4f","label":"Prayers of the People and the Lord's Prayer","iHymn":"","iTitle":"","iDetail":""},{"id":"dv_send","type":"divider","label":"We Are Sent"},{"id":"mission","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Mission","iHymn":"488","iTitle":"I Was There to Hear Your Borning Cry","iDetail":"all verses"},{"id":"blessing","type":"item","icon":"\u271d","label":"Blessing","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga"},{"id":"benediction","type":"item","icon":"\ud83c\udfbc","label":"Benediction Response","iHymn":"542","iTitle":"God Be with You Till We Meet Again","iDetail":"verse 1"},{"id":"postlude","type":"item","icon":"\ud83c\udfb5","label":"Postlude","iHymn":"","iTitle":"I\u2019m Gonna Live So God Can Use Me by Wendell P. Whalum","iDetail":"Micah Kammerer"},{"id":"ci1","type":"item","icon":"\u2726","label":"","iHymn":"","iTitle":"","iDetail":""},{"id":"lords_prayer","type":"item","icon":"\ud83d\ude4f","label":"The Lord's Prayer","iHymn":"","iTitle":"","iDetail":""}]};
+  applyData(defaultData);
 }
 init();
 </script>
