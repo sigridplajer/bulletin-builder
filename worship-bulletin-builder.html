@@ -835,7 +835,13 @@ function parseEmailText(raw) {
     // Pattern 5: unclosed paren
     var p5 = str.match(/^(.*?)\s*\(([^)]+)$/);
     if (p5 && p5[1].trim()) return { title:p5[1].trim(), composer:p5[2].trim(), performer:'' };
-    // Pattern 6: Title by Composer
+    // Pattern 6a: "Title" by Composer - Performer  [quoted title, by-composer, dash-performer]
+    var p6a = str.match(new RegExp('^' + Q + '(.+?)' + Q + '\\s+by\\s+(.*?)\\s*[-\u2013]\\s*(.+)$', 'i'));
+    if (p6a && p6a[2].trim()) return { title:p6a[1].trim(), composer:p6a[2].trim(), performer:p6a[3].trim() };
+    // Pattern 6b: Title by Composer - Performer  [unquoted title, by-composer, dash-performer]
+    var p6b = str.match(/^(.*?)\s+by\s+(.*?)\s*[-\u2013]\s*(.+)$/i);
+    if (p6b && p6b[1].trim() && p6b[2].trim()) return { title:p6b[1].replace(new RegExp('^'+Q+'|'+Q+'$','g'),'').trim(), composer:p6b[2].trim(), performer:p6b[3].trim() };
+    // Pattern 6: Title by Composer  [no performer]
     var p6 = str.match(/^(.*?)\s+by\s+(.+)$/i);
     if (p6 && p6[1].trim()) return { title:p6[1].replace(new RegExp('^'+Q+'|'+Q+'$','g'),'').trim(), composer:p6[2].trim(), performer:'' };
     // Fallback
@@ -843,9 +849,23 @@ function parseEmailText(raw) {
   }
 
   musicDefs.forEach(function(md) {
+    var linePat = new RegExp('^(?:' + md.keys.join('|') + ')\\s*[-:–]\\s*(.+)$', 'i');
+
+    // Offering of Music can appear multiple times — scan all lines without stopping
+    if (md.sid === 'offering') {
+      ne.forEach(function(line) {
+        var lm = line.match(linePat);
+        if (lm) {
+          var tc = splitTitleComposer(lm[1]);
+          tc.title = tc.title.replace(/^[\u201c\u201d"'\u2018\u2019]+|[\u201c\u201d"'\u2018\u2019]+$/g, '').trim();
+          if (tc.title) results.push({ type:'music', sid:'offering', label:'Offering of Music', title:tc.title, composer:tc.composer, performer:tc.performer });
+        }
+      });
+      return; // skip single-match logic below
+    }
+
     var found = false;
     var kwPat = new RegExp('^(?:' + md.keys.join('|') + ')\\s*[-:–]?\\s*$', 'i');
-    var linePat = new RegExp('^(?:' + md.keys.join('|') + ')\\s*[-:–]\\s*(.+)$', 'i');
 
     for (var j = 0; j < ne.length && !found; j++) {
       // Format A: keyword alone on line
@@ -857,7 +877,7 @@ function parseEmailText(raw) {
           var composer = '';
           if (/^by\s+/i.test(comp)) composer = comp.replace(/^by\s+/i, '');
           else if (/^\([^)]+\)$/.test(comp)) composer = comp.replace(/^\(|\)$/g, '');
-          results.push({ type:'music', sid:md.sid, label:md.label, title:nxt, composer:composer });
+          results.push({ type:'music', sid:md.sid, label:md.label, title:nxt, composer:composer, performer:'' });
           found = true;
         }
       }
@@ -866,7 +886,7 @@ function parseEmailText(raw) {
         var lm = ne[j].match(linePat);
         if (lm) {
           var tc = splitTitleComposer(lm[1]);
-          results.push({ type:'music', sid:md.sid, label:md.label, title:tc.title, composer:tc.composer });
+          results.push({ type:'music', sid:md.sid, label:md.label, title:tc.title, composer:tc.composer, performer:tc.performer });
           found = true;
         }
       }
@@ -885,7 +905,7 @@ function parseEmailText(raw) {
           var tc2 = splitTitleComposer(cleanInput);
           tc2.title = tc2.title.replace(/^[\u201c\u201d"'\u2018\u2019]+|[\u201c\u201d"'\u2018\u2019]+$/g, '').trim();
           if (tc2.title) {
-            results.push({ type:'music', sid:md.sid, label:md.label, title:tc2.title, composer:tc2.composer });
+            results.push({ type:'music', sid:md.sid, label:md.label, title:tc2.title, composer:tc2.composer, performer:tc2.performer });
             found = true;
           }
         }
@@ -991,11 +1011,12 @@ function parseEmailText(raw) {
   var sm = raw.match(/(?:specific focus[^:\n]*|focus for this[^:\n]*):\s*(.{5,200})/i);
   if (!sm) sm = raw.match(/^(?:message|sermon|message\s*\/\s*sermon)\s*:\s*(.{5,200})\s*$/im);
   if (sm) {
-    var sermonText = sm[1].trim()
-      .replace(/[\u201c\u201d"]/g,'')           // strip curly/straight quotes
-      .replace(/\s*[-\u2013]\s*(?:pastor|rev\.?|reverend|pr\.)\b.*/i,'')  // strip "- Pastor Name"
-      .trim();
-    if (sermonText.length >= 3) results.push({ type:'sermon', text:sermonText });
+    var sermonRaw = sm[1].trim().replace(/[\u201c\u201d"]/g,'');
+    // Extract preacher name from "– Pastor Dietmar" suffix before stripping it
+    var preacherM = sermonRaw.match(/\s*[-\u2013]\s*((?:pastor|rev\.?|reverend|pr\.)\b[\w\s.]*)/i);
+    var sermonPreacher = preacherM ? preacherM[1].trim() : null;
+    var sermonText = sermonRaw.replace(/\s*[-\u2013]\s*(?:pastor|rev\.?|reverend|pr\.)\b.*/i,'').trim();
+    if (sermonText.length >= 3) results.push({ type:'sermon', text:sermonText, preacher:sermonPreacher });
   }
 
   // ── SCRIPTURE PASSAGES ──
@@ -1301,6 +1322,7 @@ function runEmailParse() {
     } else if (r.type === 'sermon') {
       label = 'Sermon title: <em>' + x(r.text) + '</em>';
       arrow = '&rarr; Updates Message / Sermon title';
+      if (r.preacher) note = 'Preacher: ' + x(r.preacher);
     } else if (r.type === 'scripture') {
       label = 'Scripture passages (' + r.lines.length + ' found)';
       arrow = '&rarr; Updates Scripture Readings detail';
@@ -1352,6 +1374,17 @@ function applyEmailResults() {
     return s.type === 'item' && (s.label||'').toLowerCase().indexOf('offering of music') !== -1;
   });
   var offeringMusicUsed = 0;
+  // Clear stale iHymn/iTitle from generic hymn slots so the first-available scan can
+  // fill them in document order even if a previous service left data there.
+  // Excludes special-role slots (kyrie, gloria, tuning, response, communion).
+  svcOrder.forEach(function(s) {
+    if (s.type !== 'item') return;
+    var lbl = (s.label||'').toLowerCase();
+    if (lbl.indexOf('hymn') === -1) return;
+    if (/(kyrie|gloria|tuning|response|communion)/.test(lbl)) return;
+    s.iHymn = '';
+    s.iTitle = '';
+  });
   try {
     for (var idx = 0; idx < emParsed.length; idx++) {
       var cb = document.getElementById('emcb-'+idx);
@@ -1373,11 +1406,11 @@ function applyEmailResults() {
           var fullTitle = r.title || '';
           if (r.composer) fullTitle = fullTitle + ' by ' + r.composer;
           if (fullTitle) match.iTitle = fullTitle;
-          // Set performer: sender musician overrides, else use extracted performer, else leave iDetail
-          if (emSender && emSender.type === 'musician') {
-            match.iDetail = emSender.name;
-          } else if (r.performer) {
+          // Set performer: explicit performer in source wins; emSender fills in only when source names nobody
+          if (r.performer) {
             match.iDetail = r.performer;
+          } else if (emSender && emSender.type === 'musician') {
+            match.iDetail = emSender.name;
           }
           applied++;
         }
@@ -1425,10 +1458,21 @@ function applyEmailResults() {
         match = emFindItem('sermon', null);
         if (match) {
           match.iTitle = r.text;
-          // Attribute to sending pastor
+          // Attribute preacher: emSender pastor > extracted suffix name > clear stale data
           if (emSender && emSender.type === 'pastor') {
             match.iDetail = getPastoralName(emSender, dietmarFirstDone);
             dietmarFirstDone = true;
+          } else if (r.preacher) {
+            // Use the preacher name exactly as written in the source outline —
+            // the outline already has the right short/full form (e.g. "Pastor Dietmar").
+            // If the full Dietmar title appears here, mark it done so auto-generated
+            // names later use the short form.
+            match.iDetail = r.preacher;
+            if (/dietmar/i.test(r.preacher) && /rev\.|dr\./i.test(r.preacher)) {
+              dietmarFirstDone = true;
+            }
+          } else {
+            match.iDetail = ''; // clear stale data when no preacher identified
           }
           applied++;
         }
