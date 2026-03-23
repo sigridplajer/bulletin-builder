@@ -759,23 +759,33 @@ function openEmailModal() {
   document.getElementById('em-bg').classList.add('open');
 }
 
-// Detect who sent the email so we can auto-attribute names to service items
+// Detect who sent the email so we can auto-attribute names to service items.
+// Only checks the first line (Gmail copy-paste puts sender name there) and the
+// sign-off area — NOT the full body — so "Dear Dietmar" in a greeting doesn't
+// falsely flag Darin's email as coming from Dietmar.
 function detectEmailSender(raw) {
-  var tail = raw.slice(-500); // sign-off area
-  var full = raw;
-  // Musicians — check full name first, then first name in sign-off
-  if (/\bMicah\s+Kammerer\b/i.test(full) || /\bMicah\b/i.test(tail)) {
+  var lines   = raw.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l; });
+  var first   = (lines[0] || '') + ' ' + (lines[1] || ''); // first two lines = sender + date
+  var signoff = raw.slice(-600);                            // sign-off area
+  var zone    = first + ' ' + signoff;                     // only search these areas
+
+  // Musicians (full name anywhere in zone, or first name alone)
+  if (/\bMicah\s+Kammerer\b/i.test(zone) || /\bMicah\b/i.test(zone)) {
     return { type:'musician', name:'Micah Kammerer', isDietmar:false };
   }
-  if (/\bJaime\s+Namminga\b/i.test(full) || /\bJaime\b/i.test(tail)) {
+  if (/\bJaime\s+Namminga\b/i.test(zone) || /\bJaime\b/i.test(zone)) {
     return { type:'musician', name:'Jaime Namminga', isDietmar:false };
   }
-  // Dietmar (pastor)
-  if (/\bDietmar\b/i.test(full)) {
+  // Darin Namminga — first name in first line or sign-off
+  if (/\bDarin\b/i.test(zone)) {
+    return { type:'pastor', name:'Rev. Darin Namminga', isDietmar:false };
+  }
+  // Dietmar — only if in first line or sign-off (not just mentioned as addressee)
+  if (/\bDietmar\b/i.test(zone)) {
     return { type:'pastor', name:'Rev. Dr. Dietmar Plajer', isDietmar:true };
   }
-  // Other pastors — e.g. "Rev. Darin Namminga" or "Rev. Dr. Firstname Lastname"
-  var revM = full.match(/\bRev\.?\s+(?:Dr\.?\s+)?([A-Z][a-z]+\s+[A-Z][a-z]+)\b/);
+  // Generic "Rev. [Dr.] Firstname Lastname" in zone
+  var revM = zone.match(/\bRev\.?\s+(?:Dr\.?\s+)?([A-Z][a-z]+\s+[A-Z][a-z]+)\b/);
   if (revM) {
     return { type:'pastor', name:revM[0].replace(/\s+/g,' ').trim(), isDietmar:false };
   }
@@ -802,20 +812,34 @@ function parseEmailText(raw) {
     { keys:['prelude'],                                  sid:'prelude',  label:'Prelude' },
     { keys:['offertory','offering of music','offering'], sid:'offering', label:'Offering of Music' },
     { keys:['postlude'],                                 sid:'postlude', label:'Postlude' },
+    { keys:['tuning into advent','tuning into lent','tuning into','tuning hymn'], sid:'tuning', label:'Tuning Hymn' },
   ];
 
-  // Helper: given "Title (Composer)" or "Title by Composer" or just "Title", split cleanly
+  // Helper: split "Title (Composer) - Performer" in all its formats.
+  // Returns { title, composer, performer } — performer may be '' if not present.
+  var Q = '[\u201c\u201d"]'; // any double-quote char
   function splitTitleComposer(str) {
-    // Try properly closed "(Composer)" at end
-    var pm = str.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
-    if (pm && pm[1].trim()) return { title: pm[1].trim(), composer: pm[2].trim() };
-    // Try unclosed paren "Title (Composer  — still extract composer after the (
-    var upm = str.match(/^(.*?)\s*\(([^)]+)$/);
-    if (upm && upm[1].trim()) return { title: upm[1].trim(), composer: upm[2].trim() };
-    // Try " by Composer"
-    var bm = str.match(/^(.*?)\s+by\s+(.+)$/i);
-    if (bm && bm[1].trim()) return { title: bm[1].trim(), composer: bm[2].trim() };
-    return { title: str.trim(), composer: '' };
+    str = str.trim();
+    // Pattern 1: "Title" (Composer) - Performer  [quoted title, external composer, performer]
+    var p1 = str.match(new RegExp('^' + Q + '(.+?)' + Q + '\\s*\\(([^)]+)\\)\\s*[-\u2013]\\s*(.+)$'));
+    if (p1) return { title:p1[1].trim(), composer:p1[2].trim(), performer:p1[3].trim() };
+    // Pattern 2: "Title" - Performer  [quoted title, no composer, performer]
+    var p2 = str.match(new RegExp('^' + Q + '(.+?)' + Q + '\\s*[-\u2013]\\s*(.+)$'));
+    if (p2) return { title:p2[1].trim(), composer:'', performer:p2[2].trim() };
+    // Pattern 3: Title (Composer) - Performer  [unquoted title, composer paren, performer]
+    var p3 = str.match(/^(.*?)\s*\(([^)]+)\)\s*[-\u2013]\s*(.+)$/);
+    if (p3 && p3[1].trim()) return { title:p3[1].trim(), composer:p3[2].trim(), performer:p3[3].trim() };
+    // Pattern 4: Title (Composer)  [no performer — end of string after paren]
+    var p4 = str.match(new RegExp('^' + Q + '?(.+?)' + Q + '?\\s*\\(([^)]+)\\)\\s*$'));
+    if (p4 && p4[1].trim()) return { title:p4[1].trim(), composer:p4[2].trim(), performer:'' };
+    // Pattern 5: unclosed paren
+    var p5 = str.match(/^(.*?)\s*\(([^)]+)$/);
+    if (p5 && p5[1].trim()) return { title:p5[1].trim(), composer:p5[2].trim(), performer:'' };
+    // Pattern 6: Title by Composer
+    var p6 = str.match(/^(.*?)\s+by\s+(.+)$/i);
+    if (p6 && p6[1].trim()) return { title:p6[1].replace(new RegExp('^'+Q+'|'+Q+'$','g'),'').trim(), composer:p6[2].trim(), performer:'' };
+    // Fallback
+    return { title:str.replace(new RegExp('^'+Q+'+|'+Q+'+$','g'),'').trim(), composer:'', performer:'' };
   }
 
   musicDefs.forEach(function(md) {
@@ -883,6 +907,15 @@ function parseEmailText(raw) {
     }
   });
 
+  // ── TUNING SLOT LABEL OVERRIDE ──
+  // If the source mentions "Tuning into Advent/Lent", tag the tuning music result
+  // so applyEmailResults can rename the slot label accordingly.
+  var tuningLabelM = raw.match(/\btuning into (advent|lent)\b/i);
+  if (tuningLabelM) {
+    var tuningOverride = 'Tuning into ' + tuningLabelM[1].charAt(0).toUpperCase() + tuningLabelM[1].slice(1).toLowerCase();
+    results.forEach(function(res){ if (res.type === 'music' && res.sid === 'tuning') res.slotLabel = tuningOverride; });
+  }
+
   // ── HYMNS ──
   // Matches: optional "Label: " + 3-digit number + title  e.g. "510 We Gather Here"  "Kyrie: 474 As a Child Rests (refrain)"
   var hymnTargets = {
@@ -892,13 +925,18 @@ function parseEmailText(raw) {
     'hymn of mission':'mission', 'closing hymn':'mission',
     'benediction response':'benediction',
     'communion':'communion', 'communion song':'communion',
-    'tuning hymn':'tuning',
+    'doxology':'doxology',
+    'tuning into advent':'tuning', 'tuning into lent':'tuning',
+    'tuning into':'tuning', 'tuning hymn':'tuning',
     'second hymn':'hymn1', 'hymn':'hymn1'
   };
   ne.forEach(function(line) {
-    var m = line.match(/^(?:([^:0-9\n]{2,30}):\s*)?(\d{3})\s+[\u201c\u201d"]?(.+?)[\u201c\u201d"]?(?:\s+\(([^)]+)\))?(?:\s+as\s+(.+?))?\.?\s*$/i);
+    // Allow: optional "Label: ", optional "Hymn " word, optional "#", 1–3 digit number, then title
+    // Handles: "Hymn of Praise: # 20 Title", "Hymn of Thanksgiving: Hymn # 250 Title", "474 Title"
+    // Strip leading * bullet before matching (e.g. "* Hymn of Mission: 488 Title")
+    var m = line.replace(/^\*\s*/,'').match(/^(?:([^:0-9\n]{2,40}):\s*)?(?:hymn\s+)?#?\s*(\d{1,3})\s+[\u201c\u201d"]?(.+?)[\u201c\u201d"]?(?:\s+\(([^)]+)\))?(?:\s+as\s+(.+?))?\.?\s*$/i);
     if (m) {
-      var lh   = (m[1]||'').trim().toLowerCase();
+      var lh   = (m[1]||'').trim().toLowerCase().replace(/^[*\s]+/,'');
       var num  = m[2];
       var title= m[3].replace(/[\u201c\u201d"]/g,'').trim();
       var det  = m[4]||'';
@@ -918,23 +956,240 @@ function parseEmailText(raw) {
     var di = raw.toLowerCase().indexOf('doxology');
     if (di !== -1) {
       var after = raw.slice(di+8).trim();
-      var vlines = after.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>5 && l.length<80;});
+      var allDoxLines = after.split('\n');
+      var vlines = [];
+      for (var dli = 0; dli < allDoxLines.length; dli++) {
+        var dl = allDoxLines[dli].trim();
+        if (!dl) break;                                       // blank line = end of block
+        if (/^[*#]/.test(dl)) break;                         // starred section marker
+        if (/:/.test(dl)) break;                             // "Label: value" line
+        if (/\b(?:prayer|prayers|hymn|hymns|sermon|message|scripture|announcement|offering|benediction|lord'?s|amen|people)\b/i.test(dl)) break;
+        if (dl.length > 5 && dl.length < 80) vlines.push(dl);
+      }
       if (vlines.length >= 3) dm = [vlines.slice(0,4).join('\n')];
     }
   }
   if (dm) results.push({ type:'doxology', text:dm[0].trim() });
 
+  // ── PRAYER OF CONFESSION ──
+  // Match "Prayer of Confession: (optional tag) text..." spanning multiple lines
+  var confPat = /(?:prayer of confession|confession prayer)[^:\n]*:\s*(?:\([^)]*\)\s*)?(.+)/i;
+  var confM   = raw.match(confPat);
+  if (confM) {
+    // Grab text from match start to the next recognisable section header
+    var confStart = raw.indexOf(confM[1], raw.search(confPat));
+    var confRest  = raw.slice(confStart);
+    var cutOff    = confRest.search(/\n(?:scripture|kyrie|gloria|assurance|offering|service of|hymn|message|sermon|prayer of the|benediction|closing|postlude|doxology|\*\s)/i);
+    if (cutOff !== -1) confRest = confRest.slice(0, cutOff);
+    // Normalise silence line
+    confRest = confRest.replace(/\(\s*silence[^)]*\)/gi, '(Silence for personal prayer and reflection)').trim();
+    if (confRest.length > 10) results.push({ type:'confession', text:confRest });
+  }
+
   // ── SERMON / THEME FOCUS ──
-  var sm = raw.match(/(?:specific focus[^:\n]*|focus for this[^:\n]*):\s*[\u201c"]?([^\u201d"\n]{5,120})[\u201d"]?/i);
-  if (sm) results.push({ type:'sermon', text:sm[1].trim().replace(/[\u201c\u201d"]/g,'') });
+  // Match "Message: ...", "Sermon: ...", "specific focus: ...", or "focus for this: ..."
+  var sm = raw.match(/(?:specific focus[^:\n]*|focus for this[^:\n]*):\s*(.{5,200})/i);
+  if (!sm) sm = raw.match(/^(?:message|sermon|message\s*\/\s*sermon)\s*:\s*(.{5,200})\s*$/im);
+  if (sm) {
+    var sermonText = sm[1].trim()
+      .replace(/[\u201c\u201d"]/g,'')           // strip curly/straight quotes
+      .replace(/\s*[-\u2013]\s*(?:pastor|rev\.?|reverend|pr\.)\b.*/i,'')  // strip "- Pastor Name"
+      .trim();
+    if (sermonText.length >= 3) results.push({ type:'sermon', text:sermonText });
+  }
 
   // ── SCRIPTURE PASSAGES ──
   var books = 'psalm|genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|samuel|kings|chronicles|ezra|nehemiah|esther|job|proverbs|ecclesiastes|song|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|matthew|mark|luke|john|acts|romans|corinthians|galatians|ephesians|philippians|colossians|thessalonians|timothy|titus|philemon|hebrews|james|peter|revelation';
   var scrLines = [];
   ne.forEach(function(line) {
-    if (new RegExp('\\b(?:'+books+')\\s+\\d','i').test(line)) scrLines.push(line.replace(/^[-–•]\s*/,''));
+    if (!new RegExp('\\b(?:'+books+')\\s+\\d','i').test(line)) return;
+    // Skip lines that look like music items: "(Composer) - Performer" or music keywords
+    if (/\([^)]+\)\s*[-–]/.test(line)) return;
+    var isMusicLine = musicDefs.some(function(md2){
+      return new RegExp('\\b(?:'+md2.keys.join('|')+')\\b','i').test(line);
+    });
+    if (isMusicLine) return;
+    scrLines.push(line.replace(/^[*\-–•]\s*/,''));
   });
   if (scrLines.length > 0) results.push({ type:'scripture', lines:scrLines });
+
+  // ── WORSHIP ROLES LIST ──
+  // Handles blocks like: "Greeter Krex, Lisa Cramer, Kay Lector Rudnitsky, Raven Acolyte Lewis, Nathan ..."
+  // Names are in "Lastname, Firstname [M.]" format; multiple names share one role.
+  var roleDefs = [
+    { key:"lenten series skit",        sid:'lentenskit',   label:'Lenten Series Skit',         slot:null   },
+    { key:"special music hymn leader", sid:'hymnleader',   label:'Special Music / Hymn Leader', slot:null   },
+    { key:"special music",             sid:'specialmusic', label:'Special Music',               slot:null   },
+    { key:"children's message",        sid:'childrens',    label:"Children's Message",          slot:'item' },
+    { key:"money counter",             sid:'moneycounter', label:'Money Counter',               slot:null   },
+    { key:"tech team",                 sid:'techteam',     label:'Tech Team',                   slot:null   },
+    { key:"hymn leader",               sid:'hymnleader',   label:'Hymn Leader',                 slot:null   },
+    { key:"greeters",                  sid:'greeter',      label:'Greeter',                     slot:'field'},
+    { key:"greeter",                   sid:'greeter',      label:'Greeter',                     slot:'field'},
+    { key:"lector",                    sid:'lector',       label:'Lector / Scripture Reader',   slot:'lector'},
+    { key:"acolyte",                   sid:'acolyte',      label:'Acolyte',                     slot:'field'},
+    { key:"pianist",                   sid:'pianist',      label:'Pianist',                     slot:null   },
+    { key:"nursery",                   sid:'nursery',      label:'Nursery',                     slot:null   },
+  ];
+  // Normalise curly apostrophes, then count how many role keywords are present
+  var normRaw = raw.replace(/[\u2018\u2019\u02bc]/g,"'");
+  var roleHits = roleDefs.filter(function(rd, i) {
+    if (roleDefs.findIndex(function(r){ return r.sid===rd.sid; }) < i) return false; // dedup sids
+    return new RegExp('\\b' + rd.key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"'?") + '\\b','i').test(normRaw);
+  }).length;
+  if (roleHits >= 2) {
+    var rkPat = roleDefs.map(function(rd){
+      return rd.key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"'?");
+    }).join('|');
+    // Split at each role-keyword boundary; each chunk starts with the role name
+    var rparts = normRaw.replace(/\n/g,' ').split(new RegExp('(?=\\b(?:' + rkPat + ')\\b)','i'));
+    rparts.forEach(function(part) {
+      part = part.trim(); if (!part) return;
+      var rd = null;
+      for (var ri = 0; ri < roleDefs.length; ri++) {
+        var kpat = new RegExp('^(?:' + roleDefs[ri].key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"'?") + ')\\b','i');
+        if (kpat.test(part)) { rd = roleDefs[ri]; break; }
+      }
+      if (!rd) return;
+      var nameStr = part.slice(rd.key.length).replace(/^\s*[:]\s*/,'').trim();
+      // Extract "Lastname, Firstname [M.]" pairs and invert to "Firstname [M.] Lastname"
+      var nameRe = /([A-Z][A-Za-z\-']+(?:\s+[A-Z]\.?)?),\s*([A-Za-z]+(?:\s+[A-Z][.]?)?)/g;
+      var nm, names = [];
+      while ((nm = nameRe.exec(nameStr)) !== null) {
+        names.push((nm[2].trim() + ' ' + nm[1].trim()).replace(/\s+/g,' '));
+      }
+      if (names.length > 0) {
+        var existing = results.find(function(r){ return r.type==='role' && r.sid===rd.sid; });
+        if (existing) existing.names = existing.names.concat(names);
+        else results.push({ type:'role', sid:rd.sid, role:rd.label, names:names, slot:rd.slot });
+      }
+    });
+  }
+
+  // ── PEOPLE ATTRIBUTION ──
+  // Handles "Label: Name" (same line) AND "Label\nName" (name on next line) formats.
+  var attrDefs = [
+    { key:"welcome and announcements",         sid:'welcome'   },
+    { key:"introduction to the worship theme", sid:'theme'     },
+    { key:"introduction of the worship theme", sid:'theme'     },
+    { key:"introduction to worship theme",     sid:'theme'     },
+    { key:"introduction of worship theme",     sid:'theme'     },
+    { key:"assurance of pardon",               sid:'assurance' },
+    { key:"assurance",                         sid:'assurance' },
+    { key:"prayers of the people",             sid:'prayers'   },
+    { key:"children's message",                sid:'childrens' },
+    { key:"children's sermon",                 sid:'childrens' },
+    { key:"benediction",                       sid:'benediction'},
+    { key:"blessing",                          sid:'blessing'  },
+    { key:"offering announcement",             sid:'offerann'  },
+    { key:"acolyte",                           sid:'acolyte',  slot:'field' },
+    { key:"greeters",                          sid:'greeter',  slot:'field' },
+    { key:"greeter",                           sid:'greeter',  slot:'field' },
+    { key:"welcome",                           sid:'welcome'   },
+    // "Prayer for Illumination: Name" → sets reader on Scripture Readings
+    { key:"prayer for illumination",           sid:'scripture', slot:'lector' },
+    // sermon/message attribution (no title context)
+    { key:"message",                           sid:'sermon'    },
+    { key:"sermon",                            sid:'sermon'    },
+  ];
+  for (var aIdx = 0; aIdx < ne.length; aIdx++) {
+    var stripped = ne[aIdx].replace(/^\*\s*/,'').trim();
+    for (var ai = 0; ai < attrDefs.length; ai++) {
+      var ad = attrDefs[ai];
+      var keyEsc = ad.key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"'?");
+      // Format A: "Label: Name" on same line
+      var adPat = new RegExp('^(?:' + keyEsc + ')\\s*:\\s*(.+)$', 'i');
+      var adm = stripped.match(adPat);
+      if (adm) {
+        var person = adm[1].trim();
+        if (person.length >= 2 && person.length < 60 && !/\d{1,3}:\d/.test(person)) {
+          results.push({ type:'attribution', sid:ad.sid, name:person, slot:ad.slot||null });
+        }
+        break;
+      }
+      // Format B: "Label" alone on line, name on next line (outline format)
+      var keyOnlyPat = new RegExp('^(?:' + keyEsc + ')\\s*$', 'i');
+      if (keyOnlyPat.test(stripped)) {
+        var nextLine = (ne[aIdx + 1] || '').trim();
+        if (nextLine.length >= 2 && nextLine.length < 60 && /^[A-Z]/.test(nextLine) &&
+            !/\d{1,3}:\d/.test(nextLine) && !/:/.test(nextLine)) {
+          results.push({ type:'attribution', sid:ad.sid, name:nextLine, slot:ad.slot||null });
+        }
+        break;
+      }
+      // Format C: "Label - Name" (dash separator on same line, no colon)
+      var dashPat = new RegExp('^(?:' + keyEsc + ')\\s*[-\u2013]\\s*(.+)$', 'i');
+      var dashM = stripped.match(dashPat);
+      if (dashM) {
+        var person2 = dashM[1].trim();
+        if (person2.length >= 2 && person2.length < 60 && !/\d{1,3}:\d/.test(person2)) {
+          results.push({ type:'attribution', sid:ad.sid, name:person2, slot:ad.slot||null });
+        }
+        break;
+      }
+    }
+  }
+
+  // ── NEW SERVICE ORDER ITEMS ──
+  // Scan the outline for well-known service items that aren't already in svcOrder.
+  // Offered in the import modal as optional additions.
+  var knownServiceItems = {
+    'prayer for illumination':        { icon:'🙏', label:'Prayer for Illumination' },
+    'lighting of the advent candles': { icon:'🕯️', label:'Lighting of the Advent Candles' },
+    'lighting of the lenten candles': { icon:'🕯️', label:'Lighting of the Lenten Candles' },
+    'lighting of the christ candle':  { icon:'🕯️', label:'Lighting of the Christ Candle' },
+    'call to worship':                { icon:'📣', label:'Call to Worship' },
+    'gathering song':                 { icon:'🎼', label:'Gathering Song' },
+    'opening prayer':                 { icon:'🙏', label:'Opening Prayer' },
+    'passing of the peace':           { icon:'✝️', label:'Passing of the Peace' },
+    'responsive reading':             { icon:'📖', label:'Responsive Reading' },
+    'joys and concerns':              { icon:'🙏', label:'Joys and Concerns' },
+    'pastoral prayer':                { icon:'🙏', label:'Pastoral Prayer' },
+    'affirmation of faith':           { icon:'✝️', label:'Affirmation of Faith' },
+    'apostles creed':                 { icon:'✝️', label:"Apostles' Creed" },
+    'stewardship moment':             { icon:'🎁', label:'Stewardship Moment' },
+    'special music':                  { icon:'🎵', label:'Special Music' },
+    'invitation to communion':              { icon:'✝️', label:'Invitation to Communion' },
+    'words of institution':                 { icon:'✝️', label:'Words of Institution' },
+    'time of silent prayer':                { icon:'🙏', label:'Time of Silent Prayer' },
+    'mission focus':                        { icon:'🌍', label:'Mission Focus' },
+    'the service of the advent wreath':     { icon:'🕯️', label:'Service of the Advent Wreath' },
+    'service of the advent wreath':         { icon:'🕯️', label:'Service of the Advent Wreath' },
+    'lighting of the candle':               { icon:'🕯️', label:'Lighting of the Candle' },
+  };
+  // Build normalized lookup of labels already in svcOrder
+  var normExisting = {};
+  svcOrder.forEach(function(s) {
+    if (s.type === 'item') {
+      var nk = s.label.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+      normExisting[nk] = s.id;
+    }
+  });
+  // Sort keys longest-first so 'hymn of thanksgiving' matches before 'hymn'
+  var normExistingKeys = Object.keys(normExisting).sort(function(a,b){ return b.length - a.length; });
+  var lastMatchedSid = null;
+  ne.forEach(function(nline) {
+    var norm = nline.toLowerCase().replace(/^\*\s*/,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+    // Update position cursor: does this line match an existing svcOrder item?
+    for (var eki = 0; eki < normExistingKeys.length; eki++) {
+      var ek = normExistingKeys[eki];
+      if (norm === ek || (norm.length > 5 && ek.indexOf(norm) !== -1) || (ek.length > 5 && norm.indexOf(ek) !== -1)) {
+        lastMatchedSid = normExisting[ek]; break;
+      }
+    }
+    // Does this line match a known service item not yet in svcOrder?
+    for (var kk in knownServiceItems) {
+      if (norm === kk || norm.indexOf(kk) === 0) {
+        if (!normExisting[kk]) {
+          var alreadyIn = results.some(function(r){ return r.type==='newitem' && r.label.toLowerCase() === knownServiceItems[kk].label.toLowerCase(); });
+          if (!alreadyIn) {
+            results.push({ type:'newitem', label:knownServiceItems[kk].label, icon:knownServiceItems[kk].icon, afterSid:lastMatchedSid });
+          }
+        }
+        break;
+      }
+    }
+  });
 
   return results;
 }
@@ -973,7 +1228,13 @@ function emFindItem(sid, hymnNum) {
     thanks:['hymn of thanksgiving'], mission:['hymn of mission'],
     benediction:['benediction response'], sermon:['sermon','message'],
     scripture:['scripture'], doxology:['doxology'], tuning:['tuning'],
-    communion:['communion'], hymn1:['hymn']
+    communion:['communion'], hymn1:['hymn'],
+    confession:['confession'],
+    assurance:['assurance'], blessing:['blessing'],
+    prayers:['prayers of the people'],
+    offerann:['offering announcement'],
+    adventwreath:['advent wreath','advent candle'],
+    missionfocus:['mission focus']
   };
   var kws = kmap[sid] || [sid];
   it = svcOrder.find(function(s){ return s.type==='item' && kws.some(function(k){ return (s.label||'').toLowerCase().indexOf(k) !== -1; }); });
@@ -1017,16 +1278,22 @@ function runEmailParse() {
   emParsed.forEach(function(r, idx) {
     var label = '', arrow = '', note = '';
     if (r.type === 'music') {
-      label = r.label + ': <em>' + x(r.title) + '</em>' + (r.composer ? ' &mdash; ' + x(r.composer) : '');
+      label = (r.slotLabel || r.label) + ': <em>' + x(r.title) + '</em>' + (r.composer ? ' &mdash; ' + x(r.composer) : '');
       var it = emFindItem(r.sid, null);
-      arrow = it ? '&rarr; Updates &ldquo;' + x(it.label) + '&rdquo;' : '&rarr; No matching item found in service order';
-      var perfNote = (emSender && emSender.type === 'musician') ? '  |  Performer: ' + x(emSender.name) : '';
+      var slotName = r.slotLabel || (it ? it.label : null);
+      arrow = slotName ? '&rarr; Updates &ldquo;' + x(slotName) + '&rdquo;' : '&rarr; No matching item found in service order';
+      var perfName = (emSender && emSender.type === 'musician') ? emSender.name : (r.performer || '');
+      var perfNote = perfName ? '  |  Performer: ' + x(perfName) : '';
       note = 'Title: \u201c' + x(r.title) + '\u201d' + (r.composer ? '  |  Composer: ' + x(r.composer) : '') + perfNote;
     } else if (r.type === 'hymn') {
       var lh = r.hint ? r.hint.charAt(0).toUpperCase()+r.hint.slice(1)+': ' : 'Hymn: ';
       label = lh + '#' + r.num + ' <em>' + x(r.title) + '</em>' + (r.detail ? ' (' + x(r.detail) + ')' : '');
       var it = emFindItem(r.tid, r.num);
       arrow = it ? '&rarr; Updates &ldquo;' + x(it.label) + '&rdquo;' : '&rarr; Will fill next available hymn slot';
+    } else if (r.type === 'confession') {
+      label = 'Prayer of Confession text';
+      arrow = '&rarr; Updates Prayer of Confession detail';
+      note  = r.text.slice(0, 90).replace(/\n/g,' ') + (r.text.length > 90 ? '\u2026' : '');
     } else if (r.type === 'doxology') {
       label = 'Custom Doxology text';
       arrow = '&rarr; Updates Doxology item';
@@ -1038,6 +1305,26 @@ function runEmailParse() {
       label = 'Scripture passages (' + r.lines.length + ' found)';
       arrow = '&rarr; Updates Scripture Readings detail';
       note  = r.lines.join(' · ');
+    } else if (r.type === 'role') {
+      var slotLabels = { field:'Updates bulletin field', item:'Updates service item', lector:'Updates scripture reader', null:'For reference — no bulletin slot' };
+      label = r.role + ': <em>' + x(r.names.join(', ')) + '</em>';
+      arrow = '&rarr; ' + (slotLabels[r.slot] || 'For reference — no bulletin slot');
+    } else if (r.type === 'attribution') {
+      label = 'Attributed to: <em>' + x(r.name) + '</em>';
+      var arrowNote;
+      if (r.slot === 'field') {
+        arrowNote = r.sid === 'acolyte' ? 'Updates Acolyte field' : r.sid === 'greeter' ? 'Updates Greeters field' : 'Updates bulletin field';
+      } else if (r.slot === 'lector') {
+        arrowNote = 'Updates Scripture Readings reader';
+      } else {
+        var it2 = emFindItem(r.sid, null);
+        arrowNote = it2 ? 'Updates &ldquo;' + x(it2.label) + '&rdquo; leader' : 'No matching item found';
+      }
+      arrow = '&rarr; ' + arrowNote;
+    } else if (r.type === 'newitem') {
+      var afterItem = r.afterSid ? svcOrder.find(function(s){ return s.id===r.afterSid; }) : null;
+      label = r.icon + ' New section: <em>' + x(r.label) + '</em>';
+      arrow = afterItem ? '&rarr; Added after &ldquo;' + x(afterItem.label) + '&rdquo;' : '&rarr; Added to end of service order';
     }
     html += '<div class="em-ri" id="emri-'+idx+'">'
       + '<input type="checkbox" id="emcb-'+idx+'" checked onchange="emToggle('+idx+')">'
@@ -1059,6 +1346,12 @@ function emToggle(idx) {
 function applyEmailResults() {
   var applied = 0, skipped = 0;
   var dietmarFirstDone = false; // tracks whether full Dietmar credentials have been placed yet
+  // Pre-build ordered list of "Offering of Music" slots so we can assign them sequentially
+  // (first parsed offering result → first slot, second → second slot, etc.)
+  var offeringMusicSlots = svcOrder.filter(function(s){
+    return s.type === 'item' && (s.label||'').toLowerCase().indexOf('offering of music') !== -1;
+  });
+  var offeringMusicUsed = 0;
   try {
     for (var idx = 0; idx < emParsed.length; idx++) {
       var cb = document.getElementById('emcb-'+idx);
@@ -1067,25 +1360,62 @@ function applyEmailResults() {
       var match = null;
 
       if (r.type === 'music') {
-        match = emFindItem(r.sid, null);
+        // Offering of Music: assign sequentially (first parsed → first slot, second → second slot)
+        if (r.sid === 'offering') {
+          match = offeringMusicSlots[offeringMusicUsed++] || null;
+        } else {
+          match = emFindItem(r.sid, null);
+        }
         if (match) {
+          // Rename slot if a label override was detected (e.g. "Tuning into Advent")
+          if (r.slotLabel) match.label = r.slotLabel;
           // Build "Title by Composer" for iTitle so bItem() can split and display properly
           var fullTitle = r.title || '';
           if (r.composer) fullTitle = fullTitle + ' by ' + r.composer;
           if (fullTitle) match.iTitle = fullTitle;
-          // Set performer: use sender name if it's a musician, otherwise leave existing iDetail
+          // Set performer: sender musician overrides, else use extracted performer, else leave iDetail
           if (emSender && emSender.type === 'musician') {
             match.iDetail = emSender.name;
+          } else if (r.performer) {
+            match.iDetail = r.performer;
           }
           applied++;
         }
       } else if (r.type === 'hymn') {
-        match = emFindItem(r.tid, r.num);
-        if (!match) match = svcOrder.find(function(s){ return s.type==='item' && !s.iHymn && (s.label||'').toLowerCase().indexOf('hymn') !== -1; });
+        if (r.tid === 'hymn1') {
+          // Generic "Hymn:" — fill the FIRST unfilled hymn slot in svcOrder order.
+          // This correctly places hymns positionally (e.g. first "Hymn:" goes to praise position).
+          match = svcOrder.find(function(s){
+            var lbl = (s.label||'').toLowerCase();
+            return s.type==='item' && !s.iHymn && lbl.indexOf('hymn') !== -1 &&
+              !/(kyrie|gloria|tuning|response|communion)/.test(lbl);
+          });
+          // If the slot had a specific role name (Hymn of Praise/Thanksgiving/Mission),
+          // relabel it to the generic "Hymn" since the source just says "Hymn"
+          if (match && /^hymn of /i.test(match.label||'')) match.label = 'Hymn';
+        } else {
+          match = emFindItem(r.tid, r.num);
+        }
+        if (!match) {
+          // Last-resort fallback: any unfilled hymn slot
+          match = svcOrder.find(function(s){
+            var lbl = (s.label||'').toLowerCase();
+            return s.type==='item' && !s.iHymn && lbl.indexOf('hymn') !== -1 &&
+              !/(kyrie|gloria|tuning|response|communion)/.test(lbl);
+          });
+        }
         if (match) {
           if (r.num)    match.iHymn  = r.num;
           if (r.title)  match.iTitle = r.title;
           if (r.detail) match.iDetail = r.detail;
+          applied++;
+        }
+      } else if (r.type === 'confession') {
+        match = emFindItem('confession', null);
+        if (match) {
+          var pasName = (emSender && emSender.type === 'pastor') ? getPastoralName(emSender, dietmarFirstDone) : '';
+          if (pasName) dietmarFirstDone = true;
+          match.iDetail = (pasName ? pasName + '\n' : '') + r.text;
           applied++;
         }
       } else if (r.type === 'doxology') {
@@ -1115,6 +1445,63 @@ function applyEmailResults() {
           match.iDetail = lines[0] + '\n' + r.lines.join('\n');
           applied++;
         }
+      } else if (r.type === 'role') {
+        var nameStr = r.names.join(', ');
+        if (r.slot === 'field') {
+          // Greeter → f_greeters, Acolyte → f_acolyte
+          var fieldId = (r.sid === 'greeter') ? 'f_greeters' : (r.sid === 'acolyte') ? 'f_acolyte' : null;
+          if (fieldId) {
+            var fEl = document.getElementById(fieldId);
+            if (fEl) { fEl.value = nameStr; fEl.dispatchEvent(new Event('input')); applied++; }
+          }
+        } else if (r.slot === 'item') {
+          // Children's Message and similar service-order items
+          match = emFindItem(r.sid, null);
+          if (match) { match.iDetail = nameStr; applied++; }
+        } else if (r.slot === 'lector') {
+          // Lector → first line of Scripture Readings iDetail (the reader)
+          match = emFindItem('scripture', null);
+          if (match) {
+            var dlines = (match.iDetail || '').split('\n');
+            dlines[0] = nameStr;
+            match.iDetail = dlines.join('\n');
+            applied++;
+          }
+        }
+        // roles with slot:null are shown in the modal but not applied
+      } else if (r.type === 'attribution') {
+        if (r.slot === 'field') {
+          // Acolyte / Greeters → update header form fields
+          var atFieldId = (r.sid === 'greeter') ? 'f_greeters' : (r.sid === 'acolyte') ? 'f_acolyte' : null;
+          if (atFieldId) {
+            var atFEl = document.getElementById(atFieldId);
+            if (atFEl) { atFEl.value = r.name; atFEl.dispatchEvent(new Event('input')); applied++; }
+          }
+        } else if (r.slot === 'lector') {
+          // Prayer for Illumination → set reader name as first line of Scripture Readings
+          match = emFindItem('scripture', null);
+          if (match) {
+            var atLines = (match.iDetail || '').split('\n');
+            atLines[0] = r.name;
+            match.iDetail = atLines.join('\n');
+            applied++;
+          }
+        } else {
+          match = emFindItem(r.sid, null);
+          if (match) { match.iDetail = r.name; applied++; }
+        }
+      } else if (r.type === 'newitem') {
+        var newId = 'ci_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,5);
+        var newItem = { id:newId, type:'item', icon:r.icon||'⭐', label:r.label, iHymn:'', iTitle:'', iDetail:'' };
+        if (r.afterSid) {
+          var afterIdx = -1;
+          for (var ni = 0; ni < svcOrder.length; ni++) { if (svcOrder[ni].id === r.afterSid) { afterIdx = ni; break; } }
+          if (afterIdx !== -1) svcOrder.splice(afterIdx + 1, 0, newItem);
+          else svcOrder.push(newItem);
+        } else {
+          svcOrder.push(newItem);
+        }
+        applied++;
       }
     }
   } catch(e) {
