@@ -122,6 +122,9 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .bi-body { flex: 1; min-width: 0; }
 .bi-title  { font-size: 11.5px; font-weight: 600; color: var(--g900); line-height: 1.6; }
 .bi-detail { font-size: 11.5px; color: var(--g700); margin-top: 0; line-height: 1.6; }
+.bi-hymn   { font-weight: 700; color: var(--blue); }
+.bi-rest   { font-weight: 400; }
+.bi-sep    { color: var(--blue); }
 .bf-rule { margin-top: 18px; border-top: 1px solid var(--g200); padding-top: 12px; }
 .bf-people { font-size: 11.5px; color: var(--g700); line-height: 1.7; }
 .bf-people strong { font-weight: 600; color: var(--g900); }
@@ -302,34 +305,71 @@ var iCounter = 0;
 function bItem(item) {
   if (!item.label) return '';
   var icon    = item.icon    || '';
-  var iHymn   = item.iHymn  || '';
-  var iTitle  = item.iTitle || '';
-  var iDetail = item.iDetail|| '';
+  var iHymn   = (item.iHymn  || '').trim();
+  var iTitle  = (item.iTitle || '').trim();
+  var iDetail = (item.iDetail|| '');
 
-  // Compose value prefix (hymn# + title)
-  var prefix = '';
-  if (iHymn)  prefix += '#' + iHymn + ' ';
-  if (iTitle) prefix += x(iTitle) + ' ';
+  // Handle forced block (user pressed Enter at start of detail box)
+  var forcedBlock = iDetail.charAt(0) === '\n';
+  if (forcedBlock) iDetail = iDetail.slice(1);
+  iDetail = iDetail.trim();
 
-  // Split iDetail into inline part and block part
-  var inline = '', block = '';
-  if (iDetail.length > 0) {
-    if (iDetail.charAt(0) === '\n') {
-      block = iDetail.slice(1);
-    } else {
-      var nl = iDetail.indexOf('\n');
-      if (nl === -1) { inline = iDetail; }
-      else { inline = iDetail.substring(0, nl); block = iDetail.substring(nl + 1); }
+  // Split iDetail: first line may go inline; remaining lines go below (no em-dash)
+  var nlIdx       = iDetail.indexOf('\n');
+  var detailFirst = nlIdx === -1 ? iDetail : iDetail.substring(0, nlIdx);
+  var detailRest  = nlIdx === -1 ? ''      : iDetail.substring(nlIdx + 1).trim();
+
+  // Determine inline vs block:
+  //  • hymn number present → always inline (it's a song, regardless of label)
+  //  • prayer / prayers of the people → inline if detailFirst is short (looks like a
+  //    person's name); block if detailFirst is long (IS the prayer text)
+  //  • other block-type labels (communion rite, symbolic action, etc.) → always block
+  var isBlockType;
+  if (iHymn) {
+    isBlockType = false;
+  } else if (/^prayers?\b/i.test(item.label.trim())) {
+    isBlockType = detailFirst.length >= 60;   // long first line = prayer text, not a name
+  } else {
+    isBlockType = /^(communion|symbolic|responsive|litany|kyrie|sanctus|gloria|passing of peace)/i.test(item.label.trim());
+  }
+  var useBlock = isBlockType || forcedBlock;
+
+  // Build music HTML: #hymn + "Title" [by Composer attribution outside quotes]
+  var musicHtml = '';
+  if (iHymn) musicHtml += '<span class="bi-hymn">#' + x(iHymn) + '</span>';
+  if (iTitle) {
+    if (iHymn) musicHtml += ' ';
+    var byM = iTitle.match(/^(.+?) (by .+)$/i);
+    var titleOnly = byM ? byM[1].trim() : iTitle;
+    var titleAttr = byM ? ' ' + byM[2]  : '';
+    musicHtml += '<em>\u201c' + x(titleOnly) + '\u201d</em>' + x(titleAttr);
+  }
+
+  var sep = ' <span class="bi-sep">&mdash;</span> ';
+  var h   = '<div class="bi"><div class="bi-icon">' + x(icon) + '</div><div class="bi-body">';
+
+  if (useBlock) {
+    // ── BLOCK FORMAT: label bold on top, music + detail rows below ──
+    h += '<div class="bi-title">' + x(item.label) + '</div>';
+    if (musicHtml) h += '<div class="bi-detail">' + musicHtml + '</div>';
+    if (iDetail)   h += '<div class="bi-detail">' + x(iDetail).replace(/\n/g, '<br>') + '</div>';
+
+  } else {
+    // ── INLINE FORMAT: Label — music — first detail line  (all on one row) ──
+    var restParts = [];
+    if (musicHtml)   restParts.push(musicHtml);
+    if (detailFirst) restParts.push(x(detailFirst));
+    var titleDiv = x(item.label);
+    if (restParts.length) {
+      titleDiv += '<span class="bi-rest">' + sep + restParts.join(sep) + '</span>';
+    }
+    h += '<div class="bi-title">' + titleDiv + '</div>';
+    // Lines after a user-pressed Enter: shown below, no em-dash prefix
+    if (detailRest) {
+      h += '<div class="bi-detail">' + x(detailRest).replace(/\n/g, '<br>') + '</div>';
     }
   }
 
-  var detailLine = (prefix + x(inline)).trim();
-  var blockHtml  = block ? x(block).replace(/\n/g, '<br>') : '';
-
-  var h = '<div class="bi"><div class="bi-icon">' + x(icon) + '</div><div class="bi-body">';
-  h += '<div class="bi-title">' + x(item.label) + '</div>';
-  if (detailLine) h += '<div class="bi-detail">' + detailLine + '</div>';
-  if (blockHtml)  h += '<div class="bi-detail">' + blockHtml  + '</div>';
   h += '</div></div>';
   return h;
 }
@@ -662,17 +702,16 @@ function exportDocx() {
       L.push('\\pard\\sb100\\cbpat2 {\\b\\cf1\\fs22 ' + re(el.textContent.trim()) + '}\\par');
     } else {
       var tEl = el.querySelector('.bi-title');
-      var dEl = el.querySelector('.bi-detail');
+      var dEls = el.querySelectorAll('.bi-detail');
       if (tEl && tEl.textContent.trim()) {
         L.push('\\pard\\sb40 {\\b\\fs22\\cf3 ' + re(tEl.textContent.trim()) + '}\\par');
-        if (dEl) {
+        dEls.forEach(function(dEl) {
           var detailText = elText(dEl);
           if (detailText) {
-            // Each newline becomes a soft line break in RTF
             var rtfDetail = re(detailText).replace(/\n/g, '\\line ');
             L.push('\\pard\\sb0 {\\fs22\\cf3 ' + rtfDetail + '}\\par');
           }
-        }
+        });
       }
     }
   });
