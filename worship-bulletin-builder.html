@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8">
+<!-- saved from url=(0244)file:///Users/sigridplajer/Library/Application%20Support/Claude/local-agent-mode-sessions/af458998-e47c-4c5f-954e-22d51ac2da72/c28d6703-5c4a-4a48-9ecc-6be2055635e1/local_2ae65584-2513-4e0a-9191-0d1bd7771c11/outputs/worship-bulletin-builder.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Worship Bulletin Builder</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="./Worship Bulletin Builder_files/css2" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -75,9 +77,6 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .oc-lbl-input:focus { border-color: var(--blue); }
 .oc-val-textarea { width: 100%; padding: 4px 6px; font-size: 11px; border: 1px solid var(--g200); border-radius: 3px; font-family: 'Inter', sans-serif; outline: none; background: white; color: var(--g700); resize: none; line-height: 1.5; overflow: hidden; min-height: 24px; }
 .oc-val-textarea:focus { border-color: var(--blue); }
-.oc-val-input { width: 100%; padding: 4px 6px; font-size: 11px; border: 1px solid var(--g200); border-radius: 3px; font-family: 'Inter', sans-serif; outline: none; background: white; color: var(--g700); margin-top: 3px; }
-.oc-val-input:focus { border-color: var(--blue); }
-.ocb.hymn-on { background: var(--blue); color: white; border-color: var(--blue); }
 
 .oc-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
 .ocb { width: 20px; height: 20px; border: 1px solid var(--g200); border-radius: 3px; background: white; cursor: pointer; font-size: 10px; color: var(--g500); display: flex; align-items: center; justify-content: center; transition: all .12s; padding: 0; }
@@ -122,8 +121,10 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .bi-icon { width: 26px; flex-shrink: 0; font-size: 13px; padding-top: 1px; text-align: center; }
 .bi-body { flex: 1; min-width: 0; }
 .bi-title  { font-size: 11.5px; font-weight: 600; color: var(--g900); line-height: 1.6; }
-.bi-detail { font-size: 11.5px; color: var(--g900); margin-top: 0; line-height: 1.6; }
-.bi-inline { font-weight: 400; color: var(--g900); }
+.bi-detail { font-size: 11.5px; color: var(--g700); margin-top: 0; line-height: 1.6; }
+.bi-hymn   { font-weight: 700; color: var(--blue); }
+.bi-rest   { font-weight: 400; }
+.bi-sep    { color: var(--blue); }
 .bf-rule { margin-top: 18px; border-top: 1px solid var(--g200); padding-top: 12px; }
 .bf-people { font-size: 11.5px; color: var(--g700); line-height: 1.7; }
 .bf-people strong { font-weight: 600; color: var(--g900); }
@@ -132,28 +133,6 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 /* toast */
 #toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(56px); background: var(--g900); color: white; padding: 8px 18px; border-radius: 18px; font-size: 12px; font-family: 'Inter', sans-serif; transition: transform .28s cubic-bezier(.34,1.56,.64,1); z-index: 999; pointer-events: none; }
 #toast.on { transform: translateX(-50%) translateY(0); }
-
-/* ─── EMAIL IMPORT MODAL ─── */
-.em-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
-.em-bg.open { display:flex; }
-.em-box { background:white; border-radius:10px; width:520px; max-width:95vw; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 8px 40px rgba(0,0,0,.25); }
-.em-hd { padding:14px 16px 11px; border-bottom:1px solid var(--g200); display:flex; align-items:center; justify-content:space-between; }
-.em-hd h3 { margin:0; font-size:13px; font-weight:600; }
-.em-body { padding:13px 16px; overflow-y:auto; flex:1; }
-.em-body p { font-size:11px; color:var(--g500); margin:0 0 8px; line-height:1.6; }
-.em-ta { width:100%; height:130px; font-size:11.5px; font-family:'Inter',sans-serif; border:1px solid var(--g200); border-radius:5px; padding:8px; resize:vertical; outline:none; color:var(--g700); }
-.em-ta:focus { border-color:var(--blue); }
-.em-results { margin-top:11px; }
-.em-ri { border:1px solid var(--g200); border-radius:6px; padding:8px 10px; margin-bottom:6px; display:flex; align-items:flex-start; gap:8px; transition:opacity .15s; }
-.em-ri.skipped { opacity:.4; }
-.em-ri input[type=checkbox] { margin-top:2px; flex-shrink:0; accent-color:var(--blue); }
-.em-rl { font-size:11.5px; font-weight:600; color:var(--g700); }
-.em-ra { font-size:10.5px; color:var(--blue); margin-top:2px; }
-.em-rn { font-size:10.5px; color:var(--g400); margin-top:1px; }
-.em-none { font-size:11.5px; color:var(--g400); text-align:center; padding:18px 0; }
-.em-ft { padding:11px 16px; border-top:1px solid var(--g200); display:flex; gap:8px; justify-content:flex-end; }
-.em-import-btn { font-size:10.5px; padding:3px 9px; background:var(--blue3); color:var(--blue); border:1px solid var(--blue4); border-radius:4px; cursor:pointer; font-family:'Inter',sans-serif; font-weight:500; }
-.em-import-btn:hover { background:var(--blue4); }
 
 /* print */
 @media print {
@@ -167,6 +146,23 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
   .bi { padding: 5px 7px !important; }
   .bh { margin-bottom: 10px !important; padding-bottom: 9px !important; }
 }
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
+.modal{background:white;border-radius:8px;padding:22px 24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.22);}
+.modal h2{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--g900);}
+.modal p{font-size:11.5px;color:var(--g500);margin-bottom:12px;}
+.modal textarea{width:100%;min-height:140px;padding:8px 10px;border:1px solid var(--g200);border-radius:var(--r);font-size:11.5px;font-family:monospace;resize:vertical;outline:none;}
+.modal textarea:focus{border-color:var(--blue);}
+.modal-btns{display:flex;gap:8px;margin-top:12px;}
+.modal-results{margin-top:12px;border:1px solid var(--g200);border-radius:var(--r);overflow:hidden;}
+.mr-row{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-bottom:1px solid var(--g200);font-size:11.5px;}
+.mr-row:last-child{border-bottom:none;}
+.mr-lbl{font-weight:600;color:var(--g900);flex:0 0 130px;}
+.mr-val{color:var(--g700);flex:1;}
+.mr-count{font-size:11px;color:var(--g500);margin:auto 0;}
+.btn-publish{background:#2a7a5a;color:white;}
+.btn-email{background:var(--blue);color:white;font-size:11px;}
+.ocb.hymn-on{background:var(--blue);color:white;border-color:var(--blue);}
 </style>
 </head>
 <body>
@@ -175,7 +171,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 <div id="editor">
   <div id="ed-head">
     <h1>✝ Bulletin Builder</h1>
-    <p id="ed-sub">Saint Paul's United Church of Christ</p>
+    <p id="ed-sub">St. Paul's United Church of Christ</p>
   </div>
 
   <div id="tabs">
@@ -187,7 +183,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
   <!-- HEADER TAB -->
   <div id="form-scroll" class="panel on">
     <div class="fsec">
-      <div class="fsec-hd" style="display:flex;align-items:center;justify-content:space-between;"><h3>📅 Service Details</h3><button class="em-import-btn" onclick="openEmailModal()">📧 Import from Email</button></div>
+      <div class="fsec-hd"><h3>📅 Service Details</h3></div>
       <div class="fr g2">
         <div><label>Date</label><input type="date" id="f_date"></div>
         <div><label>Time</label><input type="text" id="f_time" placeholder="10:30 AM"></div>
@@ -220,13 +216,14 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
   <div id="settings-tab" class="panel">
     <div class="fsec">
       <div class="fsec-hd"><h3>⛪ Church Info</h3></div>
-      <div class="fr"><label>Church Name</label><input type="text" id="s_name" value="Saint Paul&#39;s United Church of Christ"></div>
+      <div class="fr"><label>Church Name</label><input type="text" id="s_name" value="St. Paul&#39;s United Church of Christ"></div>
       <div class="fr"><label>Tagline</label><input type="text" id="s_sub" value="Open and Affirming"></div>
     </div>
     <div class="fsec">
       <div class="fsec-hd"><h3>📂 Import Previous Bulletin</h3></div>
       <p style="font-size:11px;color:var(--g500);line-height:1.6;margin-bottom:9px;">Load a saved JSON to reuse or edit for a new week.</p>
       <button class="btn btn-g" onclick="document.getElementById(&#39;imp&#39;).click()" style="font-size:11.5px;">⬆ Import JSON</button>
+      <button class="btn btn-g" onclick="gdocOpen()" style="font-size:11.5px;margin-top:6px;">📄 From Google Doc</button>
       <input type="file" id="imp" accept=".json" style="display:none">
     </div>
     <div class="fsec">
@@ -241,6 +238,8 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
     <button class="btn btn-g" id="btn-save">⬇ Save JSON</button>
     <button class="btn btn-g" id="btn-docx">📄 Export Word</button>
     <button class="btn btn-print" onclick="window.print()">🖨 Print / PDF</button>
+    <button class="btn btn-g" onclick="ptOpen()" style="font-size:11.5px;">📋 Paste Text</button>
+    <button class="btn btn-publish" id="btn-publish" onclick="publishToGoogle()">📤 Publish</button>
   </div>
 </div>
 
@@ -255,7 +254,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
     </div>
   </div>
   <div id="prev-scroll">
-    <div id="bulletin"><div class="bh"><div class="bh-church">Saint Paul's United Church of Christ  •  Open and Affirming</div><div class="bh-title">Worship Service</div><div class="bh-lit">Fifth Sunday in Lent</div><div class="bh-meta">Sunday, March 22, 2026 | 10:30 AM</div></div><div class="bs">We Gather</div><div class="bi"><div class="bi-icon">📢</div><div class="bi-body"><div class="bi-title">Welcome &amp; Announcements</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Prelude</div><div class="bi-detail">“In the Garden” by C. Austin Miles – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">💡</div><div class="bi-body"><div class="bi-title">Introduction of the Worship Theme</div><div class="bi-detail">Jules Drewes<br>with ticking clock and piano to the tune of “Come and Find the Quiet Center” – we continue right into singing the song</div></div></div><div class="bi"><div class="bi-icon">🎶</div><div class="bi-body"><div class="bi-title">Tuning Hymn</div><div class="bi-detail">“Come and Find the Quiet Center” – verse 1</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Praise</div><div class="bi-detail">#20 All Things Bright and Beautiful (all verses)</div></div></div><div class="bs">We Confess and Are Forgiven</div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayer of Confession</div><div class="bi-detail">Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.<br><br>(Silence for personal prayer and reflection)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Kyrie</div><div class="bi-detail">#474 As a Child Rests (refrain, verse 2, refrain)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Assurance</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Gloria</div><div class="bi-detail">#447 We Are Forgiven (sing twice)</div></div></div><div class="bs">We Receive the Word</div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Kyrie” – Celebration Ringers</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn</div><div class="bi-detail">#188 Jesus Loves Me</div></div></div><div class="bi"><div class="bi-icon">⭐</div><div class="bi-body"><div class="bi-title">Children's Message</div><div class="bi-detail">Linda Gruenberg</div></div></div><div class="bi"><div class="bi-icon">📖</div><div class="bi-body"><div class="bi-title">Scripture Readings</div><div class="bi-detail">Kevin Smyth<br>Old Testament: Ecclesiastes 3:1–13<br>Gospel: Luke 13:6–14<br>“This is God’s Word for the people of God” (sung)</div></div></div><div class="bi"><div class="bi-icon">💬</div><div class="bi-body"><div class="bi-title">Message / Sermon</div><div class="bi-detail">“A Time for God, a Time to Flip Tables, a Time for Peacemaking” – Rev. Darin Namminga</div></div></div><div class="bs">We Respond</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Thanksgiving</div><div class="bi-detail">#250 In the Bulb There Is a Flower (all three verses)</div></div></div><div class="bi"><div class="bi-icon">🎁</div><div class="bi-body"><div class="bi-title">Offering Announcement</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Lord I’m Available to You” by Carlis L. Moody Jr. – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">✨</div><div class="bi-body"><div class="bi-title">Doxology</div><div class="bi-detail">For time to savor God’s good gifts,<br>For space to breathe and hearts to lift,<br>For ways to reach out and to give,<br>We offer thanks and vow to live!</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayers of the People</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">The Lord's Prayer</div></div></div><div class="bs">We Are Sent</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Mission</div><div class="bi-detail">#488 I Was There to Hear Your Borning Cry (all verses)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Blessing</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Benediction Response</div><div class="bi-detail">#542 God Be with You Till We Meet Again (verse 1)</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Postlude</div><div class="bi-detail">“I’m Gonna Live So God Can Use Me” by Wendell P. Whalum – Micah Kammerer</div></div></div><div class="bf-rule"><div class="bf-people"><strong>Acolyte:</strong> Oliver Namminga</div><div class="bf-people"><strong>Greeters:</strong> Doug &amp; Lori Ettinger</div></div><div class="bf">Saint Paul's United Church of Christ &nbsp;·&nbsp; All are welcome.</div></div>
+    <div id="bulletin"><div class="bh"><div class="bh-church">St. Paul's United Church of Christ  •  Open and Affirming</div><div class="bh-title">Worship Service</div><div class="bh-lit">Fifth Sunday in Lent</div><div class="bh-meta">Sunday, March 22, 2026 | 10:30 AM</div></div><div class="bs">We Gather</div><div class="bi"><div class="bi-icon">📢</div><div class="bi-body"><div class="bi-title">Welcome &amp; Announcements</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Prelude</div><div class="bi-detail">“In the Garden” by C. Austin Miles – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">💡</div><div class="bi-body"><div class="bi-title">Introduction of the Worship Theme</div><div class="bi-detail">Jules Drewes<br>with ticking clock and piano to the tune of “Come and Find the Quiet Center” – we continue right into singing the song</div></div></div><div class="bi"><div class="bi-icon">🎶</div><div class="bi-body"><div class="bi-title">Tuning Hymn</div><div class="bi-detail">“Come and Find the Quiet Center” – verse 1</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Praise</div><div class="bi-detail">#20 All Things Bright and Beautiful (all verses)</div></div></div><div class="bs">We Confess and Are Forgiven</div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayer of Confession</div><div class="bi-detail">Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.<br><br>(Silence for personal prayer and reflection)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Kyrie</div><div class="bi-detail">#474 As a Child Rests (refrain, verse 2, refrain)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Assurance</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Gloria</div><div class="bi-detail">#447 We Are Forgiven (sing twice)</div></div></div><div class="bs">We Receive the Word</div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Kyrie” – Celebration Ringers</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn</div><div class="bi-detail">#188 Jesus Loves Me</div></div></div><div class="bi"><div class="bi-icon">⭐</div><div class="bi-body"><div class="bi-title">Children's Message</div><div class="bi-detail">Linda Gruenberg</div></div></div><div class="bi"><div class="bi-icon">📖</div><div class="bi-body"><div class="bi-title">Scripture Readings</div><div class="bi-detail">Kevin Smyth<br>Old Testament: Ecclesiastes 3:1–13<br>Gospel: Luke 13:6–14<br>“This is God’s Word for the people of God” (sung)</div></div></div><div class="bi"><div class="bi-icon">💬</div><div class="bi-body"><div class="bi-title">Message / Sermon</div><div class="bi-detail">“A Time for God, a Time to Flip Tables, a Time for Peacemaking” – Rev. Darin Namminga</div></div></div><div class="bs">We Respond</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Thanksgiving</div><div class="bi-detail">#250 In the Bulb There Is a Flower (all three verses)</div></div></div><div class="bi"><div class="bi-icon">🎁</div><div class="bi-body"><div class="bi-title">Offering Announcement</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Lord I’m Available to You” by Carlis L. Moody Jr. – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">✨</div><div class="bi-body"><div class="bi-title">Doxology</div><div class="bi-detail">For time to savor God’s good gifts,<br>For space to breathe and hearts to lift,<br>For ways to reach out and to give,<br>We offer thanks and vow to live!</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayers of the People</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">The Lord's Prayer</div></div></div><div class="bs">We Are Sent</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Mission</div><div class="bi-detail">#488 I Was There to Hear Your Borning Cry (all verses)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Blessing</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Benediction Response</div><div class="bi-detail">#542 God Be with You Till We Meet Again (verse 1)</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Postlude</div><div class="bi-detail">“I’m Gonna Live So God Can Use Me” by Wendell P. Whalum – Micah Kammerer</div></div></div><div class="bf-rule"><div class="bf-people"><strong>Acolyte:</strong> Oliver Namminga</div><div class="bf-people"><strong>Greeters:</strong> Doug &amp; Lori Ettinger</div></div><div class="bf">St. Paul's United Church of Christ &nbsp;·&nbsp; All are welcome.</div></div>
   </div>
 </div>
 
@@ -271,76 +270,106 @@ function sv(id,val) { var e=document.getElementById(id); if(e) e.value=(val==nul
 // Each item: type='divider' (label only) or type='item' (icon + label + value)
 var svcOrder = [
   {id:'dv_gather',    type:'divider', label:'We Gather'},
-  {id:'welcome',      type:'item', icon:'📢', label:'Welcome & Announcements', iHymn:'', iTitle:'', iDetail:''},
-  {id:'prelude',      type:'item', icon:'🎵', label:'Prelude', iHymn:'', iTitle:'', iDetail:''},
-  {id:'theme',        type:'item', icon:'💡', label:'Introduction of the Worship Theme', iHymn:'', iTitle:'', iDetail:''},
-  {id:'tuning',       type:'item', icon:'🎶', label:'Tuning Hymn', iHymn:'', iTitle:'', iDetail:''},
-  {id:'praise',       type:'item', icon:'🎼', label:'Hymn of Praise', iHymn:'', iTitle:'', iDetail:''},
+  {id:'welcome',      type:'item', icon:'📢', label:'Welcome & Announcements', iHymn:'',iTitle:'',iDetail:''},
+  {id:'prelude',      type:'item', icon:'🎵', label:'Prelude', iHymn:'',iTitle:'',iDetail:''},
+  {id:'theme',        type:'item', icon:'💡', label:'Introduction of the Worship Theme', iHymn:'',iTitle:'',iDetail:''},
+  {id:'tuning',       type:'item', icon:'🎶', label:'Tuning Hymn', iHymn:'',iTitle:'',iDetail:''},
+  {id:'praise',       type:'item', icon:'🎼', label:'Hymn of Praise', iHymn:'',iTitle:'',iDetail:''},
   {id:'dv_confess',   type:'divider', label:'We Confess and Are Forgiven'},
-  {id:'confession',   type:'item', icon:'🙏', label:'Prayer of Confession', iHymn:'', iTitle:'', iDetail:''},
-  {id:'kyrie',        type:'item', icon:'✝', label:'Kyrie', iHymn:'', iTitle:'', iDetail:''},
-  {id:'assurance',    type:'item', icon:'✝', label:'Assurance', iHymn:'', iTitle:'', iDetail:''},
-  {id:'gloria',       type:'item', icon:'🎼', label:'Gloria', iHymn:'', iTitle:'', iDetail:''},
+  {id:'confession',   type:'item', icon:'🙏', label:'Prayer of Confession', iHymn:'',iTitle:'',iDetail:''},
+  {id:'kyrie',        type:'item', icon:'✝', label:'Kyrie', iHymn:'',iTitle:'',iDetail:''},
+  {id:'assurance',    type:'item', icon:'✝', label:'Assurance', iHymn:'',iTitle:'',iDetail:''},
+  {id:'gloria',       type:'item', icon:'🎼', label:'Gloria', iHymn:'',iTitle:'',iDetail:''},
   {id:'dv_word',      type:'divider', label:'We Receive the Word'},
-  {id:'music1',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'', iTitle:'', iDetail:''},
-  {id:'hymn1',        type:'item', icon:'🎼', label:'Hymn', iHymn:'', iTitle:'', iDetail:''},
-  {id:'childrens',    type:'item', icon:'⭐', label:"Children's Message", iHymn:'', iTitle:'', iDetail:''},
-  {id:'scripture',    type:'item', icon:'📖', label:'Scripture Readings', iHymn:'', iTitle:'', iDetail:''},
-  {id:'sermon',       type:'item', icon:'💬', label:'Message / Sermon', iHymn:'', iTitle:'', iDetail:''},
+  {id:'music1',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'',iTitle:'',iDetail:''},
+  {id:'hymn1',        type:'item', icon:'🎼', label:'Hymn', iHymn:'',iTitle:'',iDetail:''},
+  {id:'childrens',    type:'item', icon:'⭐', label:"Children's Message", iHymn:'',iTitle:'',iDetail:''},
+  {id:'scripture',    type:'item', icon:'📖', label:'Scripture Readings', iHymn:'',iTitle:'',iDetail:''},
+  {id:'sermon',       type:'item', icon:'💬', label:'Message / Sermon', iHymn:'',iTitle:'',iDetail:''},
   {id:'dv_respond',   type:'divider', label:'We Respond'},
-  {id:'thanks',       type:'item', icon:'🎼', label:'Hymn of Thanksgiving', iHymn:'', iTitle:'', iDetail:''},
-  {id:'offering',     type:'item', icon:'🎁', label:'Offering Announcement', iHymn:'', iTitle:'', iDetail:''},
-  {id:'music2',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'', iTitle:'', iDetail:''},
-  {id:'doxology',     type:'item', icon:'✨', label:'Doxology', iHymn:'', iTitle:'', iDetail:''},
-  {id:'prayers',      type:'item', icon:'🙏', label:'Prayers of the People', iHymn:'', iTitle:'', iDetail:''},
-  {id:'lords_prayer', type:'item', icon:'🙏', label:"The Lord's Prayer", iHymn:'', iTitle:'', iDetail:''},
+  {id:'thanks',       type:'item', icon:'🎼', label:'Hymn of Thanksgiving', iHymn:'',iTitle:'',iDetail:''},
+  {id:'offering',     type:'item', icon:'🎁', label:'Offering Announcement', iHymn:'',iTitle:'',iDetail:''},
+  {id:'music2',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'',iTitle:'',iDetail:''},
+  {id:'doxology',     type:'item', icon:'✨', label:'Doxology', iHymn:'',iTitle:'',iDetail:''},
+  {id:'prayers',      type:'item', icon:'🙏', label:'Prayers of the People', iHymn:'',iTitle:'',iDetail:''},
+  {id:'lords_prayer', type:'item', icon:'🙏', label:"The Lord's Prayer", iHymn:'',iTitle:'',iDetail:''},
   {id:'dv_send',      type:'divider', label:'We Are Sent'},
-  {id:'mission',      type:'item', icon:'🎼', label:'Hymn of Mission', iHymn:'', iTitle:'', iDetail:''},
-  {id:'blessing',     type:'item', icon:'✝', label:'Blessing', iHymn:'', iTitle:'', iDetail:''},
-  {id:'benediction',  type:'item', icon:'🎼', label:'Benediction Response', iHymn:'', iTitle:'', iDetail:''},
-  {id:'postlude',     type:'item', icon:'🎵', label:'Postlude', iHymn:'', iTitle:'', iDetail:''},
+  {id:'mission',      type:'item', icon:'🎼', label:'Hymn of Mission', iHymn:'',iTitle:'',iDetail:''},
+  {id:'blessing',     type:'item', icon:'✝', label:'Blessing', iHymn:'',iTitle:'',iDetail:''},
+  {id:'benediction',  type:'item', icon:'🎼', label:'Benediction Response', iHymn:'',iTitle:'',iDetail:''},
+  {id:'postlude',     type:'item', icon:'🎵', label:'Postlude', iHymn:'',iTitle:'',iDetail:''},
 ];
 var iCounter = 0;
 
 // ─── BULLETIN HELPERS ───
-function bItem(icon, label, iHymn, iTitle, iDetail) {
-  if (!label) return '';
-  // Parse combined detail: starts with \n = all below; otherwise first line inline, rest below
-  var inlineDet = '', blockDet = '';
-  if (iDetail) {
-    if (iDetail.charAt(0) === '\n') {
-      blockDet = x(iDetail.slice(1)).replace(/\n/g,'<br>');
-    } else {
-      var nl = iDetail.indexOf('\n');
-      if (nl === -1) { inlineDet = x(iDetail); }
-      else { inlineDet = x(iDetail.slice(0, nl)); blockDet = x(iDetail.slice(nl+1)).replace(/\n/g,'<br>'); }
+function bItem(item) {
+  if (!item.label) return '';
+  var icon    = item.icon    || '';
+  var iHymn   = (item.iHymn  || '').trim();
+  var iTitle  = (item.iTitle || '').trim();
+  var iDetail = (item.iDetail|| '');
+
+  // Handle forced block (user pressed Enter at start of detail box)
+  var forcedBlock = iDetail.charAt(0) === '\n';
+  if (forcedBlock) iDetail = iDetail.slice(1);
+  iDetail = iDetail.trim();
+
+  // Split iDetail: first line may go inline; remaining lines go below (no em-dash)
+  var nlIdx       = iDetail.indexOf('\n');
+  var detailFirst = nlIdx === -1 ? iDetail : iDetail.substring(0, nlIdx);
+  var detailRest  = nlIdx === -1 ? ''      : iDetail.substring(nlIdx + 1).trim();
+
+  // Determine inline vs block:
+  //  • hymn number present → always inline (it's a song, regardless of label)
+  //  • prayer / prayers of the people → inline if detailFirst is short (looks like a
+  //    person's name); block if detailFirst is long (IS the prayer text)
+  //  • other block-type labels (communion rite, symbolic action, etc.) → always block
+  var isBlockType;
+  if (iHymn) {
+    isBlockType = false;
+  } else if (/^prayers?\b/i.test(item.label.trim())) {
+    isBlockType = detailFirst.length >= 60;   // long first line = prayer text, not a name
+  } else {
+    isBlockType = /^(communion|symbolic|responsive|litany|kyrie|sanctus|gloria|passing of peace)/i.test(item.label.trim());
+  }
+  var useBlock = isBlockType || forcedBlock;
+
+  // Build music HTML: #hymn + "Title" [by Composer attribution outside quotes]
+  var musicHtml = '';
+  if (iHymn) musicHtml += '<span class="bi-hymn">#' + x(iHymn) + '</span>';
+  if (iTitle) {
+    if (iHymn) musicHtml += ' ';
+    var byM = iTitle.match(/^(.+?) (by .+)$/i);
+    var titleOnly = byM ? byM[1].trim() : iTitle;
+    var titleAttr = byM ? ' ' + byM[2]  : '';
+    musicHtml += '<em>\u201c' + x(titleOnly) + '\u201d</em>' + x(titleAttr);
+  }
+
+  var sep = ' <span class="bi-sep">&mdash;</span> ';
+  var h   = '<div class="bi"><div class="bi-icon">' + x(icon) + '</div><div class="bi-body">';
+
+  if (useBlock) {
+    // ── BLOCK FORMAT: label bold on top, music + detail rows below ──
+    h += '<div class="bi-title">' + x(item.label) + '</div>';
+    if (musicHtml) h += '<div class="bi-detail">' + musicHtml + '</div>';
+    if (iDetail)   h += '<div class="bi-detail">' + x(iDetail).replace(/\n/g, '<br>') + '</div>';
+
+  } else {
+    // ── INLINE FORMAT: Label — music — first detail line  (all on one row) ──
+    var restParts = [];
+    if (musicHtml)   restParts.push(musicHtml);
+    if (detailFirst) restParts.push(x(detailFirst));
+    var titleDiv = x(item.label);
+    if (restParts.length) {
+      titleDiv += '<span class="bi-rest">' + sep + restParts.join(sep) + '</span>';
+    }
+    h += '<div class="bi-title">' + titleDiv + '</div>';
+    // Lines after a user-pressed Enter: shown below, no em-dash prefix
+    if (detailRest) {
+      h += '<div class="bi-detail">' + x(detailRest).replace(/\n/g, '<br>') + '</div>';
     }
   }
-  var h = '<div class="bi"><div class="bi-icon">' + (icon||'') + '</div><div class="bi-body">';
-  var pieceParts = [];
-  if (iHymn)  pieceParts.push('#' + iHymn.replace(/^#+/, ''));
-  if (iTitle) {
-    // Split composer/arranger out of quotes if present
-    // Handles: "Song Title by Composer" and "Song Title (Composer)"
-    var titleCore = iTitle, titleExtra = '';
-    var byM = iTitle.match(/^(.+?)\s+(by\s+.+)$/i);
-    var paM = iTitle.match(/^(.+?)\s+(\([^)]+\))\s*$/);
-    if (byM)      { titleCore = byM[1];  titleExtra = ' ' + byM[2]; }
-    else if (paM) { titleCore = paM[1];  titleExtra = ' ' + paM[2]; }
-    titleCore = titleCore.replace(/^[\u201c\u201d"'\u2018\u2019]+|[\u201c\u201d"'\u2018\u2019]+$/g, '');
-    pieceParts.push('\u201c' + titleCore + '\u201d' + titleExtra);
-  }
-  var pieceStr = pieceParts.join(' ');
-  var inlineParts = [];
-  if (pieceStr)   inlineParts.push(pieceStr);
-  if (inlineDet)  inlineParts.push(inlineDet);
-  var inlineStr = inlineParts.join(' \u2014 ');
-  if (inlineStr) {
-    h += '<div class="bi-title"><span class="bi-tl">' + label + '</span><span class="bi-inline"> \u2014 ' + inlineStr + '</span></div>';
-  } else {
-    h += '<div class="bi-title">' + label + '</div>';
-  }
-  if (blockDet) h += '<div class="bi-detail">' + blockDet + '</div>';
+
   h += '</div></div>';
   return h;
 }
@@ -349,7 +378,7 @@ function bSec(label) { return '<div class="bs">' + x(label) + '</div>'; }
 // ─── MAIN RENDER ───
 function render() {
   try {
-    var sn = v('s_name') || "Saint Paul's United Church of Christ";
+    var sn = v('s_name') || "St. Paul's United Church of Christ";
     var ss = v('s_sub');
     var dt = v('f_date'), tm = v('f_time'), lit = v('f_liturgical');
     var ac = v('f_acolyte'), gr = v('f_greeters');
@@ -373,15 +402,7 @@ function render() {
       if (item.type === 'divider') {
         body += bSec(item.label);
       } else if (item.type === 'item') {
-        if (item.label) {
-          body += bItem(
-            item.icon||'',
-            x(item.label),
-            x(item.iHymn||''),
-            x(item.iTitle||''),
-            item.iDetail||''
-          );
-        }
+        if (item.label) body += bItem(item);
       }
     }
 
@@ -447,45 +468,52 @@ function buildOrderUI() {
       lblIn.value = item.label||''; lblIn.placeholder = 'Item title';
       lblIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].label=this.value; render(); }; })(i));
 
-      // Hymn toggle button in top row
-      var hymnToggle = document.createElement('button');
-      hymnToggle.className = 'ocb' + (item.iShowHymn ? ' hymn-on' : '');
-      hymnToggle.textContent = '♯'; hymnToggle.title = 'Toggle hymn number';
-      hymnToggle.type = 'button';
-      hymnToggle.addEventListener('click', (function(idx){ return function(){
-        svcOrder[idx].iShowHymn = !svcOrder[idx].iShowHymn;
-        if (!svcOrder[idx].iShowHymn) { svcOrder[idx].iHymn = ''; render(); }
-        buildOrderUI();
-      }; })(i));
-
-      top.appendChild(icoIn); top.appendChild(lblIn); top.appendChild(hymnToggle);
+      top.appendChild(icoIn); top.appendChild(lblIn);
       body.appendChild(top);
 
-      // Hymn # input — only shown when toggled on
-      if (item.iShowHymn) {
-        var hymnIn = document.createElement('input');
-        hymnIn.className = 'oc-val-input'; hymnIn.type = 'text';
-        hymnIn.value = item.iHymn||''; hymnIn.placeholder = 'Hymn # (e.g. 488)';
-        hymnIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iHymn=this.value.replace(/^#+/,''); render(); }; })(i));
-        body.appendChild(hymnIn);
-      }
+      // ── Hymn # toggle button + input ──
+      var hymnRow = document.createElement('div');
+      hymnRow.style.cssText = 'display:flex;gap:4px;align-items:center;margin-bottom:3px;';
 
-      // Title input (Box 2 — shown in quotes)
-      var titleIn = document.createElement('input');
-      titleIn.className = 'oc-val-input'; titleIn.type = 'text';
-      titleIn.value = item.iTitle||''; titleIn.placeholder = 'Title (shown in quotes)';
-      titleIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iTitle=this.value; render(); }; })(i));
-      body.appendChild(titleIn);
+      var hymnBtn = document.createElement('button');
+      hymnBtn.className = 'ocb' + (item.iHymn ? ' hymn-on' : '');
+      hymnBtn.textContent = '\u266f'; hymnBtn.title = 'Toggle hymn number';
+      hymnBtn.type = 'button';
 
-      // Combined details textarea
-      var valTa = document.createElement('textarea');
-      valTa.className = 'oc-val-textarea';
-      valTa.style.marginTop = '3px';
-      valTa.value = item.iDetail||''; valTa.placeholder = 'Details — type to add inline, or press Enter first to start on new line';
-      valTa.rows = 1;
-      valTa.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iDetail=this.value; render(); autoResize(this); }; })(i));
-      body.appendChild(valTa);
-      setTimeout((function(ta){ return function(){ autoResize(ta); }; })(valTa), 0);
+      var hymnIn = document.createElement('input');
+      hymnIn.className = 'oc-val-input'; hymnIn.type = 'text';
+      hymnIn.value = item.iHymn||''; hymnIn.placeholder = 'Hymn #';
+      hymnIn.style.display = item.iHymn ? '' : 'none';
+      hymnIn.style.width = '80px';
+      hymnIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iHymn=this.value; render(); }; })(i));
+
+      hymnBtn.addEventListener('click', (function(idx, inp, btn){ return function(){
+        var show = inp.style.display === 'none';
+        inp.style.display = show ? '' : 'none';
+        btn.classList.toggle('hymn-on', show);
+        if (!show) { svcOrder[idx].iHymn=''; inp.value=''; render(); }
+      }; })(i, hymnIn, hymnBtn));
+
+      hymnRow.appendChild(hymnBtn); hymnRow.appendChild(hymnIn);
+      body.appendChild(hymnRow);
+
+      // ── Title textarea ──
+      var titleTa = document.createElement('textarea');
+      titleTa.className = 'oc-val-textarea';
+      titleTa.value = item.iTitle||''; titleTa.placeholder = 'Title (optional)';
+      titleTa.rows = 1;
+      titleTa.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iTitle=this.value; render(); autoResize(this); }; })(i));
+      body.appendChild(titleTa);
+      setTimeout((function(ta){ return function(){ autoResize(ta); }; })(titleTa), 0);
+
+      // ── Detail textarea ──
+      var detTa = document.createElement('textarea');
+      detTa.className = 'oc-val-textarea';
+      detTa.value = item.iDetail||''; detTa.placeholder = 'Detail — type inline or press Enter first for block';
+      detTa.rows = 1;
+      detTa.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iDetail=this.value; render(); autoResize(this); }; })(i));
+      body.appendChild(detTa);
+      setTimeout((function(ta){ return function(){ autoResize(ta); }; })(detTa), 0);
     }
     card.appendChild(body);
 
@@ -498,7 +526,7 @@ function buildOrderUI() {
     dn.addEventListener('click', (function(idx){ return function(){ move(idx,1); }; })(i));
     var del = document.createElement('button'); del.className='ocb del'; del.textContent='×'; del.title='Remove';
     del.addEventListener('click', (function(idx){ return function(){
-      svcOrder.splice(idx,1); buildOrderUI(); render();
+      if(confirm('Remove "' + (svcOrder[idx].label||'this item') + '"?')) { svcOrder.splice(idx,1); buildOrderUI(); render(); }
     }; })(i));
     btns.appendChild(up); btns.appendChild(dn); btns.appendChild(del);
     card.appendChild(btns);
@@ -557,27 +585,16 @@ function applyData(d) {
   if (d._order && Array.isArray(d._order)) {
     // Support old format (fixed/custom types) by converting to new 'item' type
     svcOrder = d._order.map(function(item){
-      if (item.type === 'fixed')  return {id:item.id, type:'item', icon:item.icon||'', label:item.label||'', iHymn:'', iTitle:'', iDetail:''};
-      if (item.type === 'custom') return {id:item.id, type:'item', icon:item.icon||'✦', label:item.cLabel||'', iTitle:'', iDetail:item.cVal||''};
-      // Migrate old single-field 'value' format
-      if (item.value !== undefined && item.iDetail === undefined) {
-        return {id:item.id, type:item.type, icon:item.icon||'', label:item.label||'', iHymn:'', iTitle:'', iDetail:item.value||''};
+      if (item.type === 'fixed')  return {id:item.id, type:'item', icon:item.icon||'', label:item.label||'', iHymn:'',iTitle:'',iDetail:''};
+      if (item.type === 'custom') return {id:item.id, type:'item', icon:item.icon||'✦', label:item.cLabel||'', value:item.cVal||''};
+      // Migrate old single 'value' field to iDetail
+      if (item.iDetail === undefined && item.value !== undefined) {
+        return {id:item.id, type:'item', icon:item.icon||'', label:item.label||'', iHymn:'', iTitle:'', iDetail:item.value||''};
       }
-      if (item.iHymn === undefined) { item.iHymn = ''; }
-      // Migrate old iName + iDetail → single combined iDetail
-      if (item.iName !== undefined) {
-        var merged = '';
-        if (item.iName && item.iDetail) merged = item.iName + '\n' + item.iDetail;
-        else if (item.iName) merged = item.iName;
-        else merged = item.iDetail || '';
-        item.iDetail = merged;
-        delete item.iName;
-      }
+      if (item.iHymn  === undefined) item.iHymn  = '';
+      if (item.iTitle === undefined) item.iTitle = '';
+      if (item.iDetail=== undefined) item.iDetail= '';
       return item;
-    });
-    // Derive iShowHymn from whether iHymn has a value
-    svcOrder.forEach(function(item){
-      if (item.type === 'item') item.iShowHymn = !!(item.iHymn && item.iHymn.trim());
     });
   }
   buildOrderUI(); render();
@@ -602,7 +619,7 @@ document.getElementById('imp').addEventListener('change', function(e){
 // ─── ADD ITEM / SECTION ───
 document.getElementById('btn-add-item').addEventListener('click', function(){
   iCounter++;
-  svcOrder.push({id:'ci'+iCounter, type:'item', icon:'✦', label:'', iHymn:'', iTitle:'', iDetail:''});
+  svcOrder.push({id:'ci'+iCounter, type:'item', icon:'✦', label:'', iHymn:'',iTitle:'',iDetail:''});
   buildOrderUI(); render();
   var os=document.getElementById('order-scroll'); if(os) os.scrollTop=os.scrollHeight;
   toast('New item added — fill in the title and detail');
@@ -620,13 +637,13 @@ function clearForm() {
   if(!confirm('Clear all content and reset to a blank order of service?')) return;
   HFID.forEach(function(id){
     var e=document.getElementById(id); if(!e) return;
-    if(id==='s_name') e.value="Saint Paul's United Church of Christ";
+    if(id==='s_name') e.value="St. Paul's United Church of Christ";
     else if(id==='s_sub') e.value='Open and Affirming';
     else e.value='';
   });
   // Remove dynamically added items, clear values on defaults
   svcOrder = svcOrder.filter(function(item){ return !item.id.startsWith('ci') && !item.id.startsWith('cd'); });
-  svcOrder.forEach(function(item){ if(item.type==='item') { item.iHymn=''; item.iTitle=''; item.iDetail=''; } });
+  svcOrder.forEach(function(item){ if(item.type==='item') item.value=''; });
   buildOrderUI(); render(); toast('Ready for a new week!');
 }
 
@@ -685,32 +702,16 @@ function exportDocx() {
       L.push('\\pard\\sb100\\cbpat2 {\\b\\cf1\\fs22 ' + re(el.textContent.trim()) + '}\\par');
     } else {
       var tEl = el.querySelector('.bi-title');
-      var dEl = el.querySelector('.bi-detail');
-      var tlEl = tEl ? tEl.querySelector('.bi-tl') : null;
-      var inEl = tEl ? tEl.querySelector('.bi-inline') : null;
+      var dEls = el.querySelectorAll('.bi-detail');
       if (tEl && tEl.textContent.trim()) {
-        if (inEl && tlEl) {
-          // Inline mode: bold title + normal " — detail" on same line
-          L.push('\\pard\\sb40 {\\b\\fs22\\cf3 ' + re(tlEl.textContent.trim()) + '}{\\fs22\\cf3 ' + re(inEl.textContent) + '}\\par');
-          // Hybrid mode (e.g. scripture): also output any remaining detail below
-          if (dEl) {
-            var detailText = elText(dEl);
-            if (detailText) {
-              var rtfDetail = re(detailText).replace(/\n/g, '\\line ');
-              L.push('\\pard\\sb0 {\\fs22\\cf3 ' + rtfDetail + '}\\par');
-            }
+        L.push('\\pard\\sb40 {\\b\\fs22\\cf3 ' + re(tEl.textContent.trim()) + '}\\par');
+        dEls.forEach(function(dEl) {
+          var detailText = elText(dEl);
+          if (detailText) {
+            var rtfDetail = re(detailText).replace(/\n/g, '\\line ');
+            L.push('\\pard\\sb0 {\\fs22\\cf3 ' + rtfDetail + '}\\par');
           }
-        } else {
-          L.push('\\pard\\sb40 {\\b\\fs22\\cf3 ' + re(tEl.textContent.trim()) + '}\\par');
-          if (dEl) {
-            var detailText = elText(dEl);
-            if (detailText) {
-              // Each newline becomes a soft line break in RTF
-              var rtfDetail = re(detailText).replace(/\n/g, '\\line ');
-              L.push('\\pard\\sb0 {\\fs22\\cf3 ' + rtfDetail + '}\\par');
-            }
-          }
-        }
+        });
       }
     }
   });
@@ -745,853 +746,567 @@ function exportDocx() {
 document.getElementById('btn-docx').addEventListener('click', exportDocx);
 document.getElementById('btn-docx2').addEventListener('click', exportDocx);
 
-// ─── EMAIL IMPORT ───
-var emParsed = [];
-var emSender = null; // { type:'musician'|'pastor', name:'Full Name', isDietmar:bool }
+// ─── INIT ───
+
+// ── Google Publish URL ──
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDeRKd7rtrmLVWj6kOwIWQSyIz1e_LuLE47P9to0dSjocWKxuhQ4vGKefEosOizKk/exec';
+
+function toTitleCase(str) {
+  var SMALL = /^(a|an|the|and|but|or|nor|for|yet|so|at|by|in|of|on|to|up|as|is|it)$/i;
+  return str.replace(/\S+/g, function(word, offset, full) {
+    if (word.indexOf('.') > 0) return word;
+    var lower = word.toLowerCase();
+    if (offset === 0) return word.charAt(0).toUpperCase() + lower.slice(1);
+    var isLast = !full.slice(offset + word.length).trim();
+    if (isLast) return word.charAt(0).toUpperCase() + lower.slice(1);
+    if (SMALL.test(lower)) return lower;
+    return word.charAt(0).toUpperCase() + lower.slice(1);
+  });
+}
+
+// ─── EMAIL IMPORT ────────────────────────────────────────────────────
+var emMatches = [];
 
 function openEmailModal() {
+  emMatches = [];
   document.getElementById('em-ta').value = '';
-  document.getElementById('em-results').innerHTML = '';
   document.getElementById('em-count').textContent = '';
-  document.getElementById('em-sender').textContent = '';
-  document.getElementById('em-apply-btn').style.display = 'none';
-  emSender = null;
-  document.getElementById('em-bg').classList.add('open');
+  document.getElementById('em-results').style.display = 'none';
+  document.getElementById('em-results').innerHTML = '';
+  document.getElementById('em-apply-wrap').style.display = 'none';
+  document.getElementById('em-bg').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('em-ta').focus(); }, 60);
 }
+function emToggle(show) { document.getElementById('em-bg').style.display = show ? 'flex' : 'none'; }
 
-// Detect who sent the email so we can auto-attribute names to service items.
-// Only checks the first line (Gmail copy-paste puts sender name there) and the
-// sign-off area — NOT the full body — so "Dear Dietmar" in a greeting doesn't
-// falsely flag Darin's email as coming from Dietmar.
-function detectEmailSender(raw) {
-  var lines   = raw.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l; });
-  var first   = (lines[0] || '') + ' ' + (lines[1] || ''); // first two lines = sender + date
-  var signoff = raw.slice(-600);                            // sign-off area
-  var zone    = first + ' ' + signoff;                     // only search these areas
-
-  // Musicians (full name anywhere in zone, or first name alone)
-  if (/\bMicah\s+Kammerer\b/i.test(zone) || /\bMicah\b/i.test(zone)) {
-    return { type:'musician', name:'Micah Kammerer', isDietmar:false };
-  }
-  if (/\bJaime\s+Namminga\b/i.test(zone) || /\bJaime\b/i.test(zone)) {
-    return { type:'musician', name:'Jaime Namminga', isDietmar:false };
-  }
-  // Darin Namminga — first name in first line or sign-off
-  if (/\bDarin\b/i.test(zone)) {
-    return { type:'pastor', name:'Rev. Darin Namminga', isDietmar:false };
-  }
-  // Dietmar — only if in first line or sign-off (not just mentioned as addressee)
-  if (/\bDietmar\b/i.test(zone)) {
-    return { type:'pastor', name:'Rev. Dr. Dietmar Plajer', isDietmar:true };
-  }
-  // Generic "Rev. [Dr.] Firstname Lastname" in zone
-  var revM = zone.match(/\bRev\.?\s+(?:Dr\.?\s+)?([A-Z][a-z]+\s+[A-Z][a-z]+)\b/);
-  if (revM) {
-    return { type:'pastor', name:revM[0].replace(/\s+/g,' ').trim(), isDietmar:false };
-  }
-  return null;
-}
-
-// Return the right pastoral name: Dietmar uses full credentials first, short form after;
-// all other pastors keep full name throughout
-function getPastoralName(sender, firstDone) {
-  if (sender.isDietmar) return firstDone ? 'Pastor Dietmar' : 'Rev. Dr. Dietmar Plajer';
-  return sender.name;
-}
-
-function parseEmailText(raw) {
-  var results = [];
-  var lines = raw.split('\n').map(function(l){ return l.trim(); });
-  var ne = lines.filter(function(l){ return l.length > 0; });
-
-  // ── MUSIC ITEMS ──
-  // Format A: keyword on its own line, title on next line, optional "By Composer" after
-  // Format B: "Keyword - Title (Composer)"   ← paren style
-  // Format C: "Keyword - Title by Composer"  ← by style
-  var musicDefs = [
-    { keys:['prelude'],                                  sid:'prelude',  label:'Prelude' },
-    { keys:['offertory','offering of music','offering'], sid:'offering', label:'Offering of Music' },
-    { keys:['postlude'],                                 sid:'postlude', label:'Postlude' },
-    { keys:['tuning into advent','tuning into lent','tuning into','tuning hymn'], sid:'tuning', label:'Tuning Hymn' },
-  ];
-
-  // Helper: split "Title (Composer) - Performer" in all its formats.
-  // Returns { title, composer, performer } — performer may be '' if not present.
-  var Q = '[\u201c\u201d"]'; // any double-quote char
-  function splitTitleComposer(str) {
-    str = str.trim();
-    // Pattern 1: "Title" (Composer) - Performer  [quoted title, external composer, performer]
-    var p1 = str.match(new RegExp('^' + Q + '(.+?)' + Q + '\\s*\\(([^)]+)\\)\\s*[-\u2013]\\s*(.+)$'));
-    if (p1) return { title:p1[1].trim(), composer:p1[2].trim(), performer:p1[3].trim() };
-    // Pattern 2: "Title" - Performer  [quoted title, no composer, performer]
-    var p2 = str.match(new RegExp('^' + Q + '(.+?)' + Q + '\\s*[-\u2013]\\s*(.+)$'));
-    if (p2) return { title:p2[1].trim(), composer:'', performer:p2[2].trim() };
-    // Pattern 3: Title (Composer) - Performer  [unquoted title, composer paren, performer]
-    var p3 = str.match(/^(.*?)\s*\(([^)]+)\)\s*[-\u2013]\s*(.+)$/);
-    if (p3 && p3[1].trim()) return { title:p3[1].trim(), composer:p3[2].trim(), performer:p3[3].trim() };
-    // Pattern 4: Title (Composer)  [no performer — end of string after paren]
-    var p4 = str.match(new RegExp('^' + Q + '?(.+?)' + Q + '?\\s*\\(([^)]+)\\)\\s*$'));
-    if (p4 && p4[1].trim()) return { title:p4[1].trim(), composer:p4[2].trim(), performer:'' };
-    // Pattern 5: unclosed paren
-    var p5 = str.match(/^(.*?)\s*\(([^)]+)$/);
-    if (p5 && p5[1].trim()) return { title:p5[1].trim(), composer:p5[2].trim(), performer:'' };
-    // Pattern 6a: "Title" by Composer - Performer  [quoted title, by-composer, dash-performer]
-    var p6a = str.match(new RegExp('^' + Q + '(.+?)' + Q + '\\s+by\\s+(.*?)\\s*[-\u2013]\\s*(.+)$', 'i'));
-    if (p6a && p6a[2].trim()) return { title:p6a[1].trim(), composer:p6a[2].trim(), performer:p6a[3].trim() };
-    // Pattern 6b: Title by Composer - Performer  [unquoted title, by-composer, dash-performer]
-    var p6b = str.match(/^(.*?)\s+by\s+(.*?)\s*[-\u2013]\s*(.+)$/i);
-    if (p6b && p6b[1].trim() && p6b[2].trim()) return { title:p6b[1].replace(new RegExp('^'+Q+'|'+Q+'$','g'),'').trim(), composer:p6b[2].trim(), performer:p6b[3].trim() };
-    // Pattern 6: Title by Composer  [no performer]
-    var p6 = str.match(/^(.*?)\s+by\s+(.+)$/i);
-    if (p6 && p6[1].trim()) return { title:p6[1].replace(new RegExp('^'+Q+'|'+Q+'$','g'),'').trim(), composer:p6[2].trim(), performer:'' };
-    // Fallback
-    return { title:str.replace(new RegExp('^'+Q+'+|'+Q+'+$','g'),'').trim(), composer:'', performer:'' };
-  }
-
-  musicDefs.forEach(function(md) {
-    var linePat = new RegExp('^(?:' + md.keys.join('|') + ')\\s*[-:–]\\s*(.+)$', 'i');
-
-    // Offering of Music can appear multiple times — scan all lines without stopping
-    if (md.sid === 'offering') {
-      ne.forEach(function(line) {
-        var lm = line.match(linePat);
-        if (lm) {
-          var tc = splitTitleComposer(lm[1]);
-          tc.title = tc.title.replace(/^[\u201c\u201d"'\u2018\u2019]+|[\u201c\u201d"'\u2018\u2019]+$/g, '').trim();
-          if (tc.title) results.push({ type:'music', sid:'offering', label:'Offering of Music', title:tc.title, composer:tc.composer, performer:tc.performer });
-        }
-      });
-      return; // skip single-match logic below
-    }
-
-    var found = false;
-    var kwPat = new RegExp('^(?:' + md.keys.join('|') + ')\\s*[-:–]?\\s*$', 'i');
-
-    for (var j = 0; j < ne.length && !found; j++) {
-      // Format A: keyword alone on line
-      if (kwPat.test(ne[j])) {
-        var nxt = ne[j+1] || '';
-        var isKw = musicDefs.some(function(md2){ return new RegExp('^(?:'+md2.keys.join('|')+')\\s*$','i').test(nxt); });
-        if (nxt && !isKw && !(/^\d{3}\s/.test(nxt))) {
-          var comp = ne[j+2] || '';
-          var composer = '';
-          if (/^by\s+/i.test(comp)) composer = comp.replace(/^by\s+/i, '');
-          else if (/^\([^)]+\)$/.test(comp)) composer = comp.replace(/^\(|\)$/g, '');
-          results.push({ type:'music', sid:md.sid, label:md.label, title:nxt, composer:composer, performer:'' });
-          found = true;
-        }
-      }
-      // Formats B/C: "Keyword - Title (Composer)" or "Keyword - Title by Composer"
-      if (!found) {
-        var lm = ne[j].match(linePat);
-        if (lm) {
-          var tc = splitTitleComposer(lm[1]);
-          results.push({ type:'music', sid:md.sid, label:md.label, title:tc.title, composer:tc.composer, performer:tc.performer });
-          found = true;
-        }
-      }
-    }
-
-    // Format D: keyword anywhere in the line — "Here's my prelude: Title (Composer)"
-    // Runs only if A/B/C all failed
-    if (!found) {
-      var anyLinePat  = new RegExp('\\b(?:' + md.keys.join('|') + ')\\b[^:\\-–\\n]*[:\\-–]\\s*(.+)$', 'i');
-      var anyKwEndPat = new RegExp('\\b(?:' + md.keys.join('|') + ')\\b[^:\\-–\\n]*[:\\-–]?\\s*$',   'i');
-      for (var k = 0; k < ne.length && !found; k++) {
-        // Same line: "heres my prelude: Title (Composer)"
-        var alm = ne[k].match(anyLinePat);
-        if (alm) {
-          var cleanInput = alm[1].trim();
-          var tc2 = splitTitleComposer(cleanInput);
-          tc2.title = tc2.title.replace(/^[\u201c\u201d"'\u2018\u2019]+|[\u201c\u201d"'\u2018\u2019]+$/g, '').trim();
-          if (tc2.title) {
-            results.push({ type:'music', sid:md.sid, label:md.label, title:tc2.title, composer:tc2.composer, performer:tc2.performer });
-            found = true;
-          }
-        }
-        // Next line: "heres my prelude:" then title on following line
-        if (!found && anyKwEndPat.test(ne[k])) {
-          var nxt2 = ne[k+1] || '';
-          var isKw2 = musicDefs.some(function(md2){ return new RegExp('\\b(?:'+md2.keys.join('|')+')\\b','i').test(nxt2); });
-          if (nxt2 && !isKw2 && !(/^\d{3}\s/.test(nxt2))) {
-            var comp2 = ne[k+2] || '';
-            var composer2 = '';
-            if (/^by\s+/i.test(comp2))       composer2 = comp2.replace(/^by\s+/i, '');
-            else if (/^\([^)]+\)$/.test(comp2)) composer2 = comp2.replace(/^\(|\)$/g, '');
-            var cleanTitle2 = nxt2.replace(/^[\u201c\u201d"'\u2018\u2019]+|[\u201c\u201d"'\u2018\u2019]+$/g, '').trim();
-            results.push({ type:'music', sid:md.sid, label:md.label, title:cleanTitle2, composer:composer2 });
-            found = true;
-          }
-        }
-      }
-    }
-  });
-
-  // ── TUNING SLOT LABEL OVERRIDE ──
-  // If the source mentions "Tuning into Advent/Lent", tag the tuning music result
-  // so applyEmailResults can rename the slot label accordingly.
-  var tuningLabelM = raw.match(/\btuning into (advent|lent)\b/i);
-  if (tuningLabelM) {
-    var tuningOverride = 'Tuning into ' + tuningLabelM[1].charAt(0).toUpperCase() + tuningLabelM[1].slice(1).toLowerCase();
-    results.forEach(function(res){ if (res.type === 'music' && res.sid === 'tuning') res.slotLabel = tuningOverride; });
-  }
-
-  // ── HYMNS ──
-  // Matches: optional "Label: " + 3-digit number + title  e.g. "510 We Gather Here"  "Kyrie: 474 As a Child Rests (refrain)"
-  var hymnTargets = {
-    'kyrie':'kyrie', 'gloria':'gloria',
-    'hymn of praise':'praise', 'opening hymn':'praise',
-    'hymn of thanksgiving':'thanks',
-    'hymn of mission':'mission', 'closing hymn':'mission',
-    'benediction response':'benediction',
-    'communion':'communion', 'communion song':'communion',
-    'doxology':'doxology',
-    'tuning into advent':'tuning', 'tuning into lent':'tuning',
-    'tuning into':'tuning', 'tuning hymn':'tuning',
-    'second hymn':'hymn1', 'hymn':'hymn1'
-  };
-  ne.forEach(function(line) {
-    // Allow: optional "Label: ", optional "Hymn " word, optional "#", 1–3 digit number, then title
-    // Handles: "Hymn of Praise: # 20 Title", "Hymn of Thanksgiving: Hymn # 250 Title", "474 Title"
-    // Strip leading * bullet before matching (e.g. "* Hymn of Mission: 488 Title")
-    var m = line.replace(/^\*\s*/,'').match(/^(?:([^:0-9\n]{2,40}):\s*)?(?:hymn\s+)?#?\s*(\d{1,3})\s+[\u201c\u201d"]?(.+?)[\u201c\u201d"]?(?:\s+\(([^)]+)\))?(?:\s+as\s+(.+?))?\.?\s*$/i);
-    if (m) {
-      var lh   = (m[1]||'').trim().toLowerCase().replace(/^[*\s]+/,'');
-      var num  = m[2];
-      var title= m[3].replace(/[\u201c\u201d"]/g,'').trim();
-      var det  = m[4]||'';
-      var role = (m[5]||'').toLowerCase();
-      var tid  = hymnTargets[lh] || null;
-      if (!tid && role.indexOf('communion') !== -1) tid = 'communion';
-      results.push({ type:'hymn', num:num, title:title, detail:det, hint:lh||role, tid:tid });
-    }
-  });
-
-  // ── DOXOLOGY custom text ──
-  // Look for "For time to savor" block, or 4+ consecutive short poetic lines after "doxology"
-  var doxRe = /For time to savor[\s\S]*?(?=\n\n|\n[A-Z][a-z]{2,}[\s,]|$)/i;
-  var dm = raw.match(doxRe);
-  if (!dm) {
-    // Fallback: lines after "doxology" keyword that look like verse lines
-    var di = raw.toLowerCase().indexOf('doxology');
-    if (di !== -1) {
-      var after = raw.slice(di+8).trim();
-      var allDoxLines = after.split('\n');
-      var vlines = [];
-      for (var dli = 0; dli < allDoxLines.length; dli++) {
-        var dl = allDoxLines[dli].trim();
-        if (!dl) break;                                       // blank line = end of block
-        if (/^[*#]/.test(dl)) break;                         // starred section marker
-        if (/:/.test(dl)) break;                             // "Label: value" line
-        if (/\b(?:prayer|prayers|hymn|hymns|sermon|message|scripture|announcement|offering|benediction|lord'?s|amen|people)\b/i.test(dl)) break;
-        if (dl.length > 5 && dl.length < 80) vlines.push(dl);
-      }
-      if (vlines.length >= 3) dm = [vlines.slice(0,4).join('\n')];
+function detectEmailSender(lines) {
+  var SIGNOFFS = /^(blessings|thanks|thank you|regards|sincerely|yahoo|cheers)/i;
+  for (var i = lines.length - 1; i >= Math.max(0, lines.length - 5); i--) {
+    var line = lines[i].trim();
+    if (SIGNOFFS.test(line)) {
+      var parts = line.split(/\s+/);
+      if (parts.length >= 2) return toTitleCase(parts.slice(1).join(' '));
     }
   }
-  if (dm) results.push({ type:'doxology', text:dm[0].trim() });
-
-  // ── PRAYER OF CONFESSION ──
-  // Match "Prayer of Confession: (optional tag) text..." spanning multiple lines
-  var confPat = /(?:prayer of confession|confession prayer)[^:\n]*:\s*(?:\([^)]*\)\s*)?(.+)/i;
-  var confM   = raw.match(confPat);
-  if (confM) {
-    // Grab text from match start to the next recognisable section header
-    var confStart = raw.indexOf(confM[1], raw.search(confPat));
-    var confRest  = raw.slice(confStart);
-    var cutOff    = confRest.search(/\n(?:scripture|kyrie|gloria|assurance|offering|service of|hymn|message|sermon|prayer of the|benediction|closing|postlude|doxology|\*\s)/i);
-    if (cutOff !== -1) confRest = confRest.slice(0, cutOff);
-    // Normalise silence line
-    confRest = confRest.replace(/\(\s*silence[^)]*\)/gi, '(Silence for personal prayer and reflection)').trim();
-    if (confRest.length > 10) results.push({ type:'confession', text:confRest });
-  }
-
-  // ── SERMON / THEME FOCUS ──
-  // Match "Message: ...", "Sermon: ...", "specific focus: ...", or "focus for this: ..."
-  var sm = raw.match(/(?:specific focus[^:\n]*|focus for this[^:\n]*):\s*(.{5,200})/i);
-  if (!sm) sm = raw.match(/^(?:message|sermon|message\s*\/\s*sermon)\s*:\s*(.{5,200})\s*$/im);
-  if (sm) {
-    var sermonRaw = sm[1].trim().replace(/[\u201c\u201d"]/g,'');
-    // Extract preacher name from "– Pastor Dietmar" suffix before stripping it
-    var preacherM = sermonRaw.match(/\s*[-\u2013]\s*((?:pastor|rev\.?|reverend|pr\.)\b[\w\s.]*)/i);
-    var sermonPreacher = preacherM ? preacherM[1].trim() : null;
-    var sermonText = sermonRaw.replace(/\s*[-\u2013]\s*(?:pastor|rev\.?|reverend|pr\.)\b.*/i,'').trim();
-    if (sermonText.length >= 3) results.push({ type:'sermon', text:sermonText, preacher:sermonPreacher });
-  }
-
-  // ── SCRIPTURE PASSAGES ──
-  var books = 'psalm|genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|samuel|kings|chronicles|ezra|nehemiah|esther|job|proverbs|ecclesiastes|song|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|matthew|mark|luke|john|acts|romans|corinthians|galatians|ephesians|philippians|colossians|thessalonians|timothy|titus|philemon|hebrews|james|peter|revelation';
-  var scrLines = [];
-  ne.forEach(function(line) {
-    if (!new RegExp('\\b(?:'+books+')\\s+\\d','i').test(line)) return;
-    // Skip lines that look like music items: "(Composer) - Performer" or music keywords
-    if (/\([^)]+\)\s*[-–]/.test(line)) return;
-    var isMusicLine = musicDefs.some(function(md2){
-      return new RegExp('\\b(?:'+md2.keys.join('|')+')\\b','i').test(line);
-    });
-    if (isMusicLine) return;
-    scrLines.push(line.replace(/^[*\-–•]\s*/,''));
-  });
-  if (scrLines.length > 0) results.push({ type:'scripture', lines:scrLines });
-
-  // ── WORSHIP ROLES LIST ──
-  // Handles blocks like: "Greeter Krex, Lisa Cramer, Kay Lector Rudnitsky, Raven Acolyte Lewis, Nathan ..."
-  // Names are in "Lastname, Firstname [M.]" format; multiple names share one role.
-  var roleDefs = [
-    { key:"lenten series skit",        sid:'lentenskit',   label:'Lenten Series Skit',         slot:null   },
-    { key:"special music hymn leader", sid:'hymnleader',   label:'Special Music / Hymn Leader', slot:null   },
-    { key:"special music",             sid:'specialmusic', label:'Special Music',               slot:null   },
-    { key:"children's message",        sid:'childrens',    label:"Children's Message",          slot:'item' },
-    { key:"money counter",             sid:'moneycounter', label:'Money Counter',               slot:null   },
-    { key:"tech team",                 sid:'techteam',     label:'Tech Team',                   slot:null   },
-    { key:"hymn leader",               sid:'hymnleader',   label:'Hymn Leader',                 slot:null   },
-    { key:"greeters",                  sid:'greeter',      label:'Greeter',                     slot:'field'},
-    { key:"greeter",                   sid:'greeter',      label:'Greeter',                     slot:'field'},
-    { key:"lector",                    sid:'lector',       label:'Lector / Scripture Reader',   slot:'lector'},
-    { key:"acolyte",                   sid:'acolyte',      label:'Acolyte',                     slot:'field'},
-    { key:"pianist",                   sid:'pianist',      label:'Pianist',                     slot:null   },
-    { key:"nursery",                   sid:'nursery',      label:'Nursery',                     slot:null   },
-  ];
-  // Normalise curly apostrophes, then count how many role keywords are present
-  var normRaw = raw.replace(/[\u2018\u2019\u02bc]/g,"'");
-  var roleHits = roleDefs.filter(function(rd, i) {
-    if (roleDefs.findIndex(function(r){ return r.sid===rd.sid; }) < i) return false; // dedup sids
-    return new RegExp('\\b' + rd.key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"'?") + '\\b','i').test(normRaw);
-  }).length;
-  if (roleHits >= 2) {
-    var rkPat = roleDefs.map(function(rd){
-      return rd.key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"'?");
-    }).join('|');
-    // Split at each role-keyword boundary; each chunk starts with the role name
-    var rparts = normRaw.replace(/\n/g,' ').split(new RegExp('(?=\\b(?:' + rkPat + ')\\b)','i'));
-    rparts.forEach(function(part) {
-      part = part.trim(); if (!part) return;
-      var rd = null;
-      for (var ri = 0; ri < roleDefs.length; ri++) {
-        var kpat = new RegExp('^(?:' + roleDefs[ri].key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"'?") + ')\\b','i');
-        if (kpat.test(part)) { rd = roleDefs[ri]; break; }
-      }
-      if (!rd) return;
-      var nameStr = part.slice(rd.key.length).replace(/^\s*[:]\s*/,'').trim();
-      // Extract "Lastname, Firstname [M.]" pairs and invert to "Firstname [M.] Lastname"
-      var nameRe = /([A-Z][A-Za-z\-']+(?:\s+[A-Z]\.?)?),\s*([A-Za-z]+(?:\s+[A-Z][.]?)?)/g;
-      var nm, names = [];
-      while ((nm = nameRe.exec(nameStr)) !== null) {
-        names.push((nm[2].trim() + ' ' + nm[1].trim()).replace(/\s+/g,' '));
-      }
-      if (names.length > 0) {
-        var existing = results.find(function(r){ return r.type==='role' && r.sid===rd.sid; });
-        if (existing) existing.names = existing.names.concat(names);
-        else results.push({ type:'role', sid:rd.sid, role:rd.label, names:names, slot:rd.slot });
-      }
-    });
-  }
-
-  // ── PEOPLE ATTRIBUTION ──
-  // Handles "Label: Name" (same line) AND "Label\nName" (name on next line) formats.
-  var attrDefs = [
-    { key:"welcome and announcements",         sid:'welcome'   },
-    { key:"introduction to the worship theme", sid:'theme'     },
-    { key:"introduction of the worship theme", sid:'theme'     },
-    { key:"introduction to worship theme",     sid:'theme'     },
-    { key:"introduction of worship theme",     sid:'theme'     },
-    { key:"assurance of pardon",               sid:'assurance' },
-    { key:"assurance",                         sid:'assurance' },
-    { key:"prayers of the people",             sid:'prayers'   },
-    { key:"children's message",                sid:'childrens' },
-    { key:"children's sermon",                 sid:'childrens' },
-    { key:"benediction",                       sid:'benediction'},
-    { key:"blessing",                          sid:'blessing'  },
-    { key:"offering announcement",             sid:'offerann'  },
-    { key:"acolyte",                           sid:'acolyte',  slot:'field' },
-    { key:"greeters",                          sid:'greeter',  slot:'field' },
-    { key:"greeter",                           sid:'greeter',  slot:'field' },
-    { key:"welcome",                           sid:'welcome'   },
-    // "Prayer for Illumination: Name" → sets reader on Scripture Readings
-    { key:"prayer for illumination",           sid:'scripture', slot:'lector' },
-    // sermon/message attribution (no title context)
-    { key:"message",                           sid:'sermon'    },
-    { key:"sermon",                            sid:'sermon'    },
-  ];
-  for (var aIdx = 0; aIdx < ne.length; aIdx++) {
-    var stripped = ne[aIdx].replace(/^\*\s*/,'').trim();
-    for (var ai = 0; ai < attrDefs.length; ai++) {
-      var ad = attrDefs[ai];
-      var keyEsc = ad.key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"'?");
-      // Format A: "Label: Name" on same line
-      var adPat = new RegExp('^(?:' + keyEsc + ')\\s*:\\s*(.+)$', 'i');
-      var adm = stripped.match(adPat);
-      if (adm) {
-        var person = adm[1].trim();
-        if (person.length >= 2 && person.length < 60 && !/\d{1,3}:\d/.test(person)) {
-          results.push({ type:'attribution', sid:ad.sid, name:person, slot:ad.slot||null });
-        }
-        break;
-      }
-      // Format B: "Label" alone on line, name on next line (outline format)
-      var keyOnlyPat = new RegExp('^(?:' + keyEsc + ')\\s*$', 'i');
-      if (keyOnlyPat.test(stripped)) {
-        var nextLine = (ne[aIdx + 1] || '').trim();
-        if (nextLine.length >= 2 && nextLine.length < 60 && /^[A-Z]/.test(nextLine) &&
-            !/\d{1,3}:\d/.test(nextLine) && !/:/.test(nextLine)) {
-          results.push({ type:'attribution', sid:ad.sid, name:nextLine, slot:ad.slot||null });
-        }
-        break;
-      }
-      // Format C: "Label - Name" (dash separator on same line, no colon)
-      var dashPat = new RegExp('^(?:' + keyEsc + ')\\s*[-\u2013]\\s*(.+)$', 'i');
-      var dashM = stripped.match(dashPat);
-      if (dashM) {
-        var person2 = dashM[1].trim();
-        if (person2.length >= 2 && person2.length < 60 && !/\d{1,3}:\d/.test(person2)) {
-          results.push({ type:'attribution', sid:ad.sid, name:person2, slot:ad.slot||null });
-        }
-        break;
-      }
-    }
-  }
-
-  // ── NEW SERVICE ORDER ITEMS ──
-  // Scan the outline for well-known service items that aren't already in svcOrder.
-  // Offered in the import modal as optional additions.
-  var knownServiceItems = {
-    'prayer for illumination':        { icon:'🙏', label:'Prayer for Illumination' },
-    'lighting of the advent candles': { icon:'🕯️', label:'Lighting of the Advent Candles' },
-    'lighting of the lenten candles': { icon:'🕯️', label:'Lighting of the Lenten Candles' },
-    'lighting of the christ candle':  { icon:'🕯️', label:'Lighting of the Christ Candle' },
-    'call to worship':                { icon:'📣', label:'Call to Worship' },
-    'gathering song':                 { icon:'🎼', label:'Gathering Song' },
-    'opening prayer':                 { icon:'🙏', label:'Opening Prayer' },
-    'passing of the peace':           { icon:'✝️', label:'Passing of the Peace' },
-    'responsive reading':             { icon:'📖', label:'Responsive Reading' },
-    'joys and concerns':              { icon:'🙏', label:'Joys and Concerns' },
-    'pastoral prayer':                { icon:'🙏', label:'Pastoral Prayer' },
-    'affirmation of faith':           { icon:'✝️', label:'Affirmation of Faith' },
-    'apostles creed':                 { icon:'✝️', label:"Apostles' Creed" },
-    'stewardship moment':             { icon:'🎁', label:'Stewardship Moment' },
-    'special music':                  { icon:'🎵', label:'Special Music' },
-    'invitation to communion':              { icon:'✝️', label:'Invitation to Communion' },
-    'words of institution':                 { icon:'✝️', label:'Words of Institution' },
-    'time of silent prayer':                { icon:'🙏', label:'Time of Silent Prayer' },
-    'mission focus':                        { icon:'🌍', label:'Mission Focus' },
-    'the service of the advent wreath':     { icon:'🕯️', label:'Service of the Advent Wreath' },
-    'service of the advent wreath':         { icon:'🕯️', label:'Service of the Advent Wreath' },
-    'lighting of the candle':               { icon:'🕯️', label:'Lighting of the Candle' },
-  };
-  // Build normalized lookup of labels already in svcOrder
-  var normExisting = {};
-  svcOrder.forEach(function(s) {
-    if (s.type === 'item') {
-      var nk = s.label.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-      normExisting[nk] = s.id;
-    }
-  });
-  // Sort keys longest-first so 'hymn of thanksgiving' matches before 'hymn'
-  var normExistingKeys = Object.keys(normExisting).sort(function(a,b){ return b.length - a.length; });
-  var lastMatchedSid = null;
-  ne.forEach(function(nline) {
-    var norm = nline.toLowerCase().replace(/^\*\s*/,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-    // Update position cursor: does this line match an existing svcOrder item?
-    for (var eki = 0; eki < normExistingKeys.length; eki++) {
-      var ek = normExistingKeys[eki];
-      if (norm === ek || (norm.length > 5 && ek.indexOf(norm) !== -1) || (ek.length > 5 && norm.indexOf(ek) !== -1)) {
-        lastMatchedSid = normExisting[ek]; break;
-      }
-    }
-    // Does this line match a known service item not yet in svcOrder?
-    for (var kk in knownServiceItems) {
-      if (norm === kk || norm.indexOf(kk) === 0) {
-        if (!normExisting[kk]) {
-          var alreadyIn = results.some(function(r){ return r.type==='newitem' && r.label.toLowerCase() === knownServiceItems[kk].label.toLowerCase(); });
-          if (!alreadyIn) {
-            results.push({ type:'newitem', label:knownServiceItems[kk].label, icon:knownServiceItems[kk].icon, afterSid:lastMatchedSid });
-          }
-        }
-        break;
-      }
-    }
-  });
-
-  return results;
-}
-
-function emFindItem(sid, hymnNum) {
-  // Special case FIRST: 'offering' (offertory) must find the Offering of Music
-  // that comes AFTER the Offering Announcement — NOT the Offering Announcement itself
-  // (which has id='offering', so we must intercept before the direct id match below)
-  if (sid === 'offering') {
-    var anchorIdx = -1;
-    for (var oi = 0; oi < svcOrder.length; oi++) {
-      var lbl = (svcOrder[oi].label || '').toLowerCase();
-      if (lbl.indexOf('offering announcement') !== -1 || svcOrder[oi].id === 'offering') {
-        anchorIdx = oi; break;
-      }
-    }
-    if (anchorIdx !== -1) {
-      for (var oi2 = anchorIdx + 1; oi2 < svcOrder.length; oi2++) {
-        if (svcOrder[oi2].type === 'item' && (svcOrder[oi2].label || '').toLowerCase().indexOf('offering') !== -1) {
-          return svcOrder[oi2];
-        }
-      }
-    }
-    // fallback: first Offering of Music found anywhere
-    var fb = svcOrder.find(function(s){ return s.type==='item' && (s.label||'').toLowerCase().indexOf('offering of music') !== -1; });
-    if (fb) return fb;
-    return null;
-  }
-  // Direct id match (all other cases)
-  var it = svcOrder.find(function(s){ return s.id === sid; });
-  if (it) return it;
-  // Label keyword match
-  var kmap = {
-    prelude:['prelude'], postlude:['postlude'],
-    kyrie:['kyrie'], gloria:['gloria'], praise:['hymn of praise'],
-    thanks:['hymn of thanksgiving'], mission:['hymn of mission'],
-    benediction:['benediction response'], sermon:['sermon','message'],
-    scripture:['scripture'], doxology:['doxology'], tuning:['tuning'],
-    communion:['communion'], hymn1:['hymn'],
-    confession:['confession'],
-    assurance:['assurance'], blessing:['blessing'],
-    prayers:['prayers of the people'],
-    offerann:['offering announcement'],
-    adventwreath:['advent wreath','advent candle'],
-    missionfocus:['mission focus']
-  };
-  var kws = kmap[sid] || [sid];
-  it = svcOrder.find(function(s){ return s.type==='item' && kws.some(function(k){ return (s.label||'').toLowerCase().indexOf(k) !== -1; }); });
-  if (it) return it;
-  // Hymn number match
-  if (hymnNum) {
-    it = svcOrder.find(function(s){ return s.type==='item' && s.iHymn === hymnNum; });
-    if (it) return it;
-  }
-  return null;
+  return '';
 }
 
 function runEmailParse() {
   var raw = document.getElementById('em-ta').value;
-  if (!raw.trim()) return;
-  emSender = detectEmailSender(raw);
-  emParsed = parseEmailText(raw);
-  var ctr = document.getElementById('em-count');
-  var res = document.getElementById('em-results');
-  var senderEl = document.getElementById('em-sender');
-
-  // Show detected sender
-  if (emSender) {
-    var icon = emSender.type === 'musician' ? '🎵' : '✝️';
-    var senderNote = emSender.isDietmar ? ' (first mention: full credentials; after: Pastor Dietmar)' : '';
-    senderEl.textContent = icon + ' Sender detected: ' + emSender.name + senderNote;
-    senderEl.style.color = '#2a7a5a';
-  } else {
-    senderEl.textContent = '';
-  }
-
-  if (emParsed.length === 0) {
-    res.innerHTML = '<div class="em-none">Nothing recognizable found. Try pasting a different email.</div>';
-    ctr.textContent = '';
-    document.getElementById('em-apply-btn').style.display = 'none';
-    return;
-  }
-
-  ctr.textContent = emParsed.length + ' match' + (emParsed.length !== 1 ? 'es' : '') + ' found';
-  var html = '';
-  emParsed.forEach(function(r, idx) {
-    var label = '', arrow = '', note = '';
-    if (r.type === 'music') {
-      label = (r.slotLabel || r.label) + ': <em>' + x(r.title) + '</em>' + (r.composer ? ' &mdash; ' + x(r.composer) : '');
-      var it = emFindItem(r.sid, null);
-      var slotName = r.slotLabel || (it ? it.label : null);
-      arrow = slotName ? '&rarr; Updates &ldquo;' + x(slotName) + '&rdquo;' : '&rarr; No matching item found in service order';
-      var perfName = (emSender && emSender.type === 'musician') ? emSender.name : (r.performer || '');
-      var perfNote = perfName ? '  |  Performer: ' + x(perfName) : '';
-      note = 'Title: \u201c' + x(r.title) + '\u201d' + (r.composer ? '  |  Composer: ' + x(r.composer) : '') + perfNote;
-    } else if (r.type === 'hymn') {
-      var lh = r.hint ? r.hint.charAt(0).toUpperCase()+r.hint.slice(1)+': ' : 'Hymn: ';
-      label = lh + '#' + r.num + ' <em>' + x(r.title) + '</em>' + (r.detail ? ' (' + x(r.detail) + ')' : '');
-      var it = emFindItem(r.tid, r.num);
-      arrow = it ? '&rarr; Updates &ldquo;' + x(it.label) + '&rdquo;' : '&rarr; Will fill next available hymn slot';
-    } else if (r.type === 'confession') {
-      label = 'Prayer of Confession text';
-      arrow = '&rarr; Updates Prayer of Confession detail';
-      note  = r.text.slice(0, 90).replace(/\n/g,' ') + (r.text.length > 90 ? '\u2026' : '');
-    } else if (r.type === 'doxology') {
-      label = 'Custom Doxology text';
-      arrow = '&rarr; Updates Doxology item';
-      note  = r.text.split('\n').slice(0,2).join(' / ');
-    } else if (r.type === 'sermon') {
-      label = 'Sermon title: <em>' + x(r.text) + '</em>';
-      arrow = '&rarr; Updates Message / Sermon title';
-      if (r.preacher) note = 'Preacher: ' + x(r.preacher);
-    } else if (r.type === 'scripture') {
-      label = 'Scripture passages (' + r.lines.length + ' found)';
-      arrow = '&rarr; Updates Scripture Readings detail';
-      note  = r.lines.join(' · ');
-    } else if (r.type === 'role') {
-      var slotLabels = { field:'Updates bulletin field', item:'Updates service item', lector:'Updates scripture reader', null:'For reference — no bulletin slot' };
-      label = r.role + ': <em>' + x(r.names.join(', ')) + '</em>';
-      arrow = '&rarr; ' + (slotLabels[r.slot] || 'For reference — no bulletin slot');
-    } else if (r.type === 'attribution') {
-      label = 'Attributed to: <em>' + x(r.name) + '</em>';
-      var arrowNote;
-      if (r.slot === 'field') {
-        arrowNote = r.sid === 'acolyte' ? 'Updates Acolyte field' : r.sid === 'greeter' ? 'Updates Greeters field' : 'Updates bulletin field';
-      } else if (r.slot === 'lector') {
-        arrowNote = 'Updates Scripture Readings reader';
-      } else {
-        var it2 = emFindItem(r.sid, null);
-        arrowNote = it2 ? 'Updates &ldquo;' + x(it2.label) + '&rdquo; leader' : 'No matching item found';
-      }
-      arrow = '&rarr; ' + arrowNote;
-    } else if (r.type === 'newitem') {
-      var afterItem = r.afterSid ? svcOrder.find(function(s){ return s.id===r.afterSid; }) : null;
-      label = r.icon + ' New section: <em>' + x(r.label) + '</em>';
-      arrow = afterItem ? '&rarr; Added after &ldquo;' + x(afterItem.label) + '&rdquo;' : '&rarr; Added to end of service order';
+  var lines = raw.split('\n');
+  var performer = detectEmailSender(lines);
+  var KEYWORDS = {'prelude':'prelude','offertory':'music2','offering':'music2','offering music':'music2','postlude':'postlude'};
+  emMatches = [];
+  var cur = null;
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) continue;
+    var normLine = line.toLowerCase().replace(/[^a-z ]/g,' ').replace(/\s+/,' ').trim();
+    var targetId = null;
+    for (var kw in KEYWORDS) { if (normLine === kw || normLine.indexOf(kw) === 0) { targetId = KEYWORDS[kw]; break; } }
+    if (targetId) {
+      var svcItem = svcOrder.find(function(s){ return s.id === targetId || (targetId==='music2' && s.id==='music2'); });
+      if (!svcItem) svcItem = svcOrder.find(function(s){ return s.type==='item' && ptN(s.label).indexOf(normLine)===0; });
+      if (svcItem) { cur = {item:svcItem,title:'',composer:'',performer:performer}; emMatches.push(cur); }
+    } else if (cur) {
+      var stripped = line.replace(/^[\u201c\u201d\u2018\u2019"'\s]+|[\u201c\u201d\u2018\u2019"'\s]+$/g,'').trim();
+      if (!cur.title && stripped) { cur.title = toTitleCase(stripped); }
+      else if (!cur.composer && stripped && !/^(blessings|thanks|thank you|regards|sincerely|yahoo)/i.test(stripped)) { cur.composer = toTitleCase(stripped); }
     }
-    html += '<div class="em-ri" id="emri-'+idx+'">'
-      + '<input type="checkbox" id="emcb-'+idx+'" checked onchange="emToggle('+idx+')">'
-      + '<div style="flex:1">'
-      + '<div class="em-rl">'+label+'</div>'
-      + '<div class="em-ra">'+arrow+'</div>'
-      + (note ? '<div class="em-rn">'+x(note)+'</div>' : '')
-      + '</div></div>';
+  }
+  var resEl = document.getElementById('em-results'), cntEl = document.getElementById('em-count');
+  if (emMatches.length === 0) { cntEl.textContent = 'No music items found.'; cntEl.style.color='#c00'; resEl.style.display='none'; document.getElementById('em-apply-wrap').style.display='none'; return; }
+  cntEl.textContent = emMatches.length + ' item' + (emMatches.length!==1?'s':'') + ' matched'; cntEl.style.color='#2a7a5a';
+  var html='';
+  emMatches.forEach(function(m){
+    var val=''; if(m.title) val+='\u201c'+m.title+'\u201d'; if(m.composer) val+=(val?' by ':'')+m.composer; if(m.performer) val+=(val?' \u2013 ':'')+m.performer;
+    html+='<div class="mr-row"><span class="mr-lbl">'+m.item.label+'</span><span class="mr-val">'+(val||'(no details found)')+'</span></div>';
   });
-  res.innerHTML = html;
-  document.getElementById('em-apply-btn').style.display = '';
-}
-
-function emToggle(idx) {
-  var cb = document.getElementById('emcb-'+idx);
-  document.getElementById('emri-'+idx).classList.toggle('skipped', !cb.checked);
+  resEl.innerHTML=html; resEl.style.display='block'; document.getElementById('em-apply-wrap').style.display='flex';
 }
 
 function applyEmailResults() {
-  var applied = 0, skipped = 0;
-  var dietmarFirstDone = false; // tracks whether full Dietmar credentials have been placed yet
-  // Pre-build ordered list of "Offering of Music" slots so we can assign them sequentially
-  // (first parsed offering result → first slot, second → second slot, etc.)
-  var offeringMusicSlots = svcOrder.filter(function(s){
-    return s.type === 'item' && (s.label||'').toLowerCase().indexOf('offering of music') !== -1;
+  emMatches.forEach(function(m){
+    var detail=''; if(m.title) detail+='\u201c'+m.title+'\u201d'; if(m.composer) detail+=(detail?' by ':'')+m.composer; if(m.performer) detail+=(detail?' \u2013 ':'')+m.performer;
+    m.item.iDetail=detail;
   });
-  var offeringMusicUsed = 0;
-  // Clear stale iHymn/iTitle from generic hymn slots so the first-available scan can
-  // fill them in document order even if a previous service left data there.
-  // Excludes special-role slots (kyrie, gloria, tuning, response, communion).
-  svcOrder.forEach(function(s) {
-    if (s.type !== 'item') return;
-    var lbl = (s.label||'').toLowerCase();
-    if (lbl.indexOf('hymn') === -1) return;
-    if (/(kyrie|gloria|tuning|response|communion)/.test(lbl)) return;
-    s.iHymn = '';
-    s.iTitle = '';
-  });
-  try {
-    for (var idx = 0; idx < emParsed.length; idx++) {
-      var cb = document.getElementById('emcb-'+idx);
-      if (!cb || !cb.checked) { skipped++; continue; }
-      var r = emParsed[idx];
-      var match = null;
-
-      if (r.type === 'music') {
-        // Offering of Music: assign sequentially (first parsed → first slot, second → second slot)
-        if (r.sid === 'offering') {
-          match = offeringMusicSlots[offeringMusicUsed++] || null;
-        } else {
-          match = emFindItem(r.sid, null);
-        }
-        if (match) {
-          // Rename slot if a label override was detected (e.g. "Tuning into Advent")
-          if (r.slotLabel) match.label = r.slotLabel;
-          // Build "Title by Composer" for iTitle so bItem() can split and display properly
-          var fullTitle = r.title || '';
-          if (r.composer) fullTitle = fullTitle + ' by ' + r.composer;
-          if (fullTitle) match.iTitle = fullTitle;
-          // Set performer: explicit performer in source wins; emSender fills in only when source names nobody
-          if (r.performer) {
-            match.iDetail = r.performer;
-          } else if (emSender && emSender.type === 'musician') {
-            match.iDetail = emSender.name;
-          }
-          applied++;
-        }
-      } else if (r.type === 'hymn') {
-        if (r.tid === 'hymn1') {
-          // Generic "Hymn:" — fill the FIRST unfilled hymn slot in svcOrder order.
-          // This correctly places hymns positionally (e.g. first "Hymn:" goes to praise position).
-          match = svcOrder.find(function(s){
-            var lbl = (s.label||'').toLowerCase();
-            return s.type==='item' && !s.iHymn && lbl.indexOf('hymn') !== -1 &&
-              !/(kyrie|gloria|tuning|response|communion)/.test(lbl);
-          });
-          // If the slot had a specific role name (Hymn of Praise/Thanksgiving/Mission),
-          // relabel it to the generic "Hymn" since the source just says "Hymn"
-          if (match && /^hymn of /i.test(match.label||'')) match.label = 'Hymn';
-        } else {
-          match = emFindItem(r.tid, r.num);
-        }
-        if (!match) {
-          // Last-resort fallback: any unfilled hymn slot
-          match = svcOrder.find(function(s){
-            var lbl = (s.label||'').toLowerCase();
-            return s.type==='item' && !s.iHymn && lbl.indexOf('hymn') !== -1 &&
-              !/(kyrie|gloria|tuning|response|communion)/.test(lbl);
-          });
-        }
-        if (match) {
-          if (r.num)    match.iHymn  = r.num;
-          if (r.title)  match.iTitle = r.title;
-          if (r.detail) match.iDetail = r.detail;
-          applied++;
-        }
-      } else if (r.type === 'confession') {
-        match = emFindItem('confession', null);
-        if (match) {
-          var pasName = (emSender && emSender.type === 'pastor') ? getPastoralName(emSender, dietmarFirstDone) : '';
-          if (pasName) dietmarFirstDone = true;
-          match.iDetail = (pasName ? pasName + '\n' : '') + r.text;
-          applied++;
-        }
-      } else if (r.type === 'doxology') {
-        match = emFindItem('doxology', null);
-        if (match) { match.iDetail = '\n' + r.text; applied++; }
-      } else if (r.type === 'sermon') {
-        match = emFindItem('sermon', null);
-        if (match) {
-          match.iTitle = r.text;
-          // Attribute preacher: emSender pastor > extracted suffix name > clear stale data
-          if (emSender && emSender.type === 'pastor') {
-            match.iDetail = getPastoralName(emSender, dietmarFirstDone);
-            dietmarFirstDone = true;
-          } else if (r.preacher) {
-            // Use the preacher name exactly as written in the source outline —
-            // the outline already has the right short/full form (e.g. "Pastor Dietmar").
-            // If the full Dietmar title appears here, mark it done so auto-generated
-            // names later use the short form.
-            match.iDetail = r.preacher;
-            if (/dietmar/i.test(r.preacher) && /rev\.|dr\./i.test(r.preacher)) {
-              dietmarFirstDone = true;
-            }
-          } else {
-            match.iDetail = ''; // clear stale data when no preacher identified
-          }
-          applied++;
-        }
-      } else if (r.type === 'scripture') {
-        match = emFindItem('scripture', null);
-        if (match) {
-          var lines = (match.iDetail || '').split('\n');
-          // If sender is pastor, update the reader attribution (first line)
-          if (emSender && emSender.type === 'pastor') {
-            lines[0] = getPastoralName(emSender, dietmarFirstDone);
-            dietmarFirstDone = true;
-          }
-          // Replace scripture reference lines (everything after line 0)
-          match.iDetail = lines[0] + '\n' + r.lines.join('\n');
-          applied++;
-        }
-      } else if (r.type === 'role') {
-        var nameStr = r.names.join(', ');
-        if (r.slot === 'field') {
-          // Greeter → f_greeters, Acolyte → f_acolyte
-          var fieldId = (r.sid === 'greeter') ? 'f_greeters' : (r.sid === 'acolyte') ? 'f_acolyte' : null;
-          if (fieldId) {
-            var fEl = document.getElementById(fieldId);
-            if (fEl) { fEl.value = nameStr; fEl.dispatchEvent(new Event('input')); applied++; }
-          }
-        } else if (r.slot === 'item') {
-          // Children's Message and similar service-order items
-          match = emFindItem(r.sid, null);
-          if (match) { match.iDetail = nameStr; applied++; }
-        } else if (r.slot === 'lector') {
-          // Lector → first line of Scripture Readings iDetail (the reader)
-          match = emFindItem('scripture', null);
-          if (match) {
-            var dlines = (match.iDetail || '').split('\n');
-            dlines[0] = nameStr;
-            match.iDetail = dlines.join('\n');
-            applied++;
-          }
-        }
-        // roles with slot:null are shown in the modal but not applied
-      } else if (r.type === 'attribution') {
-        if (r.slot === 'field') {
-          // Acolyte / Greeters → update header form fields
-          var atFieldId = (r.sid === 'greeter') ? 'f_greeters' : (r.sid === 'acolyte') ? 'f_acolyte' : null;
-          if (atFieldId) {
-            var atFEl = document.getElementById(atFieldId);
-            if (atFEl) { atFEl.value = r.name; atFEl.dispatchEvent(new Event('input')); applied++; }
-          }
-        } else if (r.slot === 'lector') {
-          // Prayer for Illumination → set reader name as first line of Scripture Readings
-          match = emFindItem('scripture', null);
-          if (match) {
-            var atLines = (match.iDetail || '').split('\n');
-            atLines[0] = r.name;
-            match.iDetail = atLines.join('\n');
-            applied++;
-          }
-        } else {
-          match = emFindItem(r.sid, null);
-          if (match) { match.iDetail = r.name; applied++; }
-        }
-      } else if (r.type === 'newitem') {
-        var newId = 'ci_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,5);
-        var newItem = { id:newId, type:'item', icon:r.icon||'⭐', label:r.label, iHymn:'', iTitle:'', iDetail:'' };
-        if (r.afterSid) {
-          var afterIdx = -1;
-          for (var ni = 0; ni < svcOrder.length; ni++) { if (svcOrder[ni].id === r.afterSid) { afterIdx = ni; break; } }
-          if (afterIdx !== -1) svcOrder.splice(afterIdx + 1, 0, newItem);
-          else svcOrder.push(newItem);
-        } else {
-          svcOrder.push(newItem);
-        }
-        applied++;
-      }
-    }
-  } catch(e) {
-    alert('Email import error: ' + e.message);
-    return;
-  }
-  render();
-  buildOrderUI();
-  document.getElementById('em-bg').classList.remove('open');
-  if (applied === 0) {
-    toast('No matches could be applied — check the Service Order tab has matching items.');
-  } else {
-    toast('Applied ' + applied + ' update' + (applied !== 1 ? 's' : '') + ' from email!');
-  }
+  buildOrderUI(); render(); emToggle(false); toast('\u2705 Music details applied!');
 }
 
-// ─── INIT ───
+// ─── PASTE TEXT ──────────────────────────────────────────────────────
+var ptMatches = [];
+function ptOpen() {
+  ptMatches=[];
+  document.getElementById('pt-ta').value='';
+  document.getElementById('pt-count').textContent='';
+  document.getElementById('pt-results').style.display='none';
+  document.getElementById('pt-results').innerHTML='';
+  document.getElementById('pt-apply').style.display='none';
+  document.getElementById('pt-bg').style.display='flex';
+  setTimeout(function(){document.getElementById('pt-ta').focus();},60);
+}
+function ptClose() { document.getElementById('pt-bg').style.display='none'; }
+function ptN(s) { return s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
+function ptStem(a,b) { var len=Math.min(a.length,b.length); if(len<4)return false; for(var i=0;i<len;i++){if(a[i]!==b[i])return i>=4;} return true; }
+function ptFind(line) {
+  var norm=ptN(line); if(!norm||norm.length<2)return null;
+  var ALIASES={'offertory':'music2','offer':'music2','offering music':'music2'};
+  for(var alias in ALIASES){ if(norm===alias||norm.indexOf(alias)===0){ var tgt=svcOrder.find(function(s){return s.id===ALIASES[alias];});if(tgt)return{item:tgt,score:80}; } }
+  var best=null,bestScore=0;
+  for(var i=0;i<svcOrder.length;i++){
+    var it=svcOrder[i]; if(it.type!=='item')continue;
+    var lbl=ptN(it.label),score=0;
+    if(lbl===norm){score=100;}
+    else if(lbl.indexOf(norm)===0||norm.indexOf(lbl)===0){score=75;}
+    else{var nw=norm.split(' ').filter(function(w){return w.length>=3;}),lw=lbl.split(' ').filter(function(w){return w.length>=3;});nw.forEach(function(a){lw.forEach(function(b){if(ptStem(a,b))score=Math.max(score,40);});});}
+    if(score>bestScore){bestScore=score;best=it;}
+  }
+  return bestScore>=40?{item:best,score:bestScore}:null;
+}
+function ptIsTitle(line) { return /^[\u201c\u201d\u2018\u2019"']/.test(line)||/[\u201c\u201d\u2018\u2019"']$/.test(line); }
+function ptParse() {
+  var raw=document.getElementById('pt-ta').value,lines=raw.split('\n');
+  ptMatches=[]; var cur=null;
+  lines.forEach(function(rawLine){
+    var line=rawLine.trim(); if(!line)return;
+    var found=ptFind(line);
+    if(found&&!ptIsTitle(line)){cur={item:found.item,title:'',composer:''};ptMatches.push(cur);}
+    else if(cur){
+      if(!cur.title){cur.title=line.replace(/^[\u201c\u201d\u2018\u2019"'\s]+|[\u201c\u201d\u2018\u2019"'\s]+$/g,'').trim();}
+      else if(!cur.composer){cur.composer=line.trim();}
+    }
+  });
+  var resEl=document.getElementById('pt-results'),cntEl=document.getElementById('pt-count');
+  if(ptMatches.length===0){cntEl.textContent='No matches found — check spelling.';cntEl.style.color='#c00';resEl.innerHTML='';resEl.style.display='none';document.getElementById('pt-apply').style.display='none';return;}
+  cntEl.textContent=ptMatches.length+' item'+(ptMatches.length>1?'s':'')+' matched';cntEl.style.color='#2a7a5a';
+  var html='';
+  ptMatches.forEach(function(m){
+    var val='';if(m.title)val+='\u201c'+m.title+'\u201d';if(m.composer)val+=(val?' \u2013 ':'')+m.composer;
+    html+='<div class="mr-row"><span class="mr-lbl">'+m.item.label+'</span><span class="mr-val">'+(val||'(no details)')+'</span></div>';
+  });
+  resEl.innerHTML=html;resEl.style.display='block';document.getElementById('pt-apply').style.display='flex';
+}
+function ptApply() {
+  ptMatches.forEach(function(m){
+    var detail='';if(m.title)detail+='\u201c'+m.title+'\u201d';if(m.composer)detail+=(detail?' \u2013 ':'')+m.composer;
+    if(detail)m.item.iDetail=detail;
+  });
+  buildOrderUI();render();ptClose();toast('\u2705 Items updated!');
+}
+
+// ─── PUBLISH TO GOOGLE ───────────────────────────────────────────────
+function publishToGoogle() {
+  if(!SCRIPT_URL||SCRIPT_URL.indexOf('YOUR_')===0){alert('Publish is not set up yet.');return;}
+  var btn=document.getElementById('btn-publish');
+  btn.disabled=true;btn.textContent='\u23f3 Publishing\u2026';
+  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(collect())})
+  .then(function(){toast('\u2705 Published! Google Doc updated & archive saved.');btn.disabled=false;btn.textContent='\ud83d\udce4 Publish';})
+  .catch(function(){toast('\u274c Publish failed.');btn.disabled=false;btn.textContent='\ud83d\udce4 Publish';});
+}
+
+
+// ─── GOOGLE DOC IMPORT ──────────────────────────────────────────────
+var gdocResult = null;
+
+function gdocOpen() {
+  gdocResult = null;
+  document.getElementById('gd-ta').value = '';
+  document.getElementById('gd-count').textContent = '';
+  document.getElementById('gd-preview').style.display = 'none';
+  document.getElementById('gd-preview').innerHTML = '';
+  document.getElementById('gd-apply-wrap').style.display = 'none';
+  document.getElementById('gd-bg').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('gd-ta').focus(); }, 60);
+}
+function gdocClose() { document.getElementById('gd-bg').style.display = 'none'; }
+
+// Unescape Google Docs API markdown artifacts
+function gdocUnescape(s) {
+  return s
+    .replace(/\\\*/g, '*')
+    .replace(/\\#/g,  '#')
+    .replace(/\\"/g,  '"')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\\-/g, '-')
+    .replace(/\\\!/g, '!')
+    .replace(/\\\(/g, '(')
+    .replace(/\\\)/g, ')')
+    .replace(/\\\[/g, '[')
+    .replace(/\\\]/g, ']');
+}
+
+// Strip **bold** markers from a string
+function gdocStrip(s) { return s.replace(/\*\*/g, '').trim(); }
+
+// Map common service labels to standard item IDs
+function gdocMapId(label) {
+  var l = label.toLowerCase().trim();
+  var MAP = {
+    'welcome and announcements': 'welcome',
+    'welcome': 'welcome',
+    'prelude': 'prelude',
+    'postlude': 'postlude',
+    'offering of music': 'music2',
+    'offertory': 'music2',
+    'prayer of confession': 'confession',
+    'kyrie': 'kyrie',
+    'assurance': 'assurance',
+    'scripture reading': 'scripture',
+    'message/sermon': 'sermon',
+    'sermon': 'sermon',
+    'message': 'sermon',
+    'prayers of the people': 'prayers',
+    "the lord's prayer": 'lords-prayer',
+    'benediction': 'benediction',
+    'doxology': 'doxology',
+    'introduction of the worship theme': 'theme',
+    'introduction to the worship theme': 'theme',
+    'holy communion': 'communion',
+  };
+  return MAP[l] || ('ci_' + l.replace(/[^a-z0-9]/g,'_').slice(0,18) + '_' + Math.floor(Math.random()*1000));
+}
+
+// Guess an icon from the item label — matched to JSON icon set
+function gdocIcon(label) {
+  var l = label.toLowerCase().trim();
+  // Specific items first (order matters — more specific before more general)
+  if (/\bdoxology\b/.test(l))                              return '\u2728';   // ✨
+  if (/^blessing$/.test(l))                                return '\u271D';   // ✝
+  if (/\bchildren\b/.test(l))                              return '\u2B50';   // ⭐
+  if (/sermon|message|homily/.test(l))                     return '\uD83D\uDCAC'; // 💬
+  if (/offering\s+announcement|tithe\s+talk/.test(l))      return '\uD83C\uDF81'; // 🎁
+  if (/holy communion|eucharist/.test(l))                  return '\uD83C\uDF5E'; // 🍞
+  // Sung/hymn items — treble clef
+  if (/\bhymn\b|communion song|gloria|kyrie|sanctus|benediction response|sending song/.test(l)) return '\uD83C\uDFBC'; // 🎼
+  // Instrumental/choral music
+  if (/prelude|postlude|offering of music|choir|carol|bell|ring/.test(l)) return '\uD83C\uDFB5'; // 🎵
+  // Prayer items
+  if (/prayer|confession|invocation|litany|assurance|illumination/.test(l)) return '\uD83D\uDE4F'; // 🙏
+  // Scripture
+  if (/scripture|reading|psalm|gospel|hebrew|testament|epistle/.test(l)) return '\uD83D\uDCD6'; // 📖
+  // Welcome / Call to Worship / Announcements
+  if (/welcome|call to worship|announcement/.test(l))       return '\uD83D\uDCE2'; // 📢
+  // Communion (non-Holy Communion — e.g. Communion Servers note)
+  if (/communion/.test(l))                                  return '\uD83C\uDF5E'; // 🍞
+  // Offering (general)
+  if (/offering|offertory/.test(l))                        return '\uD83C\uDF81'; // 🎁
+  if (/introduction|theme/.test(l))                        return '\uD83D\uDCA1'; // 💡
+  if (/candle|light|advent/.test(l))                       return '\uD83D\uDD6F\uFE0F'; // 🕯️
+  if (/bapti/.test(l))                                     return '\uD83D\uDCA7'; // 💧
+  if (/bless|benediction|dismissal/.test(l))               return '\u271D';    // ✝
+  return '\u2726'; // ✦ default
+}
+
+// Parse a detail string into {iHymn, iTitle, iDetail}
+function gdocParseDetail(raw) {
+  var s = raw.trim();
+  var iHymn = '', iTitle = '', iDetail = '';
+
+  // Collapse accidental double opening quote (e.g. ""Title" → "Title")
+  s = s.replace(/^"{2,}/, '"').replace(/^\u201c{2,}/, '\u201c');
+
+  // Strip leading dash/em-dash (e.g. "– Jaime Namminga" → "Jaime Namminga")
+  s = s.replace(/^[-\u2013\u2014]\s+/, '');
+
+  // Extract hymn number: #NNN at start
+  var hymnM = s.match(/^#\s*(\d+)\s*/);
+  if (hymnM) { iHymn = hymnM[1]; s = s.slice(hymnM[0].length); }
+
+  // Extract quoted title at start — match opening quote type to closing type
+  // so apostrophes inside double-quoted titles (e.g. "O'er") don't break the match
+  var titleM = s.match(/^[\u201c"]([^\u201c\u201d"]+)[\u201d"]/) ||
+               s.match(/^[\u2018']([^\u2018\u2019']+)[\u2019']/);
+  if (titleM) { iTitle = titleM[1].trim(); s = s.slice(titleM[0].length).replace(/^\s*[-\u2013\u2014]\s*/, ''); }
+
+  iDetail = s.trim();
+  return { iHymn: iHymn, iTitle: iTitle, iDetail: iDetail };
+}
+
+// Parse a date string like "December 24, 2025" → "2025-12-24"
+function gdocParseDate(str) {
+  var MONTHS = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+  var m = str.match(/(\w+)\s+(\d{1,2}),?\s*(\d{4})/i);
+  if (!m) return '';
+  var mo = MONTHS[m[1].toLowerCase()];
+  if (!mo) return '';
+  return m[3] + '-' + String(mo).padStart(2,'0') + '-' + String(m[2]).padStart(2,'0');
+}
+
+function gdocParse() {
+  var raw = document.getElementById('gd-ta').value;
+  if (!raw.trim()) { document.getElementById('gd-count').textContent = 'Nothing pasted yet.'; return; }
+
+  var text    = gdocUnescape(raw);
+  var lines   = text.split('\n');
+  var result  = {
+    f_date:'', f_time:'', f_liturgical:'',
+    f_acolyte:'', f_greeters:'',
+    s_name: v('s_name') || "St. Paul's United Church of Christ",
+    s_sub:  v('s_sub')  || 'Open and Affirming',
+    _order: []
+  };
+  var items   = [];
+  var curItem = null;
+  var firstBoldDone = false;
+
+  lines.forEach(function(rawLine) {
+    var line = rawLine.trim();
+    if (!line) return;
+
+    // Strip leading "* " asterisk (stand/bold rubric markers in worship outlines)
+    line = line.replace(/^\*\s+/, '');
+
+    var clean = gdocStrip(line);
+
+    // ── Title line: contains "Worship Outline" or "Sunday Outline" ──
+    if (/(worship|sunday)\s+outline/i.test(clean)) {
+      var timeM = clean.match(/(\d{1,2}:\d{2}\s*[AP]M)/i);
+      if (timeM) result.f_time = timeM[1];
+      var dateM = clean.match(/([A-Z][a-z]+ \d{1,2},?\s*\d{4})/);
+      if (dateM) result.f_date = gdocParseDate(dateM[1]);
+      firstBoldDone = true;
+      return;
+    }
+
+    // ── Section divider: ALL CAPS line with no colon (e.g. "WE GATHER") ──
+    if (/^[A-Z][A-Z\s&,]+$/.test(clean) && clean.length >= 4 && clean.indexOf(':') === -1) {
+      curItem = null;
+      items.push({ id: 'div_' + clean.replace(/\s+/g,'_').toLowerCase(), type: 'divider', label: clean, icon: '' });
+      firstBoldDone = true;
+      return;
+    }
+
+    // ── Label: detail pattern ──
+    var colonIdx = clean.indexOf(':');
+    var labelRaw = colonIdx > -1 ? clean.slice(0, colonIdx).trim() : '';
+    var detailRaw= colonIdx > -1 ? clean.slice(colonIdx + 1).trim() : '';
+    // Strip any ** bold markers that may surround the label
+    labelRaw = labelRaw.replace(/^\*\*|\*\*$/g, '').trim();
+
+    // Scripture references like "Luke 2:1-7" — treat as continuation
+    var isScripRef = /^[A-Z][a-z]+ \d/.test(labelRaw) && /^\d/.test(detailRaw);
+
+    // Liturgical dialogue rubrics — "Leader:", "All:", "Unison:", etc.
+    // These are part of a Call to Worship / litany, not separate service items.
+    var isLiturgicalRubric = /^(leader|all|unison|people|congregation|one|many|voice\s*\d*|voices|response|reader|narrator)$/i.test(labelRaw);
+
+    // Service item or header field: label starts with capital, is short, is not a scripture ref.
+    // Works with plain text (no **) AND with markdown (**bold**) from Google Docs.
+    if (colonIdx > -1 && labelRaw && labelRaw.length < 60 && !isScripRef &&
+        /^[A-Z]/.test(labelRaw) && labelRaw.split(/\s+/).length <= 6) {
+      firstBoldDone = true;
+
+      // Header fields
+      if (/^acolyte$/i.test(labelRaw))   { result.f_acolyte   = detailRaw; curItem = null; return; }
+      if (/^greeter/i.test(labelRaw))    { result.f_greeters   = detailRaw; curItem = null; return; }
+      if (/^liturgical/i.test(labelRaw)) { result.f_liturgical = detailRaw; curItem = null; return; }
+
+      // Scripture sub-label — fold into current scripture/illumination item
+      var isScriptureSubLabel = curItem &&
+        /scripture|illumination|reading/i.test(curItem.label) &&
+        /^(hebrew scripture|old testament|new testament|epistle|gospel|first reading|second reading|third reading|psalm reading)\b/i.test(labelRaw);
+      if (isScriptureSubLabel) {
+        curItem.iDetail += (curItem.iDetail ? '\n' : '') + clean;
+        return;
+      }
+
+      // Liturgical rubric — append as continuation of current item, not a new item
+      if (isLiturgicalRubric && curItem) {
+        curItem.iDetail += (curItem.iDetail ? '\n' : '') + clean;
+        return;
+      }
+
+      // Service item
+      var parsed = gdocParseDetail(detailRaw);
+      curItem = {
+        id:     gdocMapId(labelRaw),
+        type:   'item',
+        icon:   gdocIcon(labelRaw),
+        label:  labelRaw,
+        iHymn:  parsed.iHymn,
+        iTitle: parsed.iTitle,
+        iDetail:parsed.iDetail
+      };
+      items.push(curItem);
+
+    } else if (isScripRef && curItem) {
+      // Scripture reference — append as block detail
+      curItem.iDetail += (curItem.iDetail ? '\n' : '') + clean;
+    } else if (colonIdx === -1 && clean.length < 80 && !/(worship|sunday)\s+outline/i.test(clean)) {
+      // No-colon line: could be liturgical subtitle, a known standalone item, or block continuation
+      // Normalize curly apostrophes before matching so "Lord\u2019s" matches "Lord's"
+      var cleanNorm = clean.replace(/[\u2018\u2019\u02bc]/g, "'");
+      var STANDALONE_ITEM = /^(prayers of the people|the lord'?s prayer|lord'?s prayer|passing of peace|sharing of joys and concerns|joys and concerns|silent prayer|moment of silence|benediction|offertory|call to worship|call to give|holy communion|communion|eucharist)\b/i;
+      if (!result.f_liturgical && !curItem) {
+        // Before any service items — treat as liturgical subtitle
+        result.f_liturgical = clean;
+        firstBoldDone = true;
+      } else if (STANDALONE_ITEM.test(cleanNorm)) {
+        // Known colon-less service item — add as its own item
+        curItem = { id: gdocMapId(clean), type: 'item', icon: gdocIcon(clean), label: clean, iHymn: '', iTitle: '', iDetail: '' };
+        items.push(curItem);
+        firstBoldDone = true;
+      } else if (curItem) {
+        var cont = clean;
+        if (cont && !/^\*\s*the asterisk/i.test(cont)) {
+          curItem.iDetail += (curItem.iDetail ? '\n' : '') + cont;
+        }
+      }
+    } else if (curItem) {
+      // Continuation: colon present but didn't match label pattern (e.g. long stage direction)
+      var cont2 = clean;
+      if (cont2 && !/^\*\s*the asterisk/i.test(cont2) && !/(worship|sunday)\s+outline/i.test(cont2)) {
+        curItem.iDetail += (curItem.iDetail ? '\n' : '') + cont2;
+      }
+    }
+  });
+
+  result._order = items;
+  gdocResult    = result;
+
+  // ── Build preview ──────────────────────────────────────────────────
+  var cntEl  = document.getElementById('gd-count');
+  var prevEl = document.getElementById('gd-preview');
+
+  if (items.length === 0) {
+    cntEl.textContent = 'No service items found — make sure each item is on its own line as "Label: detail" (e.g. "Welcome: Rev. Darin").';
+    cntEl.style.color = '#c00';
+    prevEl.style.display = 'none';
+    document.getElementById('gd-apply-wrap').style.display = 'none';
+    return;
+  }
+
+  cntEl.textContent = items.length + ' items found';
+  cntEl.style.color = '#2a7a5a';
+
+  var html = '';
+  // Header summary
+  html += '<div class="mr-row"><span class="mr-lbl">Date</span><span class="mr-val">' + (result.f_date||'(not found)') + ' ' + (result.f_time||'') + '</span></div>';
+  if (result.f_liturgical) html += '<div class="mr-row"><span class="mr-lbl">Liturgical</span><span class="mr-val">' + result.f_liturgical + '</span></div>';
+  if (result.f_acolyte)    html += '<div class="mr-row"><span class="mr-lbl">Acolyte</span><span class="mr-val">'    + result.f_acolyte    + '</span></div>';
+  if (result.f_greeters)   html += '<div class="mr-row"><span class="mr-lbl">Greeters</span><span class="mr-val">'   + result.f_greeters   + '</span></div>';
+  // First 6 items preview
+  items.slice(0,8).forEach(function(it) {
+    var val = '';
+    if (it.iHymn)  val += '#' + it.iHymn + ' ';
+    if (it.iTitle) val += '\u201c' + it.iTitle + '\u201d ';
+    if (it.iDetail) val += it.iDetail.replace(/\n/g,' | ').slice(0,60);
+    html += '<div class="mr-row"><span class="mr-lbl">' + it.label + '</span><span class="mr-val">' + (val.trim()||'(no detail)') + '</span></div>';
+  });
+  if (items.length > 8) html += '<div class="mr-row"><span class="mr-val" style="color:var(--g400);">… and ' + (items.length-8) + ' more items</span></div>';
+
+  prevEl.innerHTML = html;
+  prevEl.style.display = 'block';
+  document.getElementById('gd-apply-wrap').style.display = 'flex';
+}
+
+function gdocApply() {
+  if (!gdocResult) return;
+  // Apply header fields
+  ['f_date','f_time','f_liturgical','f_acolyte','f_greeters','s_name','s_sub'].forEach(function(id) {
+    if (gdocResult[id] !== undefined && gdocResult[id] !== '') sv(id, gdocResult[id]);
+  });
+  // Replace service order
+  svcOrder = gdocResult._order;
+  buildOrderUI();
+  render();
+  gdocClose();
+  toast('\u2705 Service order imported from Google Doc!');
+}
+
 function init() {
   wireInputs();
-  var defaultData = {"f_date":"2026-03-22","f_time":"10:30 AM","f_liturgical":"Fifth Sunday in Lent","f_acolyte":"Oliver Namminga","f_greeters":"Doug & Lori Ettinger","s_name":"Saint Paul's United Church of Christ","s_sub":"Open and Affirming","_order":[{"id":"dv_gather","type":"divider","label":"We Gather"},{"id":"welcome","type":"item","icon":"\ud83d\udce2","label":"Welcome & Announcements","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga"},{"id":"prelude","type":"item","icon":"\ud83c\udfb5","label":"Prelude","iHymn":"","iTitle":"In the Garden by C. Austin Miles","iDetail":"Micah Kammerer"},{"id":"theme","type":"item","icon":"\ud83d\udca1","label":"Introduction of the Worship Theme","iHymn":"","iTitle":"","iDetail":"Jules Drewes, Sara Adams, and Jon Stante\nwith ticking clock and piano to the tune of \u201cCome and Find the Quiet Center\u201d \u2013 we continue right into singing the song"},{"id":"tuning","type":"item","icon":"\ud83c\udfb6","label":"Tuning Hymn","iHymn":"","iTitle":"Come and Find the Quiet Center","iDetail":"Verse !"},{"id":"praise","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Praise","iHymn":"20","iTitle":"All Things Bright and Beautiful","iDetail":"all verses"},{"id":"dv_confess","type":"divider","label":"We Confess and Are Forgiven"},{"id":"confession","type":"item","icon":"\ud83d\ude4f","label":"Prayer of Confession","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga\nAlmighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice. (Silence for personal prayer and reflection)"},{"id":"kyrie","type":"item","icon":"\u271d","label":"Kyrie","iHymn":"474","iTitle":"As a Child Rests","iDetail":"refrain, verse 2, refrain"},{"id":"assurance","type":"item","icon":"\u271d","label":"Assurance","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga"},{"id":"gloria","type":"item","icon":"\ud83c\udfbc","label":"Gloria","iHymn":"447","iTitle":"We Are Forgiven (sing twice)","iDetail":""},{"id":"dv_word","type":"divider","label":"We Receive the Word"},{"id":"music1","type":"item","icon":"\ud83c\udfb5","label":"Offering of Music","iHymn":"","iTitle":"Kyrie","iDetail":"Celebration Ringers"},{"id":"hymn1","type":"item","icon":"\ud83c\udfbc","label":"Hymn","iHymn":"188","iTitle":"Jesus Loves Me","iDetail":""},{"id":"childrens","type":"item","icon":"\u2b50","label":"Children's Message","iHymn":"","iTitle":"","iDetail":"Linda Gruenberg"},{"id":"scripture","type":"item","icon":"\ud83d\udcd6","label":"Scripture Readings","iHymn":"","iTitle":"","iDetail":"Kevin Smyth\nOld Testament: Ecclesiastes 3:1\u201313\nGospel: Luke 13:6\u201314\n\u201cThis is God\u2019s Word for the people of God\u201d (sung)"},{"id":"sermon","type":"item","icon":"\ud83d\udcac","label":"Message / Sermon","iHymn":"","iTitle":"A Time for God, a Time to Flip Tables, a Time for Peacemaking","iDetail":"Rev. Darin Namminga"},{"id":"dv_respond","type":"divider","label":"We Respond"},{"id":"thanks","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Thanksgiving","iHymn":"250","iTitle":"In the Bulb There Is a Flower","iDetail":"all three verses"},{"id":"offering","type":"item","icon":"\ud83c\udf81","label":"Offering Announcement","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga"},{"id":"music2","type":"item","icon":"\ud83c\udfb5","label":"Offering of Music","iHymn":"","iTitle":"Lord I\u2019m Available to You by Carlis L. Moody Jr.","iDetail":"Micah Kammerer"},{"id":"doxology","type":"item","icon":"\u2728","label":"Doxology","iHymn":"","iTitle":"","iDetail":"\nFor time to savor God\u2019s good gifts,\nFor space to breathe and hearts to lift,\nFor ways to reach out and to give,\nWe offer thanks and vow to live!"},{"id":"prayers","type":"item","icon":"\ud83d\ude4f","label":"Prayers of the People and the Lord's Prayer","iHymn":"","iTitle":"","iDetail":""},{"id":"dv_send","type":"divider","label":"We Are Sent"},{"id":"mission","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Mission","iHymn":"488","iTitle":"I Was There to Hear Your Borning Cry","iDetail":"all verses"},{"id":"blessing","type":"item","icon":"\u271d","label":"Blessing","iHymn":"","iTitle":"","iDetail":"Rev. Darin Namminga"},{"id":"benediction","type":"item","icon":"\ud83c\udfbc","label":"Benediction Response","iHymn":"542","iTitle":"God Be with You Till We Meet Again","iDetail":"verse 1"},{"id":"postlude","type":"item","icon":"\ud83c\udfb5","label":"Postlude","iHymn":"","iTitle":"I\u2019m Gonna Live So God Can Use Me by Wendell P. Whalum","iDetail":"Micah Kammerer"},{"id":"ci1","type":"item","icon":"\u2726","label":"","iHymn":"","iTitle":"","iDetail":""},{"id":"lords_prayer","type":"item","icon":"\ud83d\ude4f","label":"The Lord's Prayer","iHymn":"","iTitle":"","iDetail":""}]};
-  applyData(defaultData);
+  sv('f_date','2026-03-22');
+  sv('f_time','10:30 AM');
+  sv('f_liturgical','Fifth Sunday in Lent');
+  sv('f_acolyte','Oliver Namminga');
+  sv('f_greeters','Doug & Lori Ettinger');
+
+  var vals = {
+    'welcome':      'Rev. Darin Namminga',
+    'prelude':      '\u201cIn the Garden\u201d by C. Austin Miles \u2013 Micah Kammerer',
+    'theme':        'Jules Drewes\nwith ticking clock and piano to the tune of \u201cCome and Find the Quiet Center\u201d \u2013 we continue right into singing the song',
+    'tuning':       '\u201cCome and Find the Quiet Center\u201d \u2013 verse 1',
+    'praise':       '#20 All Things Bright and Beautiful (all verses)',
+    'confession':   'Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.\n\n(Silence for personal prayer and reflection)',
+    'kyrie':        '#474 As a Child Rests (refrain, verse 2, refrain)',
+    'assurance':    'Rev. Darin Namminga',
+    'gloria':       '#447 We Are Forgiven (sing twice)',
+    'music1':       '\u201cKyrie\u201d \u2013 Celebration Ringers',
+    'hymn1':        '#188 Jesus Loves Me',
+    'childrens':    'Linda Gruenberg',
+    'scripture':    'Kevin Smyth\nOld Testament: Ecclesiastes 3:1\u201313\nGospel: Luke 13:6\u201314\n\u201cThis is God\u2019s Word for the people of God\u201d (sung)',
+    'sermon':       '\u201cA Time for God, a Time to Flip Tables, a Time for Peacemaking\u201d \u2013 Rev. Darin Namminga',
+    'thanks':       '#250 In the Bulb There Is a Flower (all three verses)',
+    'offering':     'Rev. Darin Namminga',
+    'music2':       '\u201cLord I\u2019m Available to You\u201d by Carlis L. Moody Jr. \u2013 Micah Kammerer',
+    'doxology':     'For time to savor God\u2019s good gifts,\nFor space to breathe and hearts to lift,\nFor ways to reach out and to give,\nWe offer thanks and vow to live!',
+    'mission':      '#488 I Was There to Hear Your Borning Cry (all verses)',
+    'blessing':     'Rev. Darin Namminga',
+    'benediction':  '#542 God Be with You Till We Meet Again (verse 1)',
+    'postlude':     '\u201cI\u2019m Gonna Live So God Can Use Me\u201d by Wendell P. Whalum \u2013 Micah Kammerer'
+  };
+
+  svcOrder.forEach(function(item){
+    if (item.type === 'item' && vals[item.id] !== undefined) item.value = vals[item.id];
+  });
+
+  buildOrderUI();
+  render();
 }
 init();
 </script>
 
 
-<!-- EMAIL IMPORT MODAL -->
-<div class="em-bg" id="em-bg">
-  <div class="em-box">
-    <div class="em-hd">
-      <h3>📧 Import from Email</h3>
-      <button class="ocb" onclick="document.getElementById('em-bg').classList.remove('open')" title="Close">×</button>
+
+<div class="modal-bg" id="em-bg">
+  <div class="modal">
+    <h2>📧 Import from Email</h2>
+    <p>Paste Micah's music email. Titles, composers, and performer will be detected automatically.</p>
+    <textarea id="em-ta" placeholder="Paste email text here…"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-p" onclick="runEmailParse()">Parse Email</button>
+      <button class="btn btn-g" onclick="emToggle(false)">Cancel</button>
+      <span id="em-count" class="mr-count"></span>
     </div>
-    <div class="em-body">
-      <p>Paste an email from your music director or pastor below. The app will find hymn numbers, song titles, performers, and more.</p>
-      <textarea class="em-ta" id="em-ta" placeholder="Paste email text here..."></textarea>
-      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
-        <button class="btn" onclick="runEmailParse()" style="font-size:11.5px;">🔍 Find Matches</button>
-        <span id="em-count" style="font-size:11px;color:var(--g400);"></span>
-      </div>
-      <div id="em-sender" style="font-size:11px;margin-top:5px;font-style:italic;"></div>
-      <div class="em-results" id="em-results"></div>
+    <div class="modal-results" id="em-results" style="display:none;"></div>
+    <div class="modal-btns" id="em-apply-wrap" style="display:none;">
+      <button class="btn btn-p" onclick="applyEmailResults()">✅ Apply to Bulletin</button>
     </div>
-    <div class="em-ft">
-      <button class="btn btn-g" onclick="document.getElementById('em-bg').classList.remove('open')">Cancel</button>
-      <button class="btn" id="em-apply-btn" onclick="applyEmailResults()" style="display:none">✓ Apply Selected</button>
+  </div>
+</div>
+<div class="modal-bg" id="pt-bg">
+  <div class="modal">
+    <h2>📋 Paste Service Text</h2>
+    <p>Paste a plain-text service outline. Lines matching service items will be detected and titles/composers applied.</p>
+    <textarea id="pt-ta" placeholder="Paste service outline here…"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-p" onclick="ptParse()">Match Items</button>
+      <button class="btn btn-g" onclick="ptClose()">Cancel</button>
+      <span id="pt-count" class="mr-count"></span>
+    </div>
+    <div class="modal-results" id="pt-results" style="display:none;"></div>
+    <div class="modal-btns" id="pt-apply" style="display:none;margin-top:8px;">
+      <button class="btn btn-p" onclick="ptApply()">✅ Apply to Bulletin</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ GOOGLE DOC IMPORT MODAL ═══ -->
+<div class="modal-bg" id="gd-bg">
+  <div class="modal" style="width:540px;">
+    <h2>📄 Import from Google Doc</h2>
+    <p>Open the Google Doc, press <strong>Ctrl+A</strong> then <strong>Ctrl+C</strong>, then paste below.<br>This will replace your current service order with the contents of the doc.</p>
+    <textarea id="gd-ta" placeholder="Paste Google Doc text here…" style="min-height:160px;"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-p" onclick="gdocParse()">Parse Document</button>
+      <button class="btn btn-g" onclick="gdocClose()">Cancel</button>
+      <span id="gd-count" class="mr-count"></span>
+    </div>
+    <div class="modal-results" id="gd-preview" style="display:none;"></div>
+    <div class="modal-btns" id="gd-apply-wrap" style="display:none;margin-top:8px;">
+      <button class="btn btn-p" onclick="gdocApply()">✅ Apply — Replace Service Order</button>
     </div>
   </div>
 </div>
