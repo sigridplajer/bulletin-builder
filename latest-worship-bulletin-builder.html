@@ -168,7 +168,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 <div id="editor">
   <div id="ed-head">
     <h1>✝ Bulletin Builder</h1>
-    <p id="ed-sub">Saint Paul's United Church of Christ</p>
+    <p id="ed-sub">St. Paul's United Church of Christ</p>
   </div>
 
   <div id="tabs">
@@ -213,13 +213,14 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
   <div id="settings-tab" class="panel">
     <div class="fsec">
       <div class="fsec-hd"><h3>⛪ Church Info</h3></div>
-      <div class="fr"><label>Church Name</label><input type="text" id="s_name" value="Saint Paul&#39;s United Church of Christ"></div>
+      <div class="fr"><label>Church Name</label><input type="text" id="s_name" value="St. Paul&#39;s United Church of Christ"></div>
       <div class="fr"><label>Tagline</label><input type="text" id="s_sub" value="Open and Affirming"></div>
     </div>
     <div class="fsec">
       <div class="fsec-hd"><h3>📂 Import Previous Bulletin</h3></div>
       <p style="font-size:11px;color:var(--g500);line-height:1.6;margin-bottom:9px;">Load a saved JSON to reuse or edit for a new week.</p>
       <button class="btn btn-g" onclick="document.getElementById(&#39;imp&#39;).click()" style="font-size:11.5px;">⬆ Import JSON</button>
+      <button class="btn btn-g" onclick="gdocOpen()" style="font-size:11.5px;margin-top:6px;">📄 From Google Doc</button>
       <input type="file" id="imp" accept=".json" style="display:none">
     </div>
     <div class="fsec">
@@ -250,7 +251,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
     </div>
   </div>
   <div id="prev-scroll">
-    <div id="bulletin"><div class="bh"><div class="bh-church">Saint Paul's United Church of Christ  •  Open and Affirming</div><div class="bh-title">Worship Service</div><div class="bh-lit">Fifth Sunday in Lent</div><div class="bh-meta">Sunday, March 22, 2026 | 10:30 AM</div></div><div class="bs">We Gather</div><div class="bi"><div class="bi-icon">📢</div><div class="bi-body"><div class="bi-title">Welcome &amp; Announcements</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Prelude</div><div class="bi-detail">“In the Garden” by C. Austin Miles – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">💡</div><div class="bi-body"><div class="bi-title">Introduction of the Worship Theme</div><div class="bi-detail">Jules Drewes<br>with ticking clock and piano to the tune of “Come and Find the Quiet Center” – we continue right into singing the song</div></div></div><div class="bi"><div class="bi-icon">🎶</div><div class="bi-body"><div class="bi-title">Tuning Hymn</div><div class="bi-detail">“Come and Find the Quiet Center” – verse 1</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Praise</div><div class="bi-detail">#20 All Things Bright and Beautiful (all verses)</div></div></div><div class="bs">We Confess and Are Forgiven</div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayer of Confession</div><div class="bi-detail">Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.<br><br>(Silence for personal prayer and reflection)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Kyrie</div><div class="bi-detail">#474 As a Child Rests (refrain, verse 2, refrain)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Assurance</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Gloria</div><div class="bi-detail">#447 We Are Forgiven (sing twice)</div></div></div><div class="bs">We Receive the Word</div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Kyrie” – Celebration Ringers</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn</div><div class="bi-detail">#188 Jesus Loves Me</div></div></div><div class="bi"><div class="bi-icon">⭐</div><div class="bi-body"><div class="bi-title">Children's Message</div><div class="bi-detail">Linda Gruenberg</div></div></div><div class="bi"><div class="bi-icon">📖</div><div class="bi-body"><div class="bi-title">Scripture Readings</div><div class="bi-detail">Kevin Smyth<br>Old Testament: Ecclesiastes 3:1–13<br>Gospel: Luke 13:6–14<br>“This is God’s Word for the people of God” (sung)</div></div></div><div class="bi"><div class="bi-icon">💬</div><div class="bi-body"><div class="bi-title">Message / Sermon</div><div class="bi-detail">“A Time for God, a Time to Flip Tables, a Time for Peacemaking” – Rev. Darin Namminga</div></div></div><div class="bs">We Respond</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Thanksgiving</div><div class="bi-detail">#250 In the Bulb There Is a Flower (all three verses)</div></div></div><div class="bi"><div class="bi-icon">🎁</div><div class="bi-body"><div class="bi-title">Offering Announcement</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Lord I’m Available to You” by Carlis L. Moody Jr. – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">✨</div><div class="bi-body"><div class="bi-title">Doxology</div><div class="bi-detail">For time to savor God’s good gifts,<br>For space to breathe and hearts to lift,<br>For ways to reach out and to give,<br>We offer thanks and vow to live!</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayers of the People</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">The Lord's Prayer</div></div></div><div class="bs">We Are Sent</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Mission</div><div class="bi-detail">#488 I Was There to Hear Your Borning Cry (all verses)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Blessing</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Benediction Response</div><div class="bi-detail">#542 God Be with You Till We Meet Again (verse 1)</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Postlude</div><div class="bi-detail">“I’m Gonna Live So God Can Use Me” by Wendell P. Whalum – Micah Kammerer</div></div></div><div class="bf-rule"><div class="bf-people"><strong>Acolyte:</strong> Oliver Namminga</div><div class="bf-people"><strong>Greeters:</strong> Doug &amp; Lori Ettinger</div></div><div class="bf">Saint Paul's United Church of Christ &nbsp;·&nbsp; All are welcome.</div></div>
+    <div id="bulletin"><div class="bh"><div class="bh-church">St. Paul's United Church of Christ  •  Open and Affirming</div><div class="bh-title">Worship Service</div><div class="bh-lit">Fifth Sunday in Lent</div><div class="bh-meta">Sunday, March 22, 2026 | 10:30 AM</div></div><div class="bs">We Gather</div><div class="bi"><div class="bi-icon">📢</div><div class="bi-body"><div class="bi-title">Welcome &amp; Announcements</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Prelude</div><div class="bi-detail">“In the Garden” by C. Austin Miles – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">💡</div><div class="bi-body"><div class="bi-title">Introduction of the Worship Theme</div><div class="bi-detail">Jules Drewes<br>with ticking clock and piano to the tune of “Come and Find the Quiet Center” – we continue right into singing the song</div></div></div><div class="bi"><div class="bi-icon">🎶</div><div class="bi-body"><div class="bi-title">Tuning Hymn</div><div class="bi-detail">“Come and Find the Quiet Center” – verse 1</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Praise</div><div class="bi-detail">#20 All Things Bright and Beautiful (all verses)</div></div></div><div class="bs">We Confess and Are Forgiven</div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayer of Confession</div><div class="bi-detail">Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.<br><br>(Silence for personal prayer and reflection)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Kyrie</div><div class="bi-detail">#474 As a Child Rests (refrain, verse 2, refrain)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Assurance</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Gloria</div><div class="bi-detail">#447 We Are Forgiven (sing twice)</div></div></div><div class="bs">We Receive the Word</div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Kyrie” – Celebration Ringers</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn</div><div class="bi-detail">#188 Jesus Loves Me</div></div></div><div class="bi"><div class="bi-icon">⭐</div><div class="bi-body"><div class="bi-title">Children's Message</div><div class="bi-detail">Linda Gruenberg</div></div></div><div class="bi"><div class="bi-icon">📖</div><div class="bi-body"><div class="bi-title">Scripture Readings</div><div class="bi-detail">Kevin Smyth<br>Old Testament: Ecclesiastes 3:1–13<br>Gospel: Luke 13:6–14<br>“This is God’s Word for the people of God” (sung)</div></div></div><div class="bi"><div class="bi-icon">💬</div><div class="bi-body"><div class="bi-title">Message / Sermon</div><div class="bi-detail">“A Time for God, a Time to Flip Tables, a Time for Peacemaking” – Rev. Darin Namminga</div></div></div><div class="bs">We Respond</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Thanksgiving</div><div class="bi-detail">#250 In the Bulb There Is a Flower (all three verses)</div></div></div><div class="bi"><div class="bi-icon">🎁</div><div class="bi-body"><div class="bi-title">Offering Announcement</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Lord I’m Available to You” by Carlis L. Moody Jr. – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">✨</div><div class="bi-body"><div class="bi-title">Doxology</div><div class="bi-detail">For time to savor God’s good gifts,<br>For space to breathe and hearts to lift,<br>For ways to reach out and to give,<br>We offer thanks and vow to live!</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayers of the People</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">The Lord's Prayer</div></div></div><div class="bs">We Are Sent</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Mission</div><div class="bi-detail">#488 I Was There to Hear Your Borning Cry (all verses)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Blessing</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Benediction Response</div><div class="bi-detail">#542 God Be with You Till We Meet Again (verse 1)</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Postlude</div><div class="bi-detail">“I’m Gonna Live So God Can Use Me” by Wendell P. Whalum – Micah Kammerer</div></div></div><div class="bf-rule"><div class="bf-people"><strong>Acolyte:</strong> Oliver Namminga</div><div class="bf-people"><strong>Greeters:</strong> Doug &amp; Lori Ettinger</div></div><div class="bf">St. Paul's United Church of Christ &nbsp;·&nbsp; All are welcome.</div></div>
   </div>
 </div>
 
@@ -337,7 +338,7 @@ function bSec(label) { return '<div class="bs">' + x(label) + '</div>'; }
 // ─── MAIN RENDER ───
 function render() {
   try {
-    var sn = v('s_name') || "Saint Paul's United Church of Christ";
+    var sn = v('s_name') || "St. Paul's United Church of Christ";
     var ss = v('s_sub');
     var dt = v('f_date'), tm = v('f_time'), lit = v('f_liturgical');
     var ac = v('f_acolyte'), gr = v('f_greeters');
@@ -596,7 +597,7 @@ function clearForm() {
   if(!confirm('Clear all content and reset to a blank order of service?')) return;
   HFID.forEach(function(id){
     var e=document.getElementById(id); if(!e) return;
-    if(id==='s_name') e.value="Saint Paul's United Church of Christ";
+    if(id==='s_name') e.value="St. Paul's United Church of Christ";
     else if(id==='s_sub') e.value='Open and Affirming';
     else e.value='';
   });
@@ -864,6 +865,265 @@ function publishToGoogle() {
   .catch(function(){toast('\u274c Publish failed.');btn.disabled=false;btn.textContent='\ud83d\udce4 Publish';});
 }
 
+
+// ─── GOOGLE DOC IMPORT ──────────────────────────────────────────────
+var gdocResult = null;
+
+function gdocOpen() {
+  gdocResult = null;
+  document.getElementById('gd-ta').value = '';
+  document.getElementById('gd-count').textContent = '';
+  document.getElementById('gd-preview').style.display = 'none';
+  document.getElementById('gd-preview').innerHTML = '';
+  document.getElementById('gd-apply-wrap').style.display = 'none';
+  document.getElementById('gd-bg').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('gd-ta').focus(); }, 60);
+}
+function gdocClose() { document.getElementById('gd-bg').style.display = 'none'; }
+
+// Unescape Google Docs API markdown artifacts
+function gdocUnescape(s) {
+  return s
+    .replace(/\\\*/g, '*')
+    .replace(/\\#/g,  '#')
+    .replace(/\\"/g,  '"')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\\-/g, '-')
+    .replace(/\\\!/g, '!')
+    .replace(/\\\(/g, '(')
+    .replace(/\\\)/g, ')')
+    .replace(/\\\[/g, '[')
+    .replace(/\\\]/g, ']');
+}
+
+// Strip **bold** markers from a string
+function gdocStrip(s) { return s.replace(/\*\*/g, '').trim(); }
+
+// Map common service labels to standard item IDs
+function gdocMapId(label) {
+  var l = label.toLowerCase().trim();
+  var MAP = {
+    'welcome and announcements': 'welcome',
+    'welcome': 'welcome',
+    'prelude': 'prelude',
+    'postlude': 'postlude',
+    'offering of music': 'music2',
+    'offertory': 'music2',
+    'prayer of confession': 'confession',
+    'kyrie': 'kyrie',
+    'assurance': 'assurance',
+    'scripture reading': 'scripture',
+    'message/sermon': 'sermon',
+    'sermon': 'sermon',
+    'message': 'sermon',
+    'prayers of the people': 'prayers',
+    "the lord's prayer": 'lords-prayer',
+    'benediction': 'benediction',
+    'doxology': 'doxology',
+    'introduction of the worship theme': 'theme',
+    'introduction to the worship theme': 'theme',
+    'holy communion': 'communion',
+  };
+  return MAP[l] || ('ci_' + l.replace(/[^a-z0-9]/g,'_').slice(0,18) + '_' + Math.floor(Math.random()*1000));
+}
+
+// Guess an icon from the item label
+function gdocIcon(label) {
+  var l = label.toLowerCase();
+  if (/prelude|postlude|music|choir|carol|hymn|song|ring|bell/.test(l)) return '\uD83C\uDFB5';
+  if (/prayer|confession|lord|kyrie|assurance|litany/.test(l)) return '\uD83D\uDE4F';
+  if (/scripture|gospel|reading|epistle|luke|john|mark|matthew/.test(l)) return '\uD83D\uDCD6';
+  if (/sermon|message/.test(l)) return '\u271D';
+  if (/communion|bread|cup|eucharist|supper/.test(l)) return '\uD83C\uDF5E';
+  if (/welcome|announcement/.test(l)) return '\uD83D\uDCE2';
+  if (/offering|offertory/.test(l)) return '\uD83C\uDF81';
+  if (/introduction|theme/.test(l)) return '\uD83D\uDCA1';
+  if (/benediction|dismissal|blessing/.test(l)) return '\u2728';
+  if (/candle|light|advent/.test(l)) return '\uD83D\uDD6F\uFE0F';
+  if (/doxology/.test(l)) return '\uD83C\uDFBC';
+  if (/bapti/.test(l)) return '\uD83D\uDCA7';
+  return '\u2726';
+}
+
+// Parse a detail string into {iHymn, iTitle, iDetail}
+function gdocParseDetail(raw) {
+  var s = raw.trim();
+  var iHymn = '', iTitle = '', iDetail = '';
+
+  // Extract hymn number: #NNN at start
+  var hymnM = s.match(/^#\s*(\d+)\s*/);
+  if (hymnM) { iHymn = hymnM[1]; s = s.slice(hymnM[0].length); }
+
+  // Extract quoted title (any quote style) at start
+  var titleM = s.match(/^[\u201c\u201d\u2018\u2019"']([^\u201c\u201d\u2018\u2019"']+)[\u201c\u201d\u2018\u2019"']/);
+  if (titleM) { iTitle = titleM[1].trim(); s = s.slice(titleM[0].length).replace(/^\s*[-\u2013\u2014]\s*/, ''); }
+
+  iDetail = s.trim();
+  return { iHymn: iHymn, iTitle: iTitle, iDetail: iDetail };
+}
+
+// Parse a date string like "December 24, 2025" → "2025-12-24"
+function gdocParseDate(str) {
+  var MONTHS = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+  var m = str.match(/(\w+)\s+(\d{1,2}),?\s*(\d{4})/i);
+  if (!m) return '';
+  var mo = MONTHS[m[1].toLowerCase()];
+  if (!mo) return '';
+  return m[3] + '-' + String(mo).padStart(2,'0') + '-' + String(m[2]).padStart(2,'0');
+}
+
+function gdocParse() {
+  var raw = document.getElementById('gd-ta').value;
+  if (!raw.trim()) { document.getElementById('gd-count').textContent = 'Nothing pasted yet.'; return; }
+
+  var text    = gdocUnescape(raw);
+  var lines   = text.split('\n');
+  var result  = {
+    f_date:'', f_time:'', f_liturgical:'',
+    f_acolyte:'', f_greeters:'',
+    s_name: v('s_name') || "St. Paul's United Church of Christ",
+    s_sub:  v('s_sub')  || 'Open and Affirming',
+    _order: []
+  };
+  var items   = [];
+  var curItem = null;
+  var firstBoldDone = false;
+
+  lines.forEach(function(rawLine) {
+    var line = rawLine.trim();
+    if (!line) return;
+
+    var clean = gdocStrip(line);
+
+    // ── Title line: contains "Worship Outline" ──
+    if (/worship outline/i.test(clean)) {
+      var timeM = clean.match(/(\d{1,2}:\d{2}\s*[AP]M)/i);
+      if (timeM) result.f_time = timeM[1];
+      var dateM = clean.match(/([A-Z][a-z]+ \d{1,2},?\s*\d{4})/);
+      if (dateM) result.f_date = gdocParseDate(dateM[1]);
+      firstBoldDone = true;
+      return;
+    }
+
+    // ── Section divider: ALL CAPS line with no colon (e.g. "WE GATHER") ──
+    if (/^[A-Z][A-Z\s&,]+$/.test(clean) && clean.length >= 4 && clean.indexOf(':') === -1) {
+      curItem = null;
+      items.push({ id: 'div_' + clean.replace(/\s+/g,'_').toLowerCase(), type: 'divider', label: clean, icon: '' });
+      firstBoldDone = true;
+      return;
+    }
+
+    // ── Label: detail pattern ──
+    var colonIdx = clean.indexOf(':');
+    var labelRaw = colonIdx > -1 ? clean.slice(0, colonIdx).trim() : '';
+    var detailRaw= colonIdx > -1 ? clean.slice(colonIdx + 1).trim() : '';
+    // Strip any ** bold markers that may surround the label
+    labelRaw = labelRaw.replace(/^\*\*|\*\*$/g, '').trim();
+
+    // Scripture references like "Luke 2:1-7" — treat as continuation
+    var isScripRef = /^[A-Z][a-z]+ \d/.test(labelRaw) && /^\d/.test(detailRaw);
+
+    // Service item or header field: label starts with capital, is short, is not a scripture ref.
+    // Works with plain text (no **) AND with markdown (**bold**) from Google Docs.
+    if (colonIdx > -1 && labelRaw && labelRaw.length < 60 && !isScripRef &&
+        /^[A-Z]/.test(labelRaw) && labelRaw.split(/\s+/).length <= 6) {
+      firstBoldDone = true;
+
+      // Header fields
+      if (/^acolyte$/i.test(labelRaw))   { result.f_acolyte   = detailRaw; curItem = null; return; }
+      if (/^greeter/i.test(labelRaw))    { result.f_greeters   = detailRaw; curItem = null; return; }
+      if (/^liturgical/i.test(labelRaw)) { result.f_liturgical = detailRaw; curItem = null; return; }
+
+      // Service item
+      var parsed = gdocParseDetail(detailRaw);
+      curItem = {
+        id:     gdocMapId(labelRaw),
+        type:   'item',
+        icon:   gdocIcon(labelRaw),
+        label:  labelRaw,
+        iHymn:  parsed.iHymn,
+        iTitle: parsed.iTitle,
+        iDetail:parsed.iDetail
+      };
+      items.push(curItem);
+
+    } else if (isScripRef && curItem) {
+      // Scripture reference — append as block detail
+      curItem.iDetail += (curItem.iDetail ? '\n' : '') + clean;
+    } else if (colonIdx === -1 && clean.length < 80 && !/worship outline/i.test(clean)) {
+      // No-colon line: liturgical subtitle (near top) or block continuation
+      if (!result.f_liturgical && !curItem) {
+        // Before any service items — treat as liturgical subtitle
+        result.f_liturgical = clean;
+        firstBoldDone = true;
+      } else if (curItem) {
+        var cont = clean;
+        if (cont && !/^\*\s*the asterisk/i.test(cont)) {
+          curItem.iDetail += (curItem.iDetail ? '\n' : '') + cont;
+        }
+      }
+    } else if (curItem) {
+      // Continuation line that has a colon but didn't match label pattern
+      var cont2 = clean;
+      if (cont2 && !/^\*\s*the asterisk/i.test(cont2)) {
+        curItem.iDetail += (curItem.iDetail ? '\n' : '') + cont2;
+      }
+    }
+  });
+
+  result._order = items;
+  gdocResult    = result;
+
+  // ── Build preview ──────────────────────────────────────────────────
+  var cntEl  = document.getElementById('gd-count');
+  var prevEl = document.getElementById('gd-preview');
+
+  if (items.length === 0) {
+    cntEl.textContent = 'No service items found — make sure each item is on its own line as "Label: detail" (e.g. "Welcome: Rev. Darin").';
+    cntEl.style.color = '#c00';
+    prevEl.style.display = 'none';
+    document.getElementById('gd-apply-wrap').style.display = 'none';
+    return;
+  }
+
+  cntEl.textContent = items.length + ' items found';
+  cntEl.style.color = '#2a7a5a';
+
+  var html = '';
+  // Header summary
+  html += '<div class="mr-row"><span class="mr-lbl">Date</span><span class="mr-val">' + (result.f_date||'(not found)') + ' ' + (result.f_time||'') + '</span></div>';
+  if (result.f_liturgical) html += '<div class="mr-row"><span class="mr-lbl">Liturgical</span><span class="mr-val">' + result.f_liturgical + '</span></div>';
+  if (result.f_acolyte)    html += '<div class="mr-row"><span class="mr-lbl">Acolyte</span><span class="mr-val">'    + result.f_acolyte    + '</span></div>';
+  if (result.f_greeters)   html += '<div class="mr-row"><span class="mr-lbl">Greeters</span><span class="mr-val">'   + result.f_greeters   + '</span></div>';
+  // First 6 items preview
+  items.slice(0,8).forEach(function(it) {
+    var val = '';
+    if (it.iHymn)  val += '#' + it.iHymn + ' ';
+    if (it.iTitle) val += '\u201c' + it.iTitle + '\u201d ';
+    if (it.iDetail) val += it.iDetail.replace(/\n/g,' | ').slice(0,60);
+    html += '<div class="mr-row"><span class="mr-lbl">' + it.label + '</span><span class="mr-val">' + (val.trim()||'(no detail)') + '</span></div>';
+  });
+  if (items.length > 8) html += '<div class="mr-row"><span class="mr-val" style="color:var(--g400);">… and ' + (items.length-8) + ' more items</span></div>';
+
+  prevEl.innerHTML = html;
+  prevEl.style.display = 'block';
+  document.getElementById('gd-apply-wrap').style.display = 'flex';
+}
+
+function gdocApply() {
+  if (!gdocResult) return;
+  // Apply header fields
+  ['f_date','f_time','f_liturgical','f_acolyte','f_greeters','s_name','s_sub'].forEach(function(id) {
+    if (gdocResult[id] !== undefined && gdocResult[id] !== '') sv(id, gdocResult[id]);
+  });
+  // Replace service order
+  svcOrder = gdocResult._order;
+  buildOrderUI();
+  render();
+  gdocClose();
+  toast('\u2705 Service order imported from Google Doc!');
+}
+
 function init() {
   wireInputs();
   sv('f_date','2026-03-22');
@@ -938,6 +1198,25 @@ init();
     <div class="modal-results" id="pt-results" style="display:none;"></div>
     <div class="modal-btns" id="pt-apply" style="display:none;margin-top:8px;">
       <button class="btn btn-p" onclick="ptApply()">✅ Apply to Bulletin</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ GOOGLE DOC IMPORT MODAL ═══ -->
+<div class="modal-bg" id="gd-bg">
+  <div class="modal" style="width:540px;">
+    <h2>📄 Import from Google Doc</h2>
+    <p>Open the Google Doc, press <strong>Ctrl+A</strong> then <strong>Ctrl+C</strong>, then paste below.<br>This will replace your current service order with the contents of the doc.</p>
+    <textarea id="gd-ta" placeholder="Paste Google Doc text here…" style="min-height:160px;"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-p" onclick="gdocParse()">Parse Document</button>
+      <button class="btn btn-g" onclick="gdocClose()">Cancel</button>
+      <span id="gd-count" class="mr-count"></span>
+    </div>
+    <div class="modal-results" id="gd-preview" style="display:none;"></div>
+    <div class="modal-btns" id="gd-apply-wrap" style="display:none;margin-top:8px;">
+      <button class="btn btn-p" onclick="gdocApply()">✅ Apply — Replace Service Order</button>
     </div>
   </div>
 </div>
