@@ -718,7 +718,7 @@ function exportDocx() {
   // Service body
   bulletinEl.querySelectorAll('.bs, .bi').forEach(function(el) {
     if (el.classList.contains('bs')) {
-      L.push('\\pard\\sb100\\cbpat2 {\\b\\cf1\\fs22 ' + re(el.textContent.trim()) + '}\\par');
+      L.push('\\pard\\sb100\\cbpat2 {\\b\\cf1\\fs22 ' + re(el.textContent.trim().toUpperCase()) + '}\\par');
     } else {
       var tEl = el.querySelector('.bi-title');
       var dEls = el.querySelectorAll('.bi-detail');
@@ -988,32 +988,12 @@ function gdocMapId(label) {
 // Guess an icon from the item label — matched to JSON icon set
 function gdocIcon(label) {
   var l = label.toLowerCase().trim();
-  // Specific items first (order matters — more specific before more general)
-  if (/\bdoxology\b/.test(l))                              return '\u2728';   // ✨
-  if (/^blessing$/.test(l))                                return '\u271D';   // ✝
-  if (/\bchildren\b/.test(l))                              return '\u2B50';   // ⭐
-  if (/sermon|message|homily/.test(l))                     return '\uD83D\uDCAC'; // 💬
-  if (/offering\s+announcement|tithe\s+talk/.test(l))      return '\uD83C\uDF81'; // 🎁
-  if (/holy communion|eucharist/.test(l))                  return '\uD83C\uDF5E'; // 🍞
-  // Sung/hymn items — treble clef
+  // Sung congregational hymns — treble clef
   if (/\bhymn\b|communion song|gloria|kyrie|sanctus|benediction response|sending song/.test(l)) return '\uD83C\uDFBC'; // 🎼
-  // Instrumental/choral music
-  if (/prelude|postlude|offering of music|choir|carol|bell|ring/.test(l)) return '\uD83C\uDFB5'; // 🎵
-  // Prayer items
-  if (/prayer|confession|invocation|litany|assurance|illumination/.test(l)) return '\uD83D\uDE4F'; // 🙏
-  // Scripture
-  if (/scripture|reading|psalm|gospel|hebrew|testament|epistle/.test(l)) return '\uD83D\uDCD6'; // 📖
-  // Welcome / Call to Worship / Announcements
-  if (/welcome|call to worship|announcement/.test(l))       return '\uD83D\uDCE2'; // 📢
-  // Communion (non-Holy Communion — e.g. Communion Servers note)
-  if (/communion/.test(l))                                  return '\uD83C\uDF5E'; // 🍞
-  // Offering (general)
-  if (/offering|offertory/.test(l))                        return '\uD83C\uDF81'; // 🎁
-  if (/introduction|theme/.test(l))                        return '\uD83D\uDCA1'; // 💡
-  if (/candle|light|advent/.test(l))                       return '\uD83D\uDD6F\uFE0F'; // 🕯️
-  if (/bapti/.test(l))                                     return '\uD83D\uDCA7'; // 💧
-  if (/bless|benediction|dismissal/.test(l))               return '\u271D';    // ✝
-  return '\u2726'; // ✦ default
+  // Instrumental / choral / special music — music note
+  if (/prelude|postlude|offering of music|offertory|choir|carol|bell|ring|procession|easter music|\bmusic\b/.test(l)) return '\uD83C\uDFB5'; // 🎵
+  // Everything else → medium small white circle ⚬ (U+26AC — matches the bulletin style)
+  return '\u26AC'; // ⚬
 }
 
 // Parse a detail string into {iHymn, iTitle, iDetail}
@@ -1077,6 +1057,11 @@ function gdocParse() {
 
     var clean = gdocStrip(line);
 
+    // ── Skip church name / tagline lines at the top of a Google Doc ──
+    // e.g. "St. Paul's United Church of Christ • Open and Affirming"
+    // These appear before service items and must not be captured as the liturgical subtitle.
+    if (!curItem && /(\bchurch\b|\bopen and affirming\b|\u2022|•)/i.test(clean)) return;
+
     // ── Title line: contains "Worship Outline" or "Sunday Outline" ──
     if (/(worship|sunday)\s+outline/i.test(clean)) {
       var timeM = clean.match(/(\d{1,2}:\d{2}\s*[AP]M)/i);
@@ -1087,10 +1072,17 @@ function gdocParse() {
       return;
     }
 
-    // ── Section divider: ALL CAPS line with no colon (e.g. "WE GATHER") ──
-    if (/^[A-Z][A-Z\s&,]+$/.test(clean) && clean.length >= 4 && clean.indexOf(':') === -1) {
+    // ── Section divider: ALL CAPS line OR known worship-section phrase ──
+    // Handles both "WE GATHER" (all-caps) and "We Gather" / "We gather" (title/sentence case).
+    var KNOWN_SECTION = /^(we gather|we share(?: the word)?|we receive(?: the word)?|we respond(?: with thanksgiving)?|we are sent|holy communion|the holy communion|prayer|gathering|sending forth|sending)\b/i;
+    // These all-caps phrases are liturgical items, NOT section dividers — they belong under their parent item
+    var NOT_A_DIVIDER = /^(prayer for illumination|words of institution|passing of peace|sharing of joys|joys and concerns|call to give)\b/i;
+    var isAllCaps = /^[A-Z][A-Z\s&,]+$/.test(clean) && clean.length >= 4;
+    var isKnownSection = KNOWN_SECTION.test(clean) && clean.split(/\s+/).length <= 6;
+    if ((isAllCaps || isKnownSection) && clean.indexOf(':') === -1 && !NOT_A_DIVIDER.test(clean)) {
       curItem = null;
-      items.push({ id: 'div_' + clean.replace(/\s+/g,'_').toLowerCase(), type: 'divider', label: clean, icon: '' });
+      // Always store dividers as ALL CAPS so every export path (preview, Word, JSON) is consistent
+      items.push({ id: 'div_' + clean.replace(/\s+/g,'_').toLowerCase(), type: 'divider', label: clean.toUpperCase(), icon: '' });
       firstBoldDone = true;
       return;
     }
@@ -1178,7 +1170,7 @@ function gdocParse() {
       // No-colon line: could be liturgical subtitle, a known standalone item, or block continuation
       // Normalize curly apostrophes before matching so "Lord\u2019s" matches "Lord's"
       var cleanNorm = clean.replace(/[\u2018\u2019\u02bc]/g, "'");
-      var STANDALONE_ITEM = /^(prayers of the people|the lord'?s prayer|lord'?s prayer|passing of peace|sharing of joys and concerns|joys and concerns|silent prayer|moment of silence|benediction|offertory|call to worship|call to give|holy communion|communion|eucharist|tenebrae|the slamming of the bible|slamming of the bible|quiet time of meditation|quiet time|a time of meditation|time of meditation)\b/i;
+      var STANDALONE_ITEM = /^(prayers of the people|the lord'?s prayer|lord'?s prayer|passing of peace|sharing of joys and concerns|joys and concerns|silent prayer|moment of silence|benediction|offertory|call to worship|call to give|holy communion|communion|eucharist|tenebrae|the slamming of the bible|slamming of the bible|quiet time of meditation|quiet time|a time of meditation|time of meditation|invitation|consecration and prayer|words of institution|sharing of the bread)\b/i;
       if (!result.f_liturgical && !curItem) {
         // Before any service items — treat as liturgical subtitle
         result.f_liturgical = clean;
@@ -1202,6 +1194,67 @@ function gdocParse() {
       }
     }
   });
+
+  // ── Auto-insert standard section dividers where missing ──────────────
+  // If the Google Doc doesn't have "WE GATHER" etc., insert them automatically
+  // before known anchor items. Skips if that exact divider already exists,
+  // or if another divider is already right before the anchor (within 2 slots).
+  (function autoInsertDividers() {
+    function firstItemIdx(regex) {
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type === 'item' && regex.test(items[i].label)) return i;
+      }
+      return -1;
+    }
+    function hasDiv(label) {
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type === 'divider' && items[i].label === label) return true;
+      }
+      return false;
+    }
+    function divNearby(idx) {
+      for (var i = Math.max(0, idx - 2); i < idx; i++) {
+        if (items[i].type === 'divider') return true;
+      }
+      return false;
+    }
+    var insertions = [];
+    function maybeAdd(anchorRegex, label) {
+      if (hasDiv(label)) return;           // already present — skip
+      var idx = firstItemIdx(anchorRegex);
+      if (idx < 0) return;                 // anchor item not found
+      if (divNearby(idx)) return;          // another divider is already right there
+      insertions.push({ idx: idx, label: label });
+    }
+
+    maybeAdd(/^(welcome|prelude|call to worship)\b/i,            'WE GATHER');
+    maybeAdd(/^(children.?s message|scripture readings?)\b/i,    'WE SHARE THE WORD');
+    maybeAdd(/^(offering announcement|hymn of thanksgiving)\b/i, 'WE RESPOND WITH THANKSGIVING');
+    // HOLY COMMUNION — only insert if communion items actually exist in this service;
+    // anchor on Invitation (first item) → fall back to Communion Song
+    (function() {
+      if (hasDiv('HOLY COMMUNION')) return;
+      var communionExists = items.some(function(it) {
+        return it.type === 'item' && /^(communion song|sharing of the bread|consecration and prayer|words of institution)\b/i.test(it.label);
+      });
+      if (!communionExists) return;
+      var idx = firstItemIdx(/^invitation\b/i);
+      if (idx < 0) idx = firstItemIdx(/^(communion song|sharing of the bread)\b/i);
+      if (idx < 0 || divNearby(idx)) return;
+      insertions.push({ idx: idx, label: 'HOLY COMMUNION' });
+    })();
+    maybeAdd(/^(prayers? of the people|the lord.?s prayer)\b/i,  'PRAYER');
+    maybeAdd(/^(hymn of mission|sending song|blessing)\b/i,      'WE ARE SENT');
+
+    // Insert from back to front so earlier indices stay valid
+    insertions.sort(function(a, b) { return b.idx - a.idx; });
+    insertions.forEach(function(ins) {
+      items.splice(ins.idx, 0, {
+        id: 'div_auto_' + ins.label.replace(/\s+/g, '_').toLowerCase(),
+        type: 'divider', label: ins.label, icon: '', iPageBreak: false
+      });
+    });
+  })();
 
   result._order = items;
   gdocResult    = result;
@@ -1259,7 +1312,7 @@ function gdocApply() {
 function init() {
   wireInputs();
   // Pre-loaded: Easter Sunrise 2026 (updated April 3)
-  applyData({"f_date":"2026-04-05","f_time":"6:30 AM","f_liturgical":"Easter Sunrise Service","f_acolyte":"","f_greeters":"Please hand out candles to everyone present. Make sure that latecomers receive a candle.","s_name":"St. Paul\u2019s United Church of Christ","s_sub":"Open and Affirming","_order":[{"id":"cd1","type":"divider","label":"We gather"},{"id":"ci_we_gather_outside__40","type":"item","icon":"\u25cb","label":"We Gather Outside at the Easter Fire","iHymn":"","iTitle":"","iDetail":"Everyone receives a candle to be lit from it.","iPageBreak":false},{"id":"ci_easter_proclamatio_55","type":"item","icon":"\u25cb","label":"Easter Proclamation","iHymn":"","iTitle":"","iDetail":"Rev. Dr. Dietmar Plajer\nWe Share the Light of Christ \u2014 we pass the light with these words:\n\u201cChrist is risen!\u201d\n\u201cChrist is risen indeed!\u201d","iPageBreak":false},{"id":"ci_procession_into_th_322","type":"item","icon":"\ud83c\udfb5","label":"Procession into the Dark Sanctuary","iHymn":"","iTitle":"There is a Fountain by William Cooper and \u201cThe Old Rugged Cross\u201d by George Bernard","iDetail":"Micah Kammerer","iPageBreak":false},{"id":"ci_call_to_worship_212","type":"item","icon":"\u25cb","label":"Call to Worship","iHymn":"","iTitle":"","iDetail":"\nLeader:\tChrist is risen!\nAll:\t\tChrist is risen indeed!\nLeader:\tLet us celebrate the living God who conquers death.\nAll:\t\tChrist is risen indeed! Alleluia!","iPageBreak":false},{"id":"ci_hymn_of_praise_662","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Praise","iHymn":"232","iTitle":"Jesus Christ Is Risen Today","iDetail":"(verses 1, 2, 4)\nPlease extinguish the candles.","iPageBreak":false},{"id":"confession","type":"item","icon":"\u25cb","label":"Prayer of Confession","iHymn":"","iTitle":"","iDetail":"(in unison)\nGod of new creation, thank you for raising us with Jesus to a new life. We are in awe of your power to renew and transform us. Your hope, love, and joy flood our souls. Your music lifts our spirits. Yet the powers of darkness still grab hold of us. We often feel limited and stuck. Help us emerge from our confining cocoons, unfurl our wings, and take flight. Transform us through the power of your love. Mold us and shape us into the image of Christ. We share with you what is on our hearts. (Silence for personal prayer and reflection)","iPageBreak":false},{"id":"kyrie","type":"item","icon":"\ud83c\udfbc","label":"Kyrie","iHymn":"695","iTitle":"Change My Heart, O God","iDetail":"(refrain, verse, refrain)","iPageBreak":false},{"id":"assurance","type":"item","icon":"\u25cb","label":"Assurance","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"ci_gloria_742","type":"item","icon":"\ud83c\udfbc","label":"Gloria","iHymn":"243","iTitle":"Be Not Afraid","iDetail":"(sing twice)","iPageBreak":false},{"id":"cd2","type":"divider","label":"We share the word"},{"id":"ci_easter_music_545","type":"item","icon":"\ud83c\udfb5","label":"Easter Music","iHymn":"","iTitle":"You Are Crowned with Many Crowns by John Sellers","iDetail":"Micah Kammerer","iPageBreak":false},{"id":"ci_prayer_for_illumin_660","type":"item","icon":"\u25cb","label":"Scripture Readings","iHymn":"","iTitle":"","iDetail":"Shane Sanders\nPrayer of Illumination\nHebrew Scripture: Jeremiah 31:1\u20136\nGospel: Matthew 28:1\u201310","iPageBreak":false},{"id":"ci4","type":"item","icon":"\ud83c\udfbc","label":"Scripture Reading Response","iHymn":"","iTitle":"This is God\u2019s Word for the People of God","iDetail":"","iPageBreak":true},{"id":"sermon","type":"item","icon":"\u25cb","label":"Message/Sermon","iHymn":"","iTitle":"My Religion Is Love","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"cd3","type":"divider","label":"We respond with thanksgiving"},{"id":"ci_hymn_of_thanksgivi_723","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Thanksgiving","iHymn":"250","iTitle":"Hymn of Promise","iDetail":"(all 3 verses)","iPageBreak":false},{"id":"ci_offering_announcem_60","type":"item","icon":"\u25cb","label":"Offering Announcement","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"music2","type":"item","icon":"\ud83c\udfb5","label":"Offering of Music","iHymn":"","iTitle":"When I Look into Your Holiness by Wayne & Cathy Perrin","iDetail":"Micah Kammerer","iPageBreak":false},{"id":"doxology","type":"item","icon":"\u25cb","label":"Doxology","iHymn":"607","iTitle":"Praise God from Whom All Blessings Flow","iDetail":"","iPageBreak":false},{"id":"cd4","type":"divider","label":"Holy communion"},{"id":"ci6","type":"item","icon":"\u25cb","label":"Invitation","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"ci_communion_song_255","type":"item","icon":"\ud83c\udfbc","label":"Communion Song","iHymn":"497","iTitle":"Bread of Life From Heaven","iDetail":"(refrain, verse 3, refrain)","iPageBreak":false},{"id":"ci7","type":"item","icon":"\u25cb","label":"Consecration and Prayer","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"ci8","type":"item","icon":"\u25cb","label":"Words of Institution","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"ci9","type":"item","icon":"\u25cb","label":"Sharing of the Bread and Cup","iHymn":"","iTitle":"","iDetail":"(soft music is welcome as we commune) \nCommunion servers \u2014 Shane Sanders, Pastor Dietmar","iPageBreak":false},{"id":"cd10","type":"divider","label":"Prayer"},{"id":"ci_the_lord_s_prayer_36","type":"item","icon":"\u25cb","label":"The Lord\u2019s Prayer","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"prayers","type":"item","icon":"\u25cb","label":"Prayers of the People","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"cd5","type":"divider","label":"We are sent"},{"id":"ci_hymn_of_mission_297","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Mission","iHymn":"245","iTitle":"Christ the Lord Is Risen Today","iDetail":"(verses 1, 2, 4)","iPageBreak":false},{"id":"ci_blessing_571","type":"item","icon":"\u25cb","label":"Blessing","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"ci_benediction_respon_162","type":"item","icon":"\ud83c\udfbc","label":"Benediction Response","iHymn":"43","iTitle":"You Who Dwell in the Shelter of the Lord","iDetail":"(refrain only)\nWe invite you to hold hands during this song. Hand sanitizer is available in the foyer.","iPageBreak":false},{"id":"postlude","type":"item","icon":"\ud83c\udfb5","label":"Postlude","iHymn":"","iTitle":"He Lives by Alfred Ackley","iDetail":"Micah Kammerer","iPageBreak":false}]});
+  applyData({"f_date":"2026-04-05","f_time":"6:30 AM","f_liturgical":"Easter Sunrise Service","f_acolyte":"","f_greeters":"Please hand out candles to everyone present. Make sure that latecomers receive a candle.","s_name":"St. Paul\u2019s United Church of Christ","s_sub":"Open and Affirming","_order":[{"id":"cd1","type":"divider","label":"WE GATHER"},{"id":"ci_we_gather_outside__40","type":"item","icon":"\u26ac","label":"We Gather Outside at the Easter Fire","iHymn":"","iTitle":"","iDetail":"Everyone receives a candle to be lit from it.","iPageBreak":false},{"id":"ci_easter_proclamatio_55","type":"item","icon":"\u26ac","label":"Easter Proclamation","iHymn":"","iTitle":"","iDetail":"Rev. Dr. Dietmar Plajer\nWe Share the Light of Christ \u2014 we pass the light with these words:\n\u201cChrist is risen!\u201d\n\u201cChrist is risen indeed!\u201d","iPageBreak":false},{"id":"ci_procession_into_th_322","type":"item","icon":"\ud83c\udfb5","label":"Procession into the Dark Sanctuary","iHymn":"","iTitle":"There is a Fountain by William Cooper and \u201cThe Old Rugged Cross\u201d by George Bernard","iDetail":"Micah Kammerer","iPageBreak":false},{"id":"ci_call_to_worship_212","type":"item","icon":"\u26ac","label":"Call to Worship","iHymn":"","iTitle":"","iDetail":"\nLeader:\tChrist is risen!\nAll:\t\tChrist is risen indeed!\nLeader:\tLet us celebrate the living God who conquers death.\nAll:\t\tChrist is risen indeed! Alleluia!","iPageBreak":false},{"id":"ci_hymn_of_praise_662","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Praise","iHymn":"232","iTitle":"Jesus Christ Is Risen Today","iDetail":"(verses 1, 2, 4)\nPlease extinguish the candles.","iPageBreak":false},{"id":"confession","type":"item","icon":"\u26ac","label":"Prayer of Confession","iHymn":"","iTitle":"","iDetail":"(in unison)\nGod of new creation, thank you for raising us with Jesus to a new life. We are in awe of your power to renew and transform us. Your hope, love, and joy flood our souls. Your music lifts our spirits. Yet the powers of darkness still grab hold of us. We often feel limited and stuck. Help us emerge from our confining cocoons, unfurl our wings, and take flight. Transform us through the power of your love. Mold us and shape us into the image of Christ. We share with you what is on our hearts. (Silence for personal prayer and reflection)","iPageBreak":false},{"id":"kyrie","type":"item","icon":"\ud83c\udfbc","label":"Kyrie","iHymn":"695","iTitle":"Change My Heart, O God","iDetail":"(refrain, verse, refrain)","iPageBreak":false},{"id":"assurance","type":"item","icon":"\u26ac","label":"Assurance","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"ci_gloria_742","type":"item","icon":"\ud83c\udfbc","label":"Gloria","iHymn":"243","iTitle":"Be Not Afraid","iDetail":"(sing twice)","iPageBreak":false},{"id":"cd2","type":"divider","label":"WE SHARE THE WORD"},{"id":"ci_easter_music_545","type":"item","icon":"\ud83c\udfb5","label":"Easter Music","iHymn":"","iTitle":"You Are Crowned with Many Crowns by John Sellers","iDetail":"Micah Kammerer","iPageBreak":false},{"id":"ci_prayer_for_illumin_660","type":"item","icon":"\u26ac","label":"Scripture Readings","iHymn":"","iTitle":"","iDetail":"Shane Sanders\nPrayer of Illumination\nHebrew Scripture: Jeremiah 31:1\u20136\nGospel: Matthew 28:1\u201310","iPageBreak":false},{"id":"ci4","type":"item","icon":"\ud83c\udfbc","label":"Scripture Reading Response","iHymn":"","iTitle":"This is God\u2019s Word for the People of God","iDetail":"","iPageBreak":true},{"id":"sermon","type":"item","icon":"\u26ac","label":"Message/Sermon","iHymn":"","iTitle":"My Religion Is Love","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"cd3","type":"divider","label":"WE RESPOND WITH THANKSGIVING"},{"id":"ci_hymn_of_thanksgivi_723","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Thanksgiving","iHymn":"250","iTitle":"Hymn of Promise","iDetail":"(all 3 verses)","iPageBreak":false},{"id":"ci_offering_announcem_60","type":"item","icon":"\u26ac","label":"Offering Announcement","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"music2","type":"item","icon":"\ud83c\udfb5","label":"Offering of Music","iHymn":"","iTitle":"When I Look into Your Holiness by Wayne & Cathy Perrin","iDetail":"Micah Kammerer","iPageBreak":false},{"id":"doxology","type":"item","icon":"\u26ac","label":"Doxology","iHymn":"607","iTitle":"Praise God from Whom All Blessings Flow","iDetail":"","iPageBreak":false},{"id":"cd4","type":"divider","label":"HOLY COMMUNION"},{"id":"ci6","type":"item","icon":"\u26ac","label":"Invitation","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"ci_communion_song_255","type":"item","icon":"\ud83c\udfbc","label":"Communion Song","iHymn":"497","iTitle":"Bread of Life From Heaven","iDetail":"(refrain, verse 3, refrain)","iPageBreak":false},{"id":"ci7","type":"item","icon":"\u26ac","label":"Consecration and Prayer","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"ci8","type":"item","icon":"\u26ac","label":"Words of Institution","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"ci9","type":"item","icon":"\u26ac","label":"Sharing of the Bread and Cup","iHymn":"","iTitle":"","iDetail":"(soft music is welcome as we commune) \nCommunion servers \u2014 Shane Sanders, Pastor Dietmar","iPageBreak":false},{"id":"cd10","type":"divider","label":"PRAYER"},{"id":"ci_the_lord_s_prayer_36","type":"item","icon":"\u26ac","label":"The Lord\u2019s Prayer","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"prayers","type":"item","icon":"\u26ac","label":"Prayers of the People","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"cd5","type":"divider","label":"WE ARE SENT"},{"id":"ci_hymn_of_mission_297","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Mission","iHymn":"245","iTitle":"Christ the Lord Is Risen Today","iDetail":"(verses 1, 2, 4)","iPageBreak":false},{"id":"ci_blessing_571","type":"item","icon":"\u26ac","label":"Blessing","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"ci_benediction_respon_162","type":"item","icon":"\ud83c\udfbc","label":"Benediction Response","iHymn":"43","iTitle":"You Who Dwell in the Shelter of the Lord","iDetail":"(refrain only)\nWe invite you to hold hands during this song. Hand sanitizer is available in the foyer.","iPageBreak":false},{"id":"postlude","type":"item","icon":"\ud83c\udfb5","label":"Postlude","iHymn":"","iTitle":"He Lives by Alfred Ackley","iDetail":"Micah Kammerer","iPageBreak":false}]});
 }
 init();
 </script>
