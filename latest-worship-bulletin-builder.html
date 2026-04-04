@@ -112,23 +112,25 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
   color: var(--g900);
 }
 .bh { margin-bottom: 15px; padding-bottom: 12px; border-bottom: 2px solid var(--blue); }
-.bh-church { font-size: 10px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 3px; }
-.bh-title  { font-size: 22px; font-weight: 700; color: var(--g900); line-height: 1.2; }
-.bh-lit    { font-size: 11.5px; color: var(--g900); margin-top: 3px; font-style: italic; }
-.bh-meta   { font-size: 11.5px; color: var(--g900); margin-top: 5px; }
-.bs { background: var(--blue3); border-left: 3px solid var(--blue); padding: 5px 11px; margin-top: 10px; margin-bottom: 0; font-size: 10px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .8px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+.bh-church { font-size: 12px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 3px; }
+.bh-title  { font-size: 24px; font-weight: 700; color: var(--g900); line-height: 1.2; }
+.bh-lit    { font-size: 13.5px; color: var(--g900); margin-top: 3px; font-style: italic; }
+.bh-meta   { font-size: 13.5px; color: var(--g900); margin-top: 5px; }
+.bs { background: var(--blue3); border-left: 3px solid var(--blue); padding: 5px 11px; margin-top: 10px; margin-bottom: 0; font-size: 12px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .8px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 .bi { display: flex; align-items: flex-start; padding: 7px 9px; border-bottom: 1px solid #F2F2F2; }
-.bi-icon { width: 26px; flex-shrink: 0; font-size: 13px; padding-top: 1px; text-align: center; }
+.bi-break { page-break-before: always; border-top: 2px dashed var(--g400); margin-top: 10px; padding-top: 4px; }
+.bi-icon { width: 26px; flex-shrink: 0; font-size: 15px; padding-top: 1px; text-align: center; }
 .bi-body { flex: 1; min-width: 0; }
-.bi-title  { font-size: 11.5px; font-weight: 600; color: var(--g900); line-height: 1.6; }
-.bi-detail { font-size: 11.5px; color: var(--g700); margin-top: 0; line-height: 1.6; }
+.bi-title  { font-size: 13.5px; font-weight: 600; color: var(--g900); line-height: 1.6; }
+.bi-detail { font-size: 13.5px; color: var(--g700); margin-top: 0; line-height: 1.6; }
 .bi-hymn   { font-weight: 700; color: var(--blue); }
 .bi-rest   { font-weight: 400; }
 .bi-sep    { color: var(--blue); }
 .bf-rule { margin-top: 18px; border-top: 1px solid var(--g200); padding-top: 12px; }
-.bf-people { font-size: 11.5px; color: var(--g700); line-height: 1.7; }
+.bf-people { font-size: 13.5px; color: var(--g700); line-height: 1.7; }
 .bf-people strong { font-weight: 600; color: var(--g900); }
-.bf { margin-top: 11px; text-align: center; font-size: 10px; color: var(--g400); }
+.bf { margin-top: 11px; text-align: center; font-size: 12px; color: var(--g400); }
+.ocb.pb-on { background: var(--gold); color: white; border-color: var(--gold); }
 
 /* toast */
 #toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(56px); background: var(--g900); color: white; padding: 8px 18px; border-radius: 18px; font-size: 12px; font-family: 'Inter', sans-serif; transition: transform .28s cubic-bezier(.34,1.56,.64,1); z-index: 999; pointer-events: none; }
@@ -145,6 +147,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
   .bs { margin-top: 7px !important; padding: 4px 9px !important; }
   .bi { padding: 5px 7px !important; }
   .bh { margin-bottom: 10px !important; padding-bottom: 9px !important; }
+  .bi-break { border-top: none !important; margin-top: 0 !important; padding-top: .25in !important; }
 }
 
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
@@ -346,7 +349,7 @@ function bItem(item) {
   }
 
   var sep = ' <span class="bi-sep">&mdash;</span> ';
-  var h   = '<div class="bi"><div class="bi-icon">' + x(icon) + '</div><div class="bi-body">';
+  var h   = '<div class="bi' + (item.iPageBreak ? ' bi-break' : '') + '"><div class="bi-icon">' + x(icon) + '</div><div class="bi-body">';
 
   if (useBlock) {
     // ── BLOCK FORMAT: label bold on top, music + detail rows below ──
@@ -529,6 +532,21 @@ function buildOrderUI() {
       if(confirm('Remove "' + (svcOrder[idx].label||'this item') + '"?')) { svcOrder.splice(idx,1); buildOrderUI(); render(); }
     }; })(i));
     btns.appendChild(up); btns.appendChild(dn); btns.appendChild(del);
+
+    // Page break toggle — only for items, not dividers
+    if (item.type === 'item') {
+      var pbBtn = document.createElement('button');
+      pbBtn.className = 'ocb' + (item.iPageBreak ? ' pb-on' : '');
+      pbBtn.textContent = '↳'; pbBtn.title = 'Toggle page break before this item';
+      pbBtn.type = 'button';
+      pbBtn.addEventListener('click', (function(idx, btn){ return function(){
+        svcOrder[idx].iPageBreak = !svcOrder[idx].iPageBreak;
+        btn.classList.toggle('pb-on', svcOrder[idx].iPageBreak);
+        render();
+        toast(svcOrder[idx].iPageBreak ? 'Page break added before this item' : 'Page break removed');
+      }; })(i, pbBtn));
+      btns.appendChild(pbBtn);
+    }
     card.appendChild(btns);
 
     // drag events
@@ -591,9 +609,10 @@ function applyData(d) {
       if (item.iDetail === undefined && item.value !== undefined) {
         return {id:item.id, type:'item', icon:item.icon||'', label:item.label||'', iHymn:'', iTitle:'', iDetail:item.value||''};
       }
-      if (item.iHymn  === undefined) item.iHymn  = '';
-      if (item.iTitle === undefined) item.iTitle = '';
-      if (item.iDetail=== undefined) item.iDetail= '';
+      if (item.iHymn     === undefined) item.iHymn     = '';
+      if (item.iTitle    === undefined) item.iTitle    = '';
+      if (item.iDetail   === undefined) item.iDetail   = '';
+      if (item.iPageBreak=== undefined) item.iPageBreak= false;
       return item;
     });
   }
@@ -619,7 +638,7 @@ document.getElementById('imp').addEventListener('change', function(e){
 // ─── ADD ITEM / SECTION ───
 document.getElementById('btn-add-item').addEventListener('click', function(){
   iCounter++;
-  svcOrder.push({id:'ci'+iCounter, type:'item', icon:'✦', label:'', iHymn:'',iTitle:'',iDetail:''});
+  svcOrder.push({id:'ci'+iCounter, type:'item', icon:'✦', label:'', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false});
   buildOrderUI(); render();
   var os=document.getElementById('order-scroll'); if(os) os.scrollTop=os.scrollHeight;
   toast('New item added — fill in the title and detail');
@@ -1083,6 +1102,29 @@ function gdocParse() {
     // Strip any ** bold markers that may surround the label
     labelRaw = labelRaw.replace(/^\*\*|\*\*$/g, '').trim();
 
+    // Also recognise "Label – Detail" or "Label - Detail" (dash separator) when no colon found.
+    // Only triggers when the label part is ≤ 8 words and starts with a capital letter.
+    var hasSeparator = colonIdx > -1;
+    if (!hasSeparator) {
+      var dashM = clean.match(/^([A-Z][^–\-\n]{2,55}?)\s+[-–]\s+(.+)$/);
+      if (dashM && dashM[1].trim().split(/\s+/).length <= 8) {
+        labelRaw   = dashM[1].trim();
+        detailRaw  = dashM[2].trim();
+        hasSeparator = true;
+      }
+    }
+
+    // Also recognise "Label — Detail" (em-dash separator) for items that don't use Tenebrae-style
+    // em-dash subtitles. Skip Tenebrae since its em-dash is part of the label, not a separator.
+    if (!hasSeparator && !/^tenebrae\b/i.test(clean)) {
+      var emDashM = clean.match(/^([A-Z][^—\n]{1,40}?)\s*—\s*(.+)$/);
+      if (emDashM && emDashM[1].trim().split(/\s+/).length <= 3) {
+        labelRaw   = emDashM[1].trim();
+        detailRaw  = emDashM[2].trim();
+        hasSeparator = true;
+      }
+    }
+
     // Scripture references like "Luke 2:1-7" — treat as continuation
     var isScripRef = /^[A-Z][a-z]+ \d/.test(labelRaw) && /^\d/.test(detailRaw);
 
@@ -1092,8 +1134,8 @@ function gdocParse() {
 
     // Service item or header field: label starts with capital, is short, is not a scripture ref.
     // Works with plain text (no **) AND with markdown (**bold**) from Google Docs.
-    if (colonIdx > -1 && labelRaw && labelRaw.length < 60 && !isScripRef &&
-        /^[A-Z]/.test(labelRaw) && labelRaw.split(/\s+/).length <= 6) {
+    if (hasSeparator && labelRaw && labelRaw.length < 70 && !isScripRef &&
+        /^[A-Z]/.test(labelRaw) && labelRaw.split(/\s+/).length <= 8) {
       firstBoldDone = true;
 
       // Header fields
@@ -1132,11 +1174,11 @@ function gdocParse() {
     } else if (isScripRef && curItem) {
       // Scripture reference — append as block detail
       curItem.iDetail += (curItem.iDetail ? '\n' : '') + clean;
-    } else if (colonIdx === -1 && clean.length < 80 && !/(worship|sunday)\s+outline/i.test(clean)) {
+    } else if (!hasSeparator && clean.length < 80 && !/(worship|sunday)\s+outline/i.test(clean)) {
       // No-colon line: could be liturgical subtitle, a known standalone item, or block continuation
       // Normalize curly apostrophes before matching so "Lord\u2019s" matches "Lord's"
       var cleanNorm = clean.replace(/[\u2018\u2019\u02bc]/g, "'");
-      var STANDALONE_ITEM = /^(prayers of the people|the lord'?s prayer|lord'?s prayer|passing of peace|sharing of joys and concerns|joys and concerns|silent prayer|moment of silence|benediction|offertory|call to worship|call to give|holy communion|communion|eucharist)\b/i;
+      var STANDALONE_ITEM = /^(prayers of the people|the lord'?s prayer|lord'?s prayer|passing of peace|sharing of joys and concerns|joys and concerns|silent prayer|moment of silence|benediction|offertory|call to worship|call to give|holy communion|communion|eucharist|tenebrae|the slamming of the bible|slamming of the bible|quiet time of meditation|quiet time|a time of meditation|time of meditation)\b/i;
       if (!result.f_liturgical && !curItem) {
         // Before any service items — treat as liturgical subtitle
         result.f_liturgical = clean;
@@ -1216,43 +1258,8 @@ function gdocApply() {
 
 function init() {
   wireInputs();
-  sv('f_date','2026-03-22');
-  sv('f_time','10:30 AM');
-  sv('f_liturgical','Fifth Sunday in Lent');
-  sv('f_acolyte','Oliver Namminga');
-  sv('f_greeters','Doug & Lori Ettinger');
-
-  var vals = {
-    'welcome':      'Rev. Darin Namminga',
-    'prelude':      '\u201cIn the Garden\u201d by C. Austin Miles \u2013 Micah Kammerer',
-    'theme':        'Jules Drewes\nwith ticking clock and piano to the tune of \u201cCome and Find the Quiet Center\u201d \u2013 we continue right into singing the song',
-    'tuning':       '\u201cCome and Find the Quiet Center\u201d \u2013 verse 1',
-    'praise':       '#20 All Things Bright and Beautiful (all verses)',
-    'confession':   'Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.\n\n(Silence for personal prayer and reflection)',
-    'kyrie':        '#474 As a Child Rests (refrain, verse 2, refrain)',
-    'assurance':    'Rev. Darin Namminga',
-    'gloria':       '#447 We Are Forgiven (sing twice)',
-    'music1':       '\u201cKyrie\u201d \u2013 Celebration Ringers',
-    'hymn1':        '#188 Jesus Loves Me',
-    'childrens':    'Linda Gruenberg',
-    'scripture':    'Kevin Smyth\nOld Testament: Ecclesiastes 3:1\u201313\nGospel: Luke 13:6\u201314\n\u201cThis is God\u2019s Word for the people of God\u201d (sung)',
-    'sermon':       '\u201cA Time for God, a Time to Flip Tables, a Time for Peacemaking\u201d \u2013 Rev. Darin Namminga',
-    'thanks':       '#250 In the Bulb There Is a Flower (all three verses)',
-    'offering':     'Rev. Darin Namminga',
-    'music2':       '\u201cLord I\u2019m Available to You\u201d by Carlis L. Moody Jr. \u2013 Micah Kammerer',
-    'doxology':     'For time to savor God\u2019s good gifts,\nFor space to breathe and hearts to lift,\nFor ways to reach out and to give,\nWe offer thanks and vow to live!',
-    'mission':      '#488 I Was There to Hear Your Borning Cry (all verses)',
-    'blessing':     'Rev. Darin Namminga',
-    'benediction':  '#542 God Be with You Till We Meet Again (verse 1)',
-    'postlude':     '\u201cI\u2019m Gonna Live So God Can Use Me\u201d by Wendell P. Whalum \u2013 Micah Kammerer'
-  };
-
-  svcOrder.forEach(function(item){
-    if (item.type === 'item' && vals[item.id] !== undefined) item.value = vals[item.id];
-  });
-
-  buildOrderUI();
-  render();
+  // Pre-loaded: Easter Sunrise 2026 (updated April 3)
+  applyData({"f_date":"2026-04-05","f_time":"6:30 AM","f_liturgical":"Easter Sunrise Service","f_acolyte":"","f_greeters":"Please hand out candles to everyone present. Make sure that latecomers receive a candle.","s_name":"St. Paul\u2019s United Church of Christ","s_sub":"Open and Affirming","_order":[{"id":"cd1","type":"divider","label":"We gather"},{"id":"ci_we_gather_outside__40","type":"item","icon":"\u25cb","label":"We Gather Outside at the Easter Fire","iHymn":"","iTitle":"","iDetail":"Everyone receives a candle to be lit from it.","iPageBreak":false},{"id":"ci_easter_proclamatio_55","type":"item","icon":"\u25cb","label":"Easter Proclamation","iHymn":"","iTitle":"","iDetail":"Rev. Dr. Dietmar Plajer\nWe Share the Light of Christ \u2014 we pass the light with these words:\n\u201cChrist is risen!\u201d\n\u201cChrist is risen indeed!\u201d","iPageBreak":false},{"id":"ci_procession_into_th_322","type":"item","icon":"\ud83c\udfb5","label":"Procession into the Dark Sanctuary","iHymn":"","iTitle":"There is a Fountain by William Cooper and \u201cThe Old Rugged Cross\u201d by George Bernard","iDetail":"Micah Kammerer","iPageBreak":false},{"id":"ci_call_to_worship_212","type":"item","icon":"\u25cb","label":"Call to Worship","iHymn":"","iTitle":"","iDetail":"\nLeader:\tChrist is risen!\nAll:\t\tChrist is risen indeed!\nLeader:\tLet us celebrate the living God who conquers death.\nAll:\t\tChrist is risen indeed! Alleluia!","iPageBreak":false},{"id":"ci_hymn_of_praise_662","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Praise","iHymn":"232","iTitle":"Jesus Christ Is Risen Today","iDetail":"(verses 1, 2, 4)\nPlease extinguish the candles.","iPageBreak":false},{"id":"confession","type":"item","icon":"\u25cb","label":"Prayer of Confession","iHymn":"","iTitle":"","iDetail":"(in unison)\nGod of new creation, thank you for raising us with Jesus to a new life. We are in awe of your power to renew and transform us. Your hope, love, and joy flood our souls. Your music lifts our spirits. Yet the powers of darkness still grab hold of us. We often feel limited and stuck. Help us emerge from our confining cocoons, unfurl our wings, and take flight. Transform us through the power of your love. Mold us and shape us into the image of Christ. We share with you what is on our hearts. (Silence for personal prayer and reflection)","iPageBreak":false},{"id":"kyrie","type":"item","icon":"\ud83c\udfbc","label":"Kyrie","iHymn":"695","iTitle":"Change My Heart, O God","iDetail":"(refrain, verse, refrain)","iPageBreak":false},{"id":"assurance","type":"item","icon":"\u25cb","label":"Assurance","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"ci_gloria_742","type":"item","icon":"\ud83c\udfbc","label":"Gloria","iHymn":"243","iTitle":"Be Not Afraid","iDetail":"(sing twice)","iPageBreak":false},{"id":"cd2","type":"divider","label":"We share the word"},{"id":"ci_easter_music_545","type":"item","icon":"\ud83c\udfb5","label":"Easter Music","iHymn":"","iTitle":"You Are Crowned with Many Crowns by John Sellers","iDetail":"Micah Kammerer","iPageBreak":false},{"id":"ci_prayer_for_illumin_660","type":"item","icon":"\u25cb","label":"Scripture Readings","iHymn":"","iTitle":"","iDetail":"Shane Sanders\nPrayer of Illumination\nHebrew Scripture: Jeremiah 31:1\u20136\nGospel: Matthew 28:1\u201310","iPageBreak":false},{"id":"ci4","type":"item","icon":"\ud83c\udfbc","label":"Scripture Reading Response","iHymn":"","iTitle":"This is God\u2019s Word for the People of God","iDetail":"","iPageBreak":true},{"id":"sermon","type":"item","icon":"\u25cb","label":"Message/Sermon","iHymn":"","iTitle":"My Religion Is Love","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"cd3","type":"divider","label":"We respond with thanksgiving"},{"id":"ci_hymn_of_thanksgivi_723","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Thanksgiving","iHymn":"250","iTitle":"Hymn of Promise","iDetail":"(all 3 verses)","iPageBreak":false},{"id":"ci_offering_announcem_60","type":"item","icon":"\u25cb","label":"Offering Announcement","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"music2","type":"item","icon":"\ud83c\udfb5","label":"Offering of Music","iHymn":"","iTitle":"When I Look into Your Holiness by Wayne & Cathy Perrin","iDetail":"Micah Kammerer","iPageBreak":false},{"id":"doxology","type":"item","icon":"\u25cb","label":"Doxology","iHymn":"607","iTitle":"Praise God from Whom All Blessings Flow","iDetail":"","iPageBreak":false},{"id":"cd4","type":"divider","label":"Holy communion"},{"id":"ci6","type":"item","icon":"\u25cb","label":"Invitation","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"ci_communion_song_255","type":"item","icon":"\ud83c\udfbc","label":"Communion Song","iHymn":"497","iTitle":"Bread of Life From Heaven","iDetail":"(refrain, verse 3, refrain)","iPageBreak":false},{"id":"ci7","type":"item","icon":"\u25cb","label":"Consecration and Prayer","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"ci8","type":"item","icon":"\u25cb","label":"Words of Institution","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"ci9","type":"item","icon":"\u25cb","label":"Sharing of the Bread and Cup","iHymn":"","iTitle":"","iDetail":"(soft music is welcome as we commune) \nCommunion servers \u2014 Shane Sanders, Pastor Dietmar","iPageBreak":false},{"id":"cd10","type":"divider","label":"Prayer"},{"id":"ci_the_lord_s_prayer_36","type":"item","icon":"\u25cb","label":"The Lord\u2019s Prayer","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"prayers","type":"item","icon":"\u25cb","label":"Prayers of the People","iHymn":"","iTitle":"","iDetail":"","iPageBreak":false},{"id":"cd5","type":"divider","label":"We are sent"},{"id":"ci_hymn_of_mission_297","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Mission","iHymn":"245","iTitle":"Christ the Lord Is Risen Today","iDetail":"(verses 1, 2, 4)","iPageBreak":false},{"id":"ci_blessing_571","type":"item","icon":"\u25cb","label":"Blessing","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"ci_benediction_respon_162","type":"item","icon":"\ud83c\udfbc","label":"Benediction Response","iHymn":"43","iTitle":"You Who Dwell in the Shelter of the Lord","iDetail":"(refrain only)\nWe invite you to hold hands during this song. Hand sanitizer is available in the foyer.","iPageBreak":false},{"id":"postlude","type":"item","icon":"\ud83c\udfb5","label":"Postlude","iHymn":"","iTitle":"He Lives by Alfred Ackley","iDetail":"Micah Kammerer","iPageBreak":false}]});
 }
 init();
 </script>
