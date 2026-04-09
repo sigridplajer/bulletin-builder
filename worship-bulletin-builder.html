@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<!-- saved from url=(0244)file:///Users/sigridplajer/Library/Application%20Support/Claude/local-agent-mode-sessions/af458998-e47c-4c5f-954e-22d51ac2da72/c28d6703-5c4a-4a48-9ecc-6be2055635e1/local_2ae65584-2513-4e0a-9191-0d1bd7771c11/outputs/worship-bulletin-builder.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worship Bulletin Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue:  #005891;
+  --blue2: #004373;
+  --blue3: #EAF3FA;
+  --blue4: #C5DCF0;
+  --cdk:   #EAE5DA;
+  --g50:   #F8F8F8;
+  --g200:  #E2E2E2;
+  --g400:  #A8A8A8;
+  --g500:  #686868;
+  --g700:  #363636;
+  --g900:  #161616;
+  --gold:  #B08A28;
+  --r:     5px;
+}
+html, body { height: 100%; font-family: 'Inter', system-ui, sans-serif; }
+body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700); }
+
+/* ─── EDITOR ─── */
+#editor { width: 460px; min-width: 360px; flex-shrink: 0; background: white; display: flex; flex-direction: column; border-right: 1px solid var(--g200); overflow: hidden; }
+#ed-head { background: var(--blue); color: white; padding: 13px 20px; flex-shrink: 0; }
+#ed-head h1 { font-size: 12px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; }
+#ed-head p  { font-size: 10.5px; opacity: .55; margin-top: 1px; }
+
+/* tabs */
+#tabs { display: flex; background: var(--cdk); border-bottom: 1px solid var(--g200); flex-shrink: 0; }
+.tab { flex: 1; padding: 9px 4px; font-size: 10.5px; font-weight: 500; border: none; background: none; cursor: pointer; color: var(--g500); border-bottom: 2px solid transparent; transition: all .15s; }
+.tab.active { background: white; color: var(--blue); border-bottom-color: var(--blue); }
+.tab:hover:not(.active) { background: white; }
+
+/* scroll panels */
+.panel { display: none; flex: 1; overflow-y: auto; padding: 15px 18px 6px; }
+.panel.on { display: block; }
+
+/* form */
+.fsec { margin-bottom: 18px; }
+.fsec-hd { display: flex; align-items: center; padding-bottom: 5px; margin-bottom: 9px; border-bottom: 1.5px solid var(--cdk); }
+.fsec-hd h3 { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); }
+.fr { margin-bottom: 7px; }
+.fr label { display: block; font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .3px; color: var(--g500); margin-bottom: 2px; }
+.fr input { width: 100%; padding: 6px 9px; border: 1px solid var(--g200); border-radius: var(--r); font-size: 12px; font-family: 'Inter', sans-serif; color: var(--g900); background: white; outline: none; transition: border .15s; }
+.fr input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,88,145,.07); }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+/* ─── ORDER TAB ─── */
+.order-tip { font-size: 11px; color: var(--g400); line-height: 1.6; margin-bottom: 10px; background: var(--blue3); border-radius: var(--r); padding: 8px 10px; }
+
+.oc { display: flex; align-items: flex-start; gap: 5px; padding: 6px 7px; border-radius: var(--r); margin-bottom: 3px; border: 1px solid transparent; transition: background .1s; cursor: default; }
+.oc.is-divider { background: var(--blue3); border-color: var(--blue4); }
+.oc.is-item    { background: var(--g50);  border-color: var(--g200); }
+.oc.drag-over  { border-color: var(--blue) !important; background: #D4E8F5 !important; outline: 2px solid var(--blue); }
+.oc.dragging   { opacity: .35; }
+
+.oc-grip { cursor: grab; color: var(--g400); font-size: 13px; padding: 3px 1px 0; line-height: 1; flex-shrink: 0; user-select: none; }
+.oc-grip:active { cursor: grabbing; }
+
+.oc-body { flex: 1; min-width: 0; }
+
+/* divider input */
+.oc-div-input { width: 100%; padding: 2px 4px; font-size: 11px; font-weight: 600; color: var(--blue); letter-spacing: .4px; text-transform: uppercase; border: 1px solid transparent; border-radius: 3px; background: transparent; font-family: 'Inter', sans-serif; outline: none; }
+.oc-div-input:focus { background: white; border-color: var(--blue4); }
+
+/* item row */
+.oc-item-top { display: flex; gap: 4px; align-items: center; margin-bottom: 3px; }
+.oc-icon-input { width: 30px; padding: 3px 2px; font-size: 14px; border: 1px solid var(--g200); border-radius: 3px; background: white; text-align: center; font-family: 'Inter', sans-serif; outline: none; flex-shrink: 0; }
+.oc-icon-input:focus { border-color: var(--blue); }
+.oc-lbl-input { flex: 1; padding: 4px 6px; font-size: 11.5px; font-weight: 500; border: 1px solid var(--g200); border-radius: 3px; font-family: 'Inter', sans-serif; outline: none; background: white; color: var(--g900); }
+.oc-lbl-input:focus { border-color: var(--blue); }
+.oc-val-textarea { width: 100%; padding: 4px 6px; font-size: 11px; border: 1px solid var(--g200); border-radius: 3px; font-family: 'Inter', sans-serif; outline: none; background: white; color: var(--g700); resize: none; line-height: 1.5; overflow: hidden; min-height: 24px; }
+.oc-val-textarea:focus { border-color: var(--blue); }
+
+.oc-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+.ocb { width: 20px; height: 20px; border: 1px solid var(--g200); border-radius: 3px; background: white; cursor: pointer; font-size: 10px; color: var(--g500); display: flex; align-items: center; justify-content: center; transition: all .12s; padding: 0; }
+.ocb:hover { background: var(--blue3); border-color: var(--blue); color: var(--blue); }
+.ocb.del:hover { background: #fff0f0; border-color: #dda0a0; color: #b83030; }
+
+.order-add-btns { display: flex; gap: 6px; margin-top: 8px; }
+.order-add-btns button { flex: 1; padding: 8px; border: 1.5px dashed var(--g200); border-radius: var(--r); background: none; cursor: pointer; color: var(--g400); font-size: 11px; font-family: 'Inter', sans-serif; transition: all .15s; }
+.order-add-btns button:hover { border-color: var(--blue); color: var(--blue); background: var(--blue3); }
+
+/* action bar */
+#action-bar { padding: 10px 18px; background: var(--g50); border-top: 1px solid var(--g200); display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+.btn { padding: 7px 13px; border-radius: var(--r); font-size: 11.5px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all .15s; white-space: nowrap; font-family: 'Inter', sans-serif; }
+.btn-p { background: var(--blue); color: white; }
+.btn-p:hover { background: var(--blue2); }
+.btn-g { background: white; color: var(--g700); border-color: var(--g200); }
+.btn-g:hover { background: var(--blue3); }
+.btn-print { background: var(--gold); color: white; }
+.btn-print:hover { background: #8A6A18; }
+
+/* ─── PREVIEW PANEL ─── */
+#preview { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+#prev-bar { background: #E4DFD6; border-bottom: 1px solid var(--g200); padding: 8px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+#prev-bar span { font-size: 11px; font-weight: 500; color: var(--g500); }
+#prev-scroll { flex: 1; overflow-y: auto; padding: 28px 20px; display: flex; justify-content: center; align-items: flex-start; }
+
+/* ─── BULLETIN ─── */
+#bulletin {
+  background: white; width: 650px; max-width: 100%;
+  padding: 28px 36px 32px;
+  box-shadow: 0 3px 20px rgba(0,0,0,.14);
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--g900);
+}
+.bh { margin-bottom: 15px; padding-bottom: 12px; border-bottom: 2px solid var(--g900); }
+.bh-church { font-size: 12px; font-weight: 700; color: var(--g900); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 3px; }
+.bh-title  { font-size: 24px; font-weight: 700; color: var(--g900); line-height: 1.2; }
+.bh-lit    { font-size: 13.5px; color: var(--g900); margin-top: 3px; font-style: italic; }
+.bh-meta   { font-size: 13.5px; color: var(--g900); margin-top: 5px; }
+.bs { background: #F0EDE8; border-left: 3px solid var(--g900); padding: 5px 11px; margin-top: 10px; margin-bottom: 0; font-size: 12px; font-weight: 700; color: var(--g900); text-transform: uppercase; letter-spacing: .8px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+.bi { display: flex; align-items: flex-start; padding: 7px 9px; border-bottom: 1px solid #F2F2F2; }
+.bi-break { page-break-before: always; border-top: 2px dashed var(--g400); margin-top: 10px; padding-top: 4px; }
+.bi-icon { width: 26px; flex-shrink: 0; font-size: 15px; padding-top: 1px; text-align: center; }
+.bi-body { flex: 1; min-width: 0; }
+.bi-title  { font-size: 13.5px; font-weight: 600; color: var(--g900); line-height: 1.6; }
+.bi-detail { font-size: 13.5px; color: var(--g700); margin-top: 0; line-height: 1.6; }
+.bi-hymn   { font-weight: 700; color: var(--g900); }
+.bi-rest   { font-weight: 400; }
+.bi-sep    { color: var(--g900); }
+.bf-rule { margin-top: 18px; border-top: 1px solid var(--g200); padding-top: 12px; }
+.bf-people { font-size: 13.5px; color: var(--g700); line-height: 1.7; }
+.bf-people strong { font-weight: 600; color: var(--g900); }
+.bf { margin-top: 11px; text-align: center; font-size: 12px; color: var(--g400); }
+.ocb.pb-on { background: var(--gold); color: white; border-color: var(--gold); }
+
+/* toast */
+#toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(56px); background: var(--g900); color: white; padding: 8px 18px; border-radius: 18px; font-size: 12px; font-family: 'Inter', sans-serif; transition: transform .28s cubic-bezier(.34,1.56,.64,1); z-index: 999; pointer-events: none; }
+#toast.on { transform: translateX(-50%) translateY(0); }
+
+/* print */
+@media print {
+  @page { margin: .3in .4in; }
+  body   { display: block !important; background: white !important; overflow: visible !important; }
+  #editor, #prev-bar, #toast { display: none !important; }
+  #preview { display: block !important; overflow: visible !important; }
+  #prev-scroll { padding: 0 !important; background: white !important; overflow: visible !important; display: block !important; }
+  #bulletin { width: 100% !important; max-width: 100% !important; padding: .25in .35in !important; box-shadow: none !important; }
+  .bs { margin-top: 7px !important; padding: 4px 9px !important; }
+  .bi { padding: 5px 7px !important; }
+  .bh { margin-bottom: 10px !important; padding-bottom: 9px !important; }
+  .bi-break { border-top: none !important; margin-top: 0 !important; padding-top: .25in !important; }
+}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
+.modal{background:white;border-radius:8px;padding:22px 24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.22);}
+.modal h2{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--g900);}
+.modal p{font-size:11.5px;color:var(--g500);margin-bottom:12px;}
+.modal textarea{width:100%;min-height:140px;padding:8px 10px;border:1px solid var(--g200);border-radius:var(--r);font-size:11.5px;font-family:monospace;resize:vertical;outline:none;}
+.modal textarea:focus{border-color:var(--blue);}
+.modal-btns{display:flex;gap:8px;margin-top:12px;}
+.modal-results{margin-top:12px;border:1px solid var(--g200);border-radius:var(--r);overflow:hidden;}
+.mr-row{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-bottom:1px solid var(--g200);font-size:11.5px;}
+.mr-row:last-child{border-bottom:none;}
+.mr-lbl{font-weight:600;color:var(--g900);flex:0 0 130px;}
+.mr-val{color:var(--g700);flex:1;}
+.mr-count{font-size:11px;color:var(--g500);margin:auto 0;}
+.btn-publish{background:#2a7a5a;color:white;}
+.btn-email{background:var(--blue);color:white;font-size:11px;}
+.ocb.hymn-on{background:var(--blue);color:white;border-color:var(--blue);}
+</style>
+</head>
+<body>
+
+<!-- ═══════ EDITOR ═══════ -->
+<div id="editor">
+  <div id="ed-head">
+    <h1>✝ Bulletin Builder</h1>
+    <p id="ed-sub">St. Paul's United Church of Christ</p>
+  </div>
+
+  <div id="tabs">
+    <button class="tab active" data-tab="form">📋 Header</button>
+    <button class="tab" data-tab="order">↕ Service Order</button>
+    <button class="tab" data-tab="settings">⚙️ Settings</button>
+  </div>
+
+  <!-- HEADER TAB -->
+  <div id="form-scroll" class="panel on">
+    <div class="fsec">
+      <div class="fsec-hd"><h3>📅 Service Details</h3></div>
+      <div class="fr g2">
+        <div><label>Date</label><input type="date" id="f_date"></div>
+        <div><label>Time</label><input type="text" id="f_time" placeholder="10:30 AM"></div>
+      </div>
+      <div class="fr"><label>Liturgical Sunday</label><input type="text" id="f_liturgical" placeholder="e.g. Fifth Sunday in Lent"></div>
+      <div class="fr g2">
+        <div><label>Acolyte</label><input type="text" id="f_acolyte"></div>
+        <div><label>Greeters</label><input type="text" id="f_greeters"></div>
+      </div>
+    </div>
+    <div class="fsec">
+      <div class="fsec-hd"><h3>💡 Tip</h3></div>
+      <p style="font-size:11px;color:var(--g500);line-height:1.7;">Fill in the service details above, then go to <strong>Service Order</strong> to edit each item, reorder, remove, or add new ones. Every item is fully editable.</p>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- SERVICE ORDER TAB -->
+  <div id="order-scroll" class="panel">
+    <p class="order-tip">Drag <strong>⠿</strong> or use <strong>↑↓</strong> to reorder. Edit icon, title, and detail on any item. <strong>×</strong> removes it. Use the buttons below to add items or section headers.</p>
+    <div id="order-list"><div class="oc is-divider" draggable="true" data-i="0"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="1"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="2"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="3"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="4"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="5"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-divider" draggable="true" data-i="6"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="7"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="8"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="9"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="10"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-divider" draggable="true" data-i="11"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="12"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="13"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="14"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="15"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="16"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-divider" draggable="true" data-i="17"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="18"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="19"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="20"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="21"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="22"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="23"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-divider" draggable="true" data-i="24"><span class="oc-grip">⠿</span><div class="oc-body"><input class="oc-div-input" type="text" placeholder="Section Name"></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="25"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="26"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="27"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div><div class="oc is-item" draggable="true" data-i="28"><span class="oc-grip">⠿</span><div class="oc-body"><div class="oc-item-top"><input class="oc-icon-input" type="text" title="Icon (emoji)"><input class="oc-lbl-input" type="text" placeholder="Item title"></div><textarea class="oc-val-textarea" placeholder="Detail / description (optional — press Enter for new line)" rows="1" style="height: 0px;"></textarea></div><div class="oc-btns"><button class="ocb" title="Move up">↑</button><button class="ocb" title="Move down">↓</button><button class="ocb del" title="Remove">×</button></div></div></div>
+    <div class="order-add-btns">
+      <button id="btn-add-item">+ Add Item</button>
+      <button id="btn-add-section">+ Add Section Header</button>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="settings-tab" class="panel">
+    <div class="fsec">
+      <div class="fsec-hd"><h3>⛪ Church Info</h3></div>
+      <div class="fr"><label>Church Name</label><input type="text" id="s_name" value="St. Paul&#39;s United Church of Christ"></div>
+      <div class="fr"><label>Tagline</label><input type="text" id="s_sub" value="Open and Affirming"></div>
+    </div>
+    <div class="fsec">
+      <div class="fsec-hd"><h3>📂 Import Previous Bulletin</h3></div>
+      <p style="font-size:11px;color:var(--g500);line-height:1.6;margin-bottom:9px;">Load a saved JSON to reuse or edit for a new week.</p>
+      <button class="btn btn-g" onclick="document.getElementById(&#39;imp&#39;).click()" style="font-size:11.5px;">⬆ Import JSON</button>
+      <button class="btn btn-g" onclick="gdocOpen()" style="font-size:11.5px;margin-top:6px;">📄 From Google Doc</button>
+      <input type="file" id="imp" accept=".json" style="display:none">
+    </div>
+    <div class="fsec">
+      <div class="fsec-hd"><h3>ℹ️ Saving</h3></div>
+      <p style="font-size:11px;color:var(--g500);line-height:1.7;"><strong>📄 Export Word</strong> — downloads an .rtf file; upload to Google Drive and open with Google Docs.<br><strong>🖨 Print / PDF</strong> — opens print dialog; choose "Save as PDF."<br><strong>⬇ Save JSON</strong> — saves everything for reuse next week.</p>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <div id="action-bar">
+    <button class="btn btn-p" id="btn-clear">🗒 New Week</button>
+    <button class="btn btn-g" id="btn-save">⬇ Save JSON</button>
+    <button class="btn btn-g" id="btn-docx">📄 Export Word</button>
+    <button class="btn btn-print" onclick="window.print()">🖨 Print / PDF</button>
+    <button class="btn btn-g" onclick="ptOpen()" style="font-size:11.5px;">📋 Paste Text</button>
+    <button class="btn btn-g" id="btn-drive-save" onclick="saveToDrive()">☁️ Save to Drive</button>
+    <button class="btn btn-g" id="btn-drive-load" onclick="loadFromDrive()">📂 Open from Drive</button>
+    <button class="btn btn-publish" id="btn-publish" onclick="publishToGoogle()">📤 Publish</button>
+  </div>
+</div>
+
+<!-- ═══════ PREVIEW ═══════ -->
+<div id="preview">
+  <div id="prev-bar">
+    <span>Live Preview</span>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-g" id="btn-save2">⬇ Save JSON</button>
+      <button class="btn btn-g" id="btn-docx2">📄 Export Word</button>
+      <button class="btn btn-print" onclick="window.print()">🖨 Print / PDF</button>
+    </div>
+  </div>
+  <div id="prev-scroll">
+    <div id="bulletin"><div class="bh"><div class="bh-church">St. Paul's United Church of Christ  •  Open and Affirming</div><div class="bh-title">Worship Service</div><div class="bh-lit">Fifth Sunday in Lent</div><div class="bh-meta">Sunday, March 22, 2026 | 10:30 AM</div></div><div class="bs">We Gather</div><div class="bi"><div class="bi-icon">📢</div><div class="bi-body"><div class="bi-title">Welcome &amp; Announcements</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Prelude</div><div class="bi-detail">“In the Garden” by C. Austin Miles – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">💡</div><div class="bi-body"><div class="bi-title">Introduction of the Worship Theme</div><div class="bi-detail">Jules Drewes<br>with ticking clock and piano to the tune of “Come and Find the Quiet Center” – we continue right into singing the song</div></div></div><div class="bi"><div class="bi-icon">🎶</div><div class="bi-body"><div class="bi-title">Tuning Hymn</div><div class="bi-detail">“Come and Find the Quiet Center” – verse 1</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Praise</div><div class="bi-detail">#20 All Things Bright and Beautiful (all verses)</div></div></div><div class="bs">We Confess and Are Forgiven</div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayer of Confession</div><div class="bi-detail">Almighty God, in Jesus Christ, you love us, but we have not loved you. You have opened your heart to us, and in our pride, we have spurned your care. You have given us all things, and we have squandered your gifts. We have grieved you and caused hurt to others, and we are not worthy to be called your children. Have mercy on us, O Lord, for we are ashamed and sorry for all we have done to displease you. Cleanse us from our sin and receive us again into your household, that we might nevermore stray from your love but always remain within the sound of your voice.<br><br>(Silence for personal prayer and reflection)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Kyrie</div><div class="bi-detail">#474 As a Child Rests (refrain, verse 2, refrain)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Assurance</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Gloria</div><div class="bi-detail">#447 We Are Forgiven (sing twice)</div></div></div><div class="bs">We Receive the Word</div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Kyrie” – Celebration Ringers</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn</div><div class="bi-detail">#188 Jesus Loves Me</div></div></div><div class="bi"><div class="bi-icon">⭐</div><div class="bi-body"><div class="bi-title">Children's Message</div><div class="bi-detail">Linda Gruenberg</div></div></div><div class="bi"><div class="bi-icon">📖</div><div class="bi-body"><div class="bi-title">Scripture Readings</div><div class="bi-detail">Kevin Smyth<br>Old Testament: Ecclesiastes 3:1–13<br>Gospel: Luke 13:6–14<br>“This is God’s Word for the people of God” (sung)</div></div></div><div class="bi"><div class="bi-icon">💬</div><div class="bi-body"><div class="bi-title">Message / Sermon</div><div class="bi-detail">“A Time for God, a Time to Flip Tables, a Time for Peacemaking” – Rev. Darin Namminga</div></div></div><div class="bs">We Respond</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Thanksgiving</div><div class="bi-detail">#250 In the Bulb There Is a Flower (all three verses)</div></div></div><div class="bi"><div class="bi-icon">⚬</div><div class="bi-body"><div class="bi-title">Offering Announcement</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Offering of Music</div><div class="bi-detail">“Lord I’m Available to You” by Carlis L. Moody Jr. – Micah Kammerer</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Doxology</div><div class="bi-detail">For time to savor God’s good gifts,<br>For space to breathe and hearts to lift,<br>For ways to reach out and to give,<br>We offer thanks and vow to live!</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">Prayers of the People</div></div></div><div class="bi"><div class="bi-icon">🙏</div><div class="bi-body"><div class="bi-title">The Lord's Prayer</div></div></div><div class="bs">We Are Sent</div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Hymn of Mission</div><div class="bi-detail">#488 I Was There to Hear Your Borning Cry (all verses)</div></div></div><div class="bi"><div class="bi-icon">✝</div><div class="bi-body"><div class="bi-title">Blessing</div><div class="bi-detail">Rev. Darin Namminga</div></div></div><div class="bi"><div class="bi-icon">🎼</div><div class="bi-body"><div class="bi-title">Benediction Response</div><div class="bi-detail">#542 God Be with You Till We Meet Again (verse 1)</div></div></div><div class="bi"><div class="bi-icon">🎵</div><div class="bi-body"><div class="bi-title">Postlude</div><div class="bi-detail">“I’m Gonna Live So God Can Use Me” by Wendell P. Whalum – Micah Kammerer</div></div></div><div class="bf-rule"><div class="bf-people"><strong>Acolyte:</strong> Oliver Namminga</div><div class="bf-people"><strong>Greeters:</strong> Doug &amp; Lori Ettinger</div></div><div class="bf">St. Paul's United Church of Christ &nbsp;·&nbsp; All are welcome.</div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── HELPERS ───
+function x(s) { if (s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function v(id) { var e=document.getElementById(id); return e?e.value.trim():''; }
+function sv(id,val) { var e=document.getElementById(id); if(e) e.value=(val==null)?'':String(val); }
+
+// ─── SERVICE ORDER ───
+// Each item: type='divider' (label only) or type='item' (icon + label + value)
+var svcOrder = [
+  {id:'dv_gather',    type:'divider', label:'We Gather'},
+  {id:'welcome',      type:'item', icon:'📢', label:'Welcome & Announcements', iHymn:'',iTitle:'',iDetail:''},
+  {id:'prelude',      type:'item', icon:'🎵', label:'Prelude', iHymn:'',iTitle:'',iDetail:''},
+  {id:'theme',        type:'item', icon:'💡', label:'Introduction of the Worship Theme', iHymn:'',iTitle:'',iDetail:''},
+  {id:'tuning',       type:'item', icon:'🎶', label:'Tuning Hymn', iHymn:'',iTitle:'',iDetail:''},
+  {id:'praise',       type:'item', icon:'🎼', label:'Hymn of Praise', iHymn:'',iTitle:'',iDetail:''},
+  {id:'dv_confess',   type:'divider', label:'We Confess and Are Forgiven'},
+  {id:'confession',   type:'item', icon:'🙏', label:'Prayer of Confession', iHymn:'',iTitle:'',iDetail:''},
+  {id:'kyrie',        type:'item', icon:'✝', label:'Kyrie', iHymn:'',iTitle:'',iDetail:''},
+  {id:'assurance',    type:'item', icon:'✝', label:'Assurance', iHymn:'',iTitle:'',iDetail:''},
+  {id:'gloria',       type:'item', icon:'🎼', label:'Gloria', iHymn:'',iTitle:'',iDetail:''},
+  {id:'dv_word',      type:'divider', label:'We Receive the Word'},
+  {id:'music1',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'',iTitle:'',iDetail:''},
+  {id:'hymn1',        type:'item', icon:'🎼', label:'Hymn', iHymn:'',iTitle:'',iDetail:''},
+  {id:'childrens',    type:'item', icon:'⭐', label:"Children's Message", iHymn:'',iTitle:'',iDetail:''},
+  {id:'scripture',    type:'item', icon:'📖', label:'Scripture Readings', iHymn:'',iTitle:'',iDetail:''},
+  {id:'sermon',       type:'item', icon:'💬', label:'Message / Sermon', iHymn:'',iTitle:'',iDetail:''},
+  {id:'dv_respond',   type:'divider', label:'We Respond'},
+  {id:'thanks',       type:'item', icon:'🎼', label:'Hymn of Thanksgiving', iHymn:'',iTitle:'',iDetail:''},
+  {id:'offering',     type:'item', icon:'\u26AC', label:'Offering Announcement', iHymn:'',iTitle:'',iDetail:''},
+  {id:'music2',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'',iTitle:'',iDetail:''},
+  {id:'doxology',     type:'item', icon:'\uD83C\uDFBC', label:'Doxology', iHymn:'',iTitle:'',iDetail:''},
+  {id:'prayers',      type:'item', icon:'🙏', label:'Prayers of the People', iHymn:'',iTitle:'',iDetail:''},
+  {id:'lords_prayer', type:'item', icon:'🙏', label:"The Lord's Prayer", iHymn:'',iTitle:'',iDetail:''},
+  {id:'dv_send',      type:'divider', label:'We Are Sent'},
+  {id:'mission',      type:'item', icon:'🎼', label:'Hymn of Mission', iHymn:'',iTitle:'',iDetail:''},
+  {id:'blessing',     type:'item', icon:'✝', label:'Blessing', iHymn:'',iTitle:'',iDetail:''},
+  {id:'benediction',  type:'item', icon:'🎼', label:'Benediction Response', iHymn:'',iTitle:'',iDetail:''},
+  {id:'postlude',     type:'item', icon:'🎵', label:'Postlude', iHymn:'',iTitle:'',iDetail:''},
+];
+var iCounter = 0;
+
+// ─── BULLETIN HELPERS ───
+function bItem(item) {
+  if (!item.label) return '';
+  var icon    = item.icon    || '';
+  var iHymn   = (item.iHymn  || '').trim();
+  var iTitle  = (item.iTitle || '').trim();
+  var iDetail = (item.iDetail|| '');
+
+  // Handle forced block (user pressed Enter at start of detail box)
+  var forcedBlock = iDetail.charAt(0) === '\n';
+  if (forcedBlock) iDetail = iDetail.slice(1);
+  iDetail = iDetail.trim();
+
+  // Split iDetail: first line may go inline; remaining lines go below (no em-dash)
+  var nlIdx       = iDetail.indexOf('\n');
+  var detailFirst = nlIdx === -1 ? iDetail : iDetail.substring(0, nlIdx);
+  var detailRest  = nlIdx === -1 ? ''      : iDetail.substring(nlIdx + 1).trim();
+
+  // Determine inline vs block:
+  //  • hymn number present → always inline (it's a song, regardless of label)
+  //  • prayer / prayers of the people → inline if detailFirst is short (looks like a
+  //    person's name); block if detailFirst is long (IS the prayer text)
+  //  • other block-type labels (communion rite, symbolic action, etc.) → always block
+  var isBlockType;
+  if (iHymn) {
+    isBlockType = false;
+  } else if (/^prayers?\b/i.test(item.label.trim())) {
+    isBlockType = detailFirst.length >= 60;   // long first line = prayer text, not a name
+  } else {
+    isBlockType = /^(communion|symbolic|responsive|litany|kyrie|sanctus|gloria|passing of peace)/i.test(item.label.trim());
+  }
+  var useBlock = isBlockType || forcedBlock;
+
+  // Build music HTML: #hymn + "Title" [by Composer attribution outside quotes]
+  // If the user typed their own opening quote, render as-is (no auto-quoting or "by" splitting).
+  // Otherwise auto-wrap in curly quotes and split trailing "by Composer" attribution.
+  var musicHtml = '';
+  if (iHymn) musicHtml += '<span class="bi-hymn">#' + x(iHymn) + '</span>';
+  if (iTitle) {
+    if (iHymn) musicHtml += ' ';
+    var hasOwnQuotes = /^["\u201c\u2018']/.test(iTitle);
+    if (hasOwnQuotes) {
+      musicHtml += '<em>' + x(iTitle) + '</em>';
+    } else {
+      var byM = iTitle.match(/^(\S.*\s\S+) ((?:by|arr\.?)\s\S+\s.+)$/i);
+      var titleOnly = byM ? byM[1].trim() : iTitle;
+      var titleAttr = byM ? ' ' + byM[2]  : '';
+      musicHtml += '<em>\u201c' + x(titleOnly) + '\u201d</em>' + x(titleAttr);
+    }
+  }
+
+  var sep = ' <span class="bi-sep">&mdash;</span> ';
+  var h   = '<div class="bi' + (item.iPageBreak ? ' bi-break' : '') + '"><div class="bi-icon">' + x(icon) + '</div><div class="bi-body">';
+
+  if (useBlock) {
+    // ── BLOCK FORMAT: label bold on top, music + detail rows below ──
+    h += '<div class="bi-title">' + x(item.label) + '</div>';
+    if (musicHtml) h += '<div class="bi-detail">' + musicHtml + '</div>';
+    if (iDetail)   h += '<div class="bi-detail">' + x(iDetail).replace(/\n/g, '<br>') + '</div>';
+
+  } else {
+    // ── INLINE FORMAT: Label — music — first detail line  (all on one row) ──
+    var restParts = [];
+    if (musicHtml)   restParts.push(musicHtml);
+    if (detailFirst) restParts.push(x(detailFirst));
+    var titleDiv = x(item.label);
+    if (restParts.length) {
+      titleDiv += '<span class="bi-rest">' + sep + restParts.join(sep) + '</span>';
+    }
+    h += '<div class="bi-title">' + titleDiv + '</div>';
+    // Lines after a user-pressed Enter: shown below, no em-dash prefix
+    if (detailRest) {
+      h += '<div class="bi-detail">' + x(detailRest).replace(/\n/g, '<br>') + '</div>';
+    }
+  }
+
+  h += '</div></div>';
+  return h;
+}
+function bSec(label) { return '<div class="bs">' + x(label) + '</div>'; }
+
+// ─── MAIN RENDER ───
+function render() {
+  try {
+    var sn = v('s_name') || "St. Paul's United Church of Christ";
+    var ss = v('s_sub');
+    var dt = v('f_date'), tm = v('f_time'), lit = v('f_liturgical');
+    var ac = v('f_acolyte'), gr = v('f_greeters');
+
+    var dstr = '';
+    if (dt) { try { var d=new Date(dt+'T12:00:00'); dstr=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}); } catch(e){dstr=dt;} }
+
+    var metaLine  = [dstr, tm].filter(Boolean).join(' | ');
+    var peopleLine = [ac?'Acolyte: '+ac:'', gr?'Greeters: '+gr:''].filter(Boolean).join('  \u2022  ');
+
+    var hdr = '<div class="bh">'
+      + '<div class="bh-church">' + x(sn) + (ss ? '  &bull;  ' + x(ss) : '') + '</div>'
+      + '<div class="bh-title">Worship Service</div>'
+      + (lit ? '<div class="bh-lit">' + x(lit) + '</div>' : '')
+      + (metaLine ? '<div class="bh-meta">' + x(metaLine) + '</div>' : '')
+      + '</div>';
+
+    var body = '';
+    for (var i=0; i<svcOrder.length; i++) {
+      var item = svcOrder[i];
+      if (item.type === 'divider') {
+        body += bSec(item.label);
+      } else if (item.type === 'item') {
+        if (item.label) body += bItem(item);
+      }
+    }
+
+    var peoplePart = '';
+    if (ac || gr) {
+      peoplePart = '<div class="bf-rule">';
+      if (ac) peoplePart += '<div class="bf-people"><strong>Acolyte:</strong> ' + x(ac) + '</div>';
+      if (gr) peoplePart += '<div class="bf-people"><strong>Greeters:</strong> ' + x(gr) + '</div>';
+      peoplePart += '</div>';
+    }
+    var ftr = peoplePart + '<div class="bf">' + x(sn) + ' &nbsp;&middot;&nbsp; All are welcome.</div>';
+
+    document.getElementById('bulletin').innerHTML = hdr + body + ftr;
+    var es = document.getElementById('ed-sub'); if(es) es.textContent = sn;
+  } catch(e) { console.error('Render error:', e); }
+}
+
+// ─── AUTO-RESIZE TEXTAREA ───
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+
+// ─── ORDER LIST UI ───
+var dragIdx = null;
+
+function buildOrderUI() {
+  var list = document.getElementById('order-list');
+  list.innerHTML = '';
+  svcOrder.forEach(function(item, i) {
+    var card = document.createElement('div');
+    card.className = 'oc is-' + item.type;
+    card.draggable = true;
+    card.dataset.i = i;
+
+    // grip
+    var grip = document.createElement('span');
+    grip.className = 'oc-grip'; grip.textContent = '⠿';
+    card.appendChild(grip);
+
+    // body
+    var body = document.createElement('div');
+    body.className = 'oc-body';
+
+    if (item.type === 'divider') {
+      var di = document.createElement('input');
+      di.className = 'oc-div-input'; di.type = 'text';
+      di.value = item.label; di.placeholder = 'Section Name';
+      di.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].label=this.value; render(); }; })(i));
+      body.appendChild(di);
+    } else {
+      // top row: icon + label
+      var top = document.createElement('div');
+      top.className = 'oc-item-top';
+
+      var icoIn = document.createElement('input');
+      icoIn.className = 'oc-icon-input'; icoIn.type = 'text';
+      icoIn.value = item.icon||''; icoIn.title = 'Icon (emoji)';
+      icoIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].icon=this.value; render(); }; })(i));
+
+      var lblIn = document.createElement('input');
+      lblIn.className = 'oc-lbl-input'; lblIn.type = 'text';
+      lblIn.value = item.label||''; lblIn.placeholder = 'Item title';
+      lblIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].label=this.value; render(); }; })(i));
+
+      top.appendChild(icoIn); top.appendChild(lblIn);
+      body.appendChild(top);
+
+      // ── Hymn # toggle button + input ──
+      var hymnRow = document.createElement('div');
+      hymnRow.style.cssText = 'display:flex;gap:4px;align-items:center;margin-bottom:3px;';
+
+      var hymnBtn = document.createElement('button');
+      hymnBtn.className = 'ocb' + (item.iHymn ? ' hymn-on' : '');
+      hymnBtn.textContent = '\u266f'; hymnBtn.title = 'Toggle hymn number';
+      hymnBtn.type = 'button';
+
+      var hymnIn = document.createElement('input');
+      hymnIn.className = 'oc-val-input'; hymnIn.type = 'text';
+      hymnIn.value = item.iHymn||''; hymnIn.placeholder = 'Hymn #';
+      hymnIn.style.display = item.iHymn ? '' : 'none';
+      hymnIn.style.width = '80px';
+      hymnIn.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iHymn=this.value; render(); }; })(i));
+
+      hymnBtn.addEventListener('click', (function(idx, inp, btn){ return function(){
+        var show = inp.style.display === 'none';
+        inp.style.display = show ? '' : 'none';
+        btn.classList.toggle('hymn-on', show);
+        if (!show) { svcOrder[idx].iHymn=''; inp.value=''; render(); }
+      }; })(i, hymnIn, hymnBtn));
+
+      hymnRow.appendChild(hymnBtn); hymnRow.appendChild(hymnIn);
+      body.appendChild(hymnRow);
+
+      // ── Title textarea ──
+      var titleTa = document.createElement('textarea');
+      titleTa.className = 'oc-val-textarea';
+      titleTa.value = item.iTitle||''; titleTa.placeholder = 'Title (optional)';
+      titleTa.rows = 1;
+      titleTa.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iTitle=this.value; render(); autoResize(this); }; })(i));
+      body.appendChild(titleTa);
+      setTimeout((function(ta){ return function(){ autoResize(ta); }; })(titleTa), 0);
+
+      // ── Detail textarea ──
+      var detTa = document.createElement('textarea');
+      detTa.className = 'oc-val-textarea';
+      detTa.value = item.iDetail||''; detTa.placeholder = 'Detail — type inline or press Enter first for block';
+      detTa.rows = 1;
+      detTa.addEventListener('input', (function(idx){ return function(){ svcOrder[idx].iDetail=this.value; render(); autoResize(this); }; })(i));
+      body.appendChild(detTa);
+      setTimeout((function(ta){ return function(){ autoResize(ta); }; })(detTa), 0);
+    }
+    card.appendChild(body);
+
+    // buttons: up, down, delete (all items)
+    var btns = document.createElement('div');
+    btns.className = 'oc-btns';
+    var up = document.createElement('button'); up.className='ocb'; up.textContent='↑'; up.title='Move up';
+    up.addEventListener('click', (function(idx){ return function(){ move(idx,-1); }; })(i));
+    var dn = document.createElement('button'); dn.className='ocb'; dn.textContent='↓'; dn.title='Move down';
+    dn.addEventListener('click', (function(idx){ return function(){ move(idx,1); }; })(i));
+    var del = document.createElement('button'); del.className='ocb del'; del.textContent='×'; del.title='Remove';
+    del.addEventListener('click', (function(idx){ return function(){
+      if(confirm('Remove "' + (svcOrder[idx].label||'this item') + '"?')) { svcOrder.splice(idx,1); buildOrderUI(); render(); }
+    }; })(i));
+    btns.appendChild(up); btns.appendChild(dn); btns.appendChild(del);
+
+    // Page break toggle — only for items, not dividers
+    if (item.type === 'item') {
+      var pbBtn = document.createElement('button');
+      pbBtn.className = 'ocb' + (item.iPageBreak ? ' pb-on' : '');
+      pbBtn.textContent = '↳'; pbBtn.title = 'Toggle page break before this item';
+      pbBtn.type = 'button';
+      pbBtn.addEventListener('click', (function(idx, btn){ return function(){
+        svcOrder[idx].iPageBreak = !svcOrder[idx].iPageBreak;
+        btn.classList.toggle('pb-on', svcOrder[idx].iPageBreak);
+        render();
+        toast(svcOrder[idx].iPageBreak ? 'Page break added before this item' : 'Page break removed');
+      }; })(i, pbBtn));
+      btns.appendChild(pbBtn);
+    }
+    card.appendChild(btns);
+
+    // drag events
+    card.addEventListener('dragstart', function(e){ dragIdx=parseInt(this.dataset.i); e.dataTransfer.effectAllowed='move'; this.classList.add('dragging'); });
+    card.addEventListener('dragover',  function(e){ e.preventDefault(); e.dataTransfer.dropEffect='move'; document.querySelectorAll('.oc').forEach(function(c){c.classList.remove('drag-over');}); this.classList.add('drag-over'); });
+    card.addEventListener('dragleave', function(){ this.classList.remove('drag-over'); });
+    card.addEventListener('drop', function(e){
+      e.stopPropagation(); this.classList.remove('drag-over');
+      var ti = parseInt(this.dataset.i);
+      if (dragIdx!==null && dragIdx!==ti) { var m=svcOrder.splice(dragIdx,1)[0]; svcOrder.splice(ti,0,m); buildOrderUI(); render(); }
+      dragIdx = null;
+    });
+    card.addEventListener('dragend', function(){ this.classList.remove('dragging'); document.querySelectorAll('.oc').forEach(function(c){c.classList.remove('drag-over');}); });
+
+    list.appendChild(card);
+  });
+}
+
+function move(idx, dir) {
+  var ni=idx+dir; if(ni<0||ni>=svcOrder.length) return;
+  var t=svcOrder[idx]; svcOrder[idx]=svcOrder[ni]; svcOrder[ni]=t;
+  buildOrderUI(); render();
+}
+
+// ─── TABS ───
+document.querySelectorAll('.tab').forEach(function(b){
+  b.addEventListener('click', function(){
+    var tab = this.dataset.tab;
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('on'); });
+    var map = {form:'form-scroll', order:'order-scroll', settings:'settings-tab'};
+    var el = document.getElementById(map[tab]); if(el) el.classList.add('on');
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('active', t.dataset.tab===tab); });
+    if(tab==='order') buildOrderUI();
+  });
+});
+
+// ─── HEADER FIELD IDs ───
+var HFID = ['f_date','f_time','f_liturgical','f_acolyte','f_greeters','s_name','s_sub'];
+
+function wireInputs() {
+  HFID.forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', render); });
+}
+
+// ─── COLLECT / APPLY ───
+function collect() {
+  var d = {};
+  HFID.forEach(function(id){ var e=document.getElementById(id); if(e) d[id]=e.value; });
+  d._order = JSON.parse(JSON.stringify(svcOrder));
+  return d;
+}
+
+function applyData(d) {
+  HFID.forEach(function(id){ if(d[id]!==undefined) sv(id, d[id]); });
+  if (d._order && Array.isArray(d._order)) {
+    // Support old format (fixed/custom types) by converting to new 'item' type
+    svcOrder = d._order.map(function(item){
+      if (item.type === 'fixed')  return {id:item.id, type:'item', icon:item.icon||'', label:item.label||'', iHymn:'',iTitle:'',iDetail:''};
+      if (item.type === 'custom') return {id:item.id, type:'item', icon:item.icon||'✦', label:item.cLabel||'', value:item.cVal||''};
+      // Migrate old single 'value' field to iDetail
+      if (item.iDetail === undefined && item.value !== undefined) {
+        return {id:item.id, type:'item', icon:item.icon||'', label:item.label||'', iHymn:'', iTitle:'', iDetail:item.value||''};
+      }
+      if (item.iHymn     === undefined) item.iHymn     = '';
+      if (item.iTitle    === undefined) item.iTitle    = '';
+      if (item.iDetail   === undefined) item.iDetail   = '';
+      if (item.iPageBreak=== undefined) item.iPageBreak= false;
+      return item;
+    });
+  }
+  buildOrderUI(); render();
+}
+
+// ─── SAVE / IMPORT ───
+function saveJSON() {
+  var d=collect(), dt=v('f_date')||'bulletin';
+  var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob); var a=document.createElement('a');
+  a.href=url; a.download='worship-bulletin-'+dt+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('Saved as JSON!');
+}
+document.getElementById('imp').addEventListener('change', function(e){
+  var file=e.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(ev){ try{ applyData(JSON.parse(ev.target.result)); toast('Bulletin loaded!'); } catch(err){ alert('Could not read that file.'); } };
+  r.readAsText(file); e.target.value='';
+});
+
+// ─── ADD ITEM / SECTION ───
+document.getElementById('btn-add-item').addEventListener('click', function(){
+  iCounter++;
+  svcOrder.push({id:'ci'+iCounter, type:'item', icon:'✦', label:'', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false});
+  buildOrderUI(); render();
+  var os=document.getElementById('order-scroll'); if(os) os.scrollTop=os.scrollHeight;
+  toast('New item added — fill in the title and detail');
+});
+document.getElementById('btn-add-section').addEventListener('click', function(){
+  iCounter++;
+  svcOrder.push({id:'cd'+iCounter, type:'divider', label:'New Section'});
+  buildOrderUI(); render();
+  var os=document.getElementById('order-scroll'); if(os) os.scrollTop=os.scrollHeight;
+  toast('New section header added');
+});
+
+// ─── CLEAR ───
+function clearForm() {
+  if(!confirm('Clear all content and reset to a blank order of service?')) return;
+  HFID.forEach(function(id){
+    var e=document.getElementById(id); if(!e) return;
+    if(id==='s_name') e.value="St. Paul's United Church of Christ";
+    else if(id==='s_sub') e.value='Open and Affirming';
+    else e.value='';
+  });
+  // Remove dynamically added items, clear values on defaults
+  svcOrder = svcOrder.filter(function(item){ return !item.id.startsWith('ci') && !item.id.startsWith('cd'); });
+  svcOrder.forEach(function(item){ if(item.type==='item') item.value=''; });
+  buildOrderUI(); render(); toast('Ready for a new week!');
+}
+
+// ─── BUTTONS ───
+document.getElementById('btn-clear').addEventListener('click', clearForm);
+document.getElementById('btn-save').addEventListener('click', saveJSON);
+document.getElementById('btn-save2').addEventListener('click', saveJSON);
+
+// ─── TOAST ───
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2800); }
+
+// ─── EXPORT WORD (RTF — no external library needed) ───
+function exportDocx() {
+  var dt = v('f_date') || 'bulletin';
+  var bulletinEl = document.getElementById('bulletin');
+  if (!bulletinEl) { alert('Nothing to export yet.'); return; }
+
+  function re(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/\\/g, '\\\\')
+      .replace(/\{/g, '\\{')
+      .replace(/\}/g, '\\}')
+      .replace(/[^\x00-\x7F]/g, function(c){ return '\\u' + c.charCodeAt(0) + '?'; });
+  }
+
+  // Extract text from element, converting <br> to newlines
+  function elText(el) {
+    if (!el) return '';
+    var clone = el.cloneNode(true);
+    clone.querySelectorAll('br').forEach(function(br){ br.replaceWith('\n'); });
+    return clone.textContent.trim();
+  }
+
+  var L = [];
+  L.push('{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033');
+  L.push('{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}}');
+  L.push('{\\colortbl ;\\red22\\green22\\blue22;\\red240\\green238\\blue234;\\red54\\green54\\blue54;\\red136\\green136\\blue136;}');
+  // color1=near-black, color2=warm light gray bg, color3=dark body text, color4=light gray
+  L.push('\\paperw12240\\paperh15840\\margl1080\\margr1080\\margt1080\\margb1080\\f0\\fs24\\widowctrl');
+
+  // Header block
+  var bhChurch = bulletinEl.querySelector('.bh-church');
+  var bhTitle  = bulletinEl.querySelector('.bh-title');
+  var bhLit    = bulletinEl.querySelector('.bh-lit');
+  var bhMeta   = bulletinEl.querySelector('.bh-meta');
+  if (bhChurch) L.push('\\pard {\\b\\cf1\\fs18 ' + re(bhChurch.textContent.trim()) + '}\\par');
+  if (bhTitle)  L.push('\\pard {\\b\\fs44 ' + re(bhTitle.textContent.trim()) + '}\\par');
+  if (bhLit)    L.push('\\pard {\\i\\fs22\\cf3 ' + re(bhLit.textContent.trim()) + '}\\par');
+  if (bhMeta)   L.push('\\pard {\\fs22\\cf3 ' + re(bhMeta.textContent.trim()) + '}\\par');
+  L.push('\\pard \\par');
+
+  // Service body
+  bulletinEl.querySelectorAll('.bs, .bi').forEach(function(el) {
+    if (el.classList.contains('bs')) {
+      L.push('\\pard\\sb100\\cbpat2 {\\b\\cf1\\fs22 ' + re(el.textContent.trim().toUpperCase()) + '}\\par');
+    } else {
+      var tEl = el.querySelector('.bi-title');
+      var dEls = el.querySelectorAll('.bi-detail');
+      if (tEl && tEl.textContent.trim()) {
+        L.push('\\pard\\sb40 {\\b\\fs22\\cf3 ' + re(tEl.textContent.trim()) + '}\\par');
+        dEls.forEach(function(dEl) {
+          var detailText = elText(dEl);
+          if (detailText) {
+            var rtfDetail = re(detailText).replace(/\n/g, '\\line ');
+            L.push('\\pard\\sb0 {\\fs22\\cf3 ' + rtfDetail + '}\\par');
+          }
+        });
+      }
+    }
+  });
+
+  // Ruled people section (acolyte / greeters)
+  var ruleEl = bulletinEl.querySelector('.bf-rule');
+  if (ruleEl) {
+    L.push('\\pard\\sb240 \\brdrb\\brdrs\\brdrw10\\brsp20 \\par'); // horizontal rule
+    ruleEl.querySelectorAll('.bf-people').forEach(function(p){
+      var clone = p.cloneNode(true);
+      clone.querySelectorAll('br').forEach(function(br){ br.replaceWith('\n'); });
+      L.push('\\pard\\sb40 {\\fs22\\cf3 ' + re(clone.textContent.trim()) + '}\\par');
+    });
+  }
+  // Church credit line
+  var bfEl = bulletinEl.querySelector('.bf');
+  if (bfEl) {
+    L.push('\\pard\\sb160\\qc {\\fs20\\cf3 ' + re(bfEl.textContent.trim()) + '}\\par');
+  }
+  L.push('}');
+
+  try {
+    var content = L.join('\n');
+    var a = document.createElement('a');
+    // Use data URI for reliable download from local file:// context
+    a.href = 'data:application/rtf;charset=utf-8,' + encodeURIComponent(content);
+    a.download = 'worship-bulletin-' + dt + '.rtf';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    toast('Exported! Open the .rtf file in Word or upload to Google Drive \u2192 open with Google Docs.');
+  } catch(e) { alert('Export failed: ' + e.message); }
+}
+document.getElementById('btn-docx').addEventListener('click', exportDocx);
+document.getElementById('btn-docx2').addEventListener('click', exportDocx);
+
+// ─── INIT ───
+
+// ── Google Publish URL ──
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDeRKd7rtrmLVWj6kOwIWQSyIz1e_LuLE47P9to0dSjocWKxuhQ4vGKefEosOizKk/exec';
+
+function toTitleCase(str) {
+  var SMALL = /^(a|an|the|and|but|or|nor|for|yet|so|at|by|in|of|on|to|up|as|is|it)$/i;
+  return str.replace(/\S+/g, function(word, offset, full) {
+    if (word.indexOf('.') > 0) return word;
+    var lower = word.toLowerCase();
+    if (offset === 0) return word.charAt(0).toUpperCase() + lower.slice(1);
+    var isLast = !full.slice(offset + word.length).trim();
+    if (isLast) return word.charAt(0).toUpperCase() + lower.slice(1);
+    if (SMALL.test(lower)) return lower;
+    return word.charAt(0).toUpperCase() + lower.slice(1);
+  });
+}
+
+// ─── EMAIL IMPORT ────────────────────────────────────────────────────
+var emMatches = [];
+
+function openEmailModal() {
+  emMatches = [];
+  document.getElementById('em-ta').value = '';
+  document.getElementById('em-count').textContent = '';
+  document.getElementById('em-results').style.display = 'none';
+  document.getElementById('em-results').innerHTML = '';
+  document.getElementById('em-apply-wrap').style.display = 'none';
+  document.getElementById('em-bg').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('em-ta').focus(); }, 60);
+}
+function emToggle(show) { document.getElementById('em-bg').style.display = show ? 'flex' : 'none'; }
+
+function detectEmailSender(lines) {
+  var SIGNOFFS = /^(blessings|thanks|thank you|regards|sincerely|yahoo|cheers)/i;
+  for (var i = lines.length - 1; i >= Math.max(0, lines.length - 5); i--) {
+    var line = lines[i].trim();
+    if (SIGNOFFS.test(line)) {
+      var parts = line.split(/\s+/);
+      if (parts.length >= 2) return toTitleCase(parts.slice(1).join(' '));
+    }
+  }
+  return '';
+}
+
+function runEmailParse() {
+  var raw = document.getElementById('em-ta').value;
+  var lines = raw.split('\n');
+  var performer = detectEmailSender(lines);
+  var KEYWORDS = {'prelude':'prelude','offertory':'music2','offering':'music2','offering music':'music2','postlude':'postlude'};
+  emMatches = [];
+  var cur = null;
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) continue;
+    var normLine = line.toLowerCase().replace(/[^a-z ]/g,' ').replace(/\s+/,' ').trim();
+    var targetId = null;
+    for (var kw in KEYWORDS) { if (normLine === kw || normLine.indexOf(kw) === 0) { targetId = KEYWORDS[kw]; break; } }
+    if (targetId) {
+      var svcItem = svcOrder.find(function(s){ return s.id === targetId || (targetId==='music2' && s.id==='music2'); });
+      if (!svcItem) svcItem = svcOrder.find(function(s){ return s.type==='item' && ptN(s.label).indexOf(normLine)===0; });
+      if (svcItem) { cur = {item:svcItem,title:'',composer:'',performer:performer}; emMatches.push(cur); }
+    } else if (cur) {
+      var stripped = line.replace(/^[\u201c\u201d\u2018\u2019"'\s]+|[\u201c\u201d\u2018\u2019"'\s]+$/g,'').trim();
+      if (!cur.title && stripped) { cur.title = toTitleCase(stripped); }
+      else if (!cur.composer && stripped && !/^(blessings|thanks|thank you|regards|sincerely|yahoo)/i.test(stripped)) { cur.composer = toTitleCase(stripped); }
+    }
+  }
+  var resEl = document.getElementById('em-results'), cntEl = document.getElementById('em-count');
+  if (emMatches.length === 0) { cntEl.textContent = 'No music items found.'; cntEl.style.color='#c00'; resEl.style.display='none'; document.getElementById('em-apply-wrap').style.display='none'; return; }
+  cntEl.textContent = emMatches.length + ' item' + (emMatches.length!==1?'s':'') + ' matched'; cntEl.style.color='#2a7a5a';
+  var html='';
+  emMatches.forEach(function(m){
+    var val=''; if(m.title) val+='\u201c'+m.title+'\u201d'; if(m.composer) val+=(val?' by ':'')+m.composer; if(m.performer) val+=(val?' \u2013 ':'')+m.performer;
+    html+='<div class="mr-row"><span class="mr-lbl">'+m.item.label+'</span><span class="mr-val">'+(val||'(no details found)')+'</span></div>';
+  });
+  resEl.innerHTML=html; resEl.style.display='block'; document.getElementById('em-apply-wrap').style.display='flex';
+}
+
+function applyEmailResults() {
+  emMatches.forEach(function(m){
+    var detail=''; if(m.title) detail+='\u201c'+m.title+'\u201d'; if(m.composer) detail+=(detail?' by ':'')+m.composer; if(m.performer) detail+=(detail?' \u2013 ':'')+m.performer;
+    m.item.iDetail=detail;
+  });
+  buildOrderUI(); render(); emToggle(false); toast('\u2705 Music details applied!');
+}
+
+// ─── PASTE TEXT ──────────────────────────────────────────────────────
+var ptMatches = [];
+function ptOpen() {
+  ptMatches=[];
+  document.getElementById('pt-ta').value='';
+  document.getElementById('pt-count').textContent='';
+  document.getElementById('pt-results').style.display='none';
+  document.getElementById('pt-results').innerHTML='';
+  document.getElementById('pt-apply').style.display='none';
+  document.getElementById('pt-bg').style.display='flex';
+  setTimeout(function(){document.getElementById('pt-ta').focus();},60);
+}
+function ptClose() { document.getElementById('pt-bg').style.display='none'; }
+function ptN(s) { return s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
+function ptStem(a,b) { var len=Math.min(a.length,b.length); if(len<4)return false; for(var i=0;i<len;i++){if(a[i]!==b[i])return i>=4;} return true; }
+function ptFind(line) {
+  var norm=ptN(line); if(!norm||norm.length<2)return null;
+  var ALIASES={'offertory':'music2','offer':'music2','offering music':'music2'};
+  for(var alias in ALIASES){ if(norm===alias||norm.indexOf(alias)===0){ var tgt=svcOrder.find(function(s){return s.id===ALIASES[alias];});if(tgt)return{item:tgt,score:80}; } }
+  var best=null,bestScore=0;
+  for(var i=0;i<svcOrder.length;i++){
+    var it=svcOrder[i]; if(it.type!=='item')continue;
+    var lbl=ptN(it.label),score=0;
+    if(lbl===norm){score=100;}
+    else if(lbl.indexOf(norm)===0||norm.indexOf(lbl)===0){score=75;}
+    else{var nw=norm.split(' ').filter(function(w){return w.length>=3;}),lw=lbl.split(' ').filter(function(w){return w.length>=3;});nw.forEach(function(a){lw.forEach(function(b){if(ptStem(a,b))score=Math.max(score,40);});});}
+    if(score>bestScore){bestScore=score;best=it;}
+  }
+  return bestScore>=40?{item:best,score:bestScore}:null;
+}
+function ptIsTitle(line) { return /^[\u201c\u201d\u2018\u2019"']/.test(line)||/[\u201c\u201d\u2018\u2019"']$/.test(line); }
+function ptParse() {
+  var raw=document.getElementById('pt-ta').value,lines=raw.split('\n');
+  ptMatches=[]; var cur=null;
+  lines.forEach(function(rawLine){
+    var line=rawLine.trim(); if(!line)return;
+    line = line.replace(/^\*\s+/,''); // strip asterisk rubric markers
+    // Check for "Label: detail" format (Google Doc colon style)
+    var colonIdx = line.indexOf(':');
+    var labelPart = colonIdx > -1 ? line.slice(0, colonIdx).trim() : line;
+    var inlineDetail = colonIdx > -1 ? line.slice(colonIdx+1).trim() : '';
+    var found = ptFind(labelPart);
+    if(found&&!ptIsTitle(labelPart)){
+      cur={item:found.item,title:'',composer:'',hasInlineDetail:false};
+      ptMatches.push(cur);
+      if(inlineDetail){
+        // Parse the inline detail using the same logic as Google Doc import
+        var parsed=gdocParseDetail(inlineDetail);
+        cur.title=parsed.iTitle||''; cur.composer=parsed.iDetail||''; cur.hasInlineDetail=true;
+      }
+    } else if(cur){
+      if(!cur.title){cur.title=line.replace(/^[\u201c\u201d\u2018\u2019"'\s]+|[\u201c\u201d\u2018\u2019"'\s]+$/g,'').trim();}
+      else if(!cur.composer){cur.composer=line.trim();}
+    }
+  });
+  var resEl=document.getElementById('pt-results'),cntEl=document.getElementById('pt-count');
+  if(ptMatches.length===0){cntEl.textContent='No matches found — check spelling.';cntEl.style.color='#c00';resEl.innerHTML='';resEl.style.display='none';document.getElementById('pt-apply').style.display='none';return;}
+  cntEl.textContent=ptMatches.length+' item'+(ptMatches.length>1?'s':'')+' matched';cntEl.style.color='#2a7a5a';
+  var html='';
+  ptMatches.forEach(function(m){
+    var val='';if(m.title)val+='\u201c'+m.title+'\u201d';if(m.composer)val+=(val?' \u2013 ':'')+m.composer;
+    html+='<div class="mr-row"><span class="mr-lbl">'+m.item.label+'</span><span class="mr-val">'+(val||'(no details)')+'</span></div>';
+  });
+  resEl.innerHTML=html;resEl.style.display='block';document.getElementById('pt-apply').style.display='flex';
+}
+function ptApply() {
+  ptMatches.forEach(function(m){
+    if(m.title){
+      if(m.hasInlineDetail){
+        // Google Doc colon format: title from gdocParseDetail (may already include "by"/"arr."), composer is performer
+        m.item.iTitle=m.title;
+        m.item.iDetail=m.composer||'';
+      } else {
+        // Multi-line email format: append composer as "by" attribution in iTitle
+        m.item.iTitle=m.title+(m.composer?' by '+m.composer:'');
+        m.item.iDetail='';
+      }
+    }
+  });
+  buildOrderUI();render();ptClose();toast('\u2705 Items updated!');
+}
+
+// ─── PUBLISH TO GOOGLE ───────────────────────────────────────────────
+function publishToGoogle() {
+  if(!SCRIPT_URL||SCRIPT_URL.indexOf('YOUR_')===0){alert('Publish is not set up yet.');return;}
+  var btn=document.getElementById('btn-publish');
+  btn.disabled=true;btn.textContent='\u23f3 Publishing\u2026';
+  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(collect())})
+  .then(function(){toast('\u2705 Published! Google Doc updated & archive saved.');btn.disabled=false;btn.textContent='\ud83d\udce4 Publish';})
+  .catch(function(){toast('\u274c Publish failed.');btn.disabled=false;btn.textContent='\ud83d\udce4 Publish';});
+}
+
+
+// ─── SAVE TO DRIVE ──────────────────────────────────────────────────
+function saveToDrive() {
+  if(!SCRIPT_URL||SCRIPT_URL.indexOf('YOUR_')===0){alert('Publish is not set up yet.');return;}
+  var btn=document.getElementById('btn-drive-save');
+  btn.disabled=true; btn.textContent='⏳ Saving…';
+  var payload = JSON.stringify({ action:'saveJSON', bulletin: collect() });
+  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:payload})
+  .then(function(){ toast('☁️ Saved to shared Drive!'); btn.disabled=false; btn.textContent='☁️ Save to Drive'; })
+  .catch(function(){ toast('❌ Save to Drive failed.'); btn.disabled=false; btn.textContent='☁️ Save to Drive'; });
+}
+
+// ─── OPEN FROM DRIVE ────────────────────────────────────────────────
+function loadFromDrive() {
+  if(!SCRIPT_URL||SCRIPT_URL.indexOf('YOUR_')===0){alert('Publish is not set up yet.');return;}
+  var btn=document.getElementById('btn-drive-load');
+  btn.disabled=true; btn.textContent='⏳ Loading…';
+  fetch(SCRIPT_URL+'?action=loadJSON',{method:'GET',mode:'cors'})
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(data.error){ toast('⚠️ '+data.error); btn.disabled=false; btn.textContent='📂 Open from Drive'; return; }
+    applyData(data);
+    toast('✅ Loaded from shared Drive!');
+    btn.disabled=false; btn.textContent='📂 Open from Drive';
+  })
+  .catch(function(){ toast('❌ Could not load from Drive.'); btn.disabled=false; btn.textContent='📂 Open from Drive'; });
+}
+
+// ─── GOOGLE DOC IMPORT ──────────────────────────────────────────────
+var gdocResult = null;
+
+function gdocOpen() {
+  gdocResult = null;
+  document.getElementById('gd-ta').value = '';
+  document.getElementById('gd-count').textContent = '';
+  document.getElementById('gd-preview').style.display = 'none';
+  document.getElementById('gd-preview').innerHTML = '';
+  document.getElementById('gd-apply-wrap').style.display = 'none';
+  document.getElementById('gd-bg').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('gd-ta').focus(); }, 60);
+}
+function gdocClose() { document.getElementById('gd-bg').style.display = 'none'; }
+
+// Unescape Google Docs API markdown artifacts
+function gdocUnescape(s) {
+  return s
+    .replace(/\\\*/g, '*')
+    .replace(/\\#/g,  '#')
+    .replace(/\\"/g,  '"')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\\-/g, '-')
+    .replace(/\\\!/g, '!')
+    .replace(/\\\(/g, '(')
+    .replace(/\\\)/g, ')')
+    .replace(/\\\[/g, '[')
+    .replace(/\\\]/g, ']');
+}
+
+// Strip **bold** markers from a string
+function gdocStrip(s) { return s.replace(/\*\*/g, '').trim(); }
+
+// Map common service labels to standard item IDs
+function gdocMapId(label) {
+  var l = label.toLowerCase().trim();
+  var MAP = {
+    'welcome and announcements': 'welcome',
+    'welcome': 'welcome',
+    'prelude': 'prelude',
+    'postlude': 'postlude',
+    'offering of music': 'music2',
+    'offertory': 'music2',
+    'prayer of confession': 'confession',
+    'kyrie': 'kyrie',
+    'assurance': 'assurance',
+    'scripture reading': 'scripture',
+    'message/sermon': 'sermon',
+    'sermon': 'sermon',
+    'message': 'sermon',
+    'prayers of the people': 'prayers',
+    "the lord's prayer": 'lords-prayer',
+    'benediction': 'benediction',
+    'doxology': 'doxology',
+    'introduction of the worship theme': 'theme',
+    'introduction to the worship theme': 'theme',
+    'holy communion': 'communion',
+  };
+  return MAP[l] || ('ci_' + l.replace(/[^a-z0-9]/g,'_').slice(0,18) + '_' + Math.floor(Math.random()*1000));
+}
+
+// Guess an icon from the item label — matched to JSON icon set
+function gdocIcon(label) {
+  var l = label.toLowerCase().trim();
+  // Explicit non-music overrides — must come before music patterns
+  if (/offering\s+announcement/.test(l)) return '\u26AC'; // ⚬
+  // Sung congregational hymns — treble clef
+  if (/\bhymn\b|communion song|gloria|kyrie|sanctus|benediction response|sending song|doxology|scripture response/.test(l)) return '\uD83C\uDFBC'; // 🎼
+  // Instrumental / choral / special music — music note
+  if (/prelude|postlude|offering of music|offertory|choir|carol|bell|ring|procession|easter music|\bmusic\b/.test(l)) return '\uD83C\uDFB5'; // 🎵
+  // Everything else → medium small white circle ⚬ (U+26AC — matches the bulletin style)
+  return '\u26AC'; // ⚬
+}
+
+// Parse a detail string into {iHymn, iTitle, iDetail}
+// Handles patterns like:
+//   "Title" by Composer - Performer
+//   "Title" arr. Arranger - Performer
+//   "Title" - Subtitle - arr. Arranger - Performer
+//   "Title" - Subtitle - by Composer - Performer
+//   #NNN "Title" (detail)
+function gdocParseDetail(raw) {
+  var s = raw.trim();
+  var iHymn = '', iTitle = '', iDetail = '';
+
+  // Collapse accidental double opening quote (e.g. ""Title" → "Title")
+  s = s.replace(/^"{2,}/, '"').replace(/^\u201c{2,}/, '\u201c');
+
+  // Strip leading dash/em-dash (e.g. "– Jaime Namminga" → "Jaime Namminga")
+  s = s.replace(/^[-\u2013\u2014]\s+/, '');
+
+  // Extract hymn number: #NNN at start
+  var hymnM = s.match(/^#\s*(\d+)\s*/);
+  if (hymnM) { iHymn = hymnM[1]; s = s.slice(hymnM[0].length); }
+
+  // Extract quoted title at start — match opening quote type to closing type
+  // so apostrophes inside double-quoted titles (e.g. "O'er") don't break the match
+  var titleM = s.match(/^[\u201c"]([^\u201c\u201d"]+)[\u201d"]/) ||
+               s.match(/^[\u2018']([^\u2018\u2019']+)[\u2019']/);
+  if (titleM) {
+    iTitle = titleM[1].trim();
+    s = s.slice(titleM[0].length).replace(/^\s*[-\u2013\u2014]\s*/, '');
+
+    // After the closing quote (and any leading separator), parse the remaining
+    // string for attribution patterns: "by Composer", "arr. Arranger",
+    // "Subtitle - by Composer", "Subtitle - arr. Arranger".
+    // Attribution gets appended to iTitle; performer stays in iDetail.
+    var parts = s.split(/\s*[-\u2013\u2014]\s*/)
+                 .map(function(p){ return p.trim(); })
+                 .filter(Boolean);
+
+    if (parts.length > 0) {
+      if (/^by\s+/i.test(parts[0])) {
+        // "by Composer [- Performer]"
+        iTitle += ' ' + parts[0];
+        parts.shift();
+      } else if (/^arr\.?\s+/i.test(parts[0])) {
+        // "arr. Arranger [- Performer]"
+        iTitle += ' arr. ' + parts[0].replace(/^arr\.?\s*/i, '').trim();
+        parts.shift();
+      } else if (parts.length >= 2 && /^by\s+/i.test(parts[1])) {
+        // "Subtitle - by Composer [- Performer]"
+        iTitle += ' (' + parts[0] + ') ' + parts[1];
+        parts.splice(0, 2);
+      } else if (parts.length >= 2 && /^arr\.?\s+/i.test(parts[1])) {
+        // "Subtitle - arr. Arranger [- Performer]"
+        iTitle += ' (' + parts[0] + ') arr. ' + parts[1].replace(/^arr\.?\s*/i, '').trim();
+        parts.splice(0, 2);
+      }
+      s = parts.join(' - ');
+    }
+  }
+
+  iDetail = s.trim();
+  return { iHymn: iHymn, iTitle: iTitle, iDetail: iDetail };
+}
+
+// Parse a date string like "December 24, 2025" → "2025-12-24"
+function gdocParseDate(str) {
+  var MONTHS = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+  var m = str.match(/(\w+)\s+(\d{1,2}),?\s*(\d{4})/i);
+  if (!m) return '';
+  var mo = MONTHS[m[1].toLowerCase()];
+  if (!mo) return '';
+  return m[3] + '-' + String(mo).padStart(2,'0') + '-' + String(m[2]).padStart(2,'0');
+}
+
+function gdocParse() {
+  var raw = document.getElementById('gd-ta').value;
+  if (!raw.trim()) { document.getElementById('gd-count').textContent = 'Nothing pasted yet.'; return; }
+
+  var text    = gdocUnescape(raw);
+  var lines   = text.split('\n');
+  var result  = {
+    f_date:'', f_time:'', f_liturgical:'',
+    f_acolyte:'', f_greeters:'',
+    s_name: v('s_name') || "St. Paul's United Church of Christ",
+    s_sub:  v('s_sub')  || 'Open and Affirming',
+    _order: []
+  };
+  var items   = [];
+  var curItem = null;
+  var firstBoldDone = false;
+
+  lines.forEach(function(rawLine) {
+    var line = rawLine.trim();
+    if (!line) return;
+
+    // Strip leading "* " asterisk (stand/bold rubric markers in worship outlines)
+    line = line.replace(/^\*\s+/, '');
+
+    var clean = gdocStrip(line);
+
+    // ── Skip church name / tagline lines at the top of a Google Doc ──
+    // e.g. "St. Paul's United Church of Christ • Open and Affirming"
+    // These appear before service items and must not be captured as the liturgical subtitle.
+    if (!curItem && /(\bchurch\b|\bopen and affirming\b|\u2022|•)/i.test(clean)) return;
+
+    // ── Title line: contains "Worship Outline" or "Sunday Outline" ──
+    if (/(worship|sunday)\s+outline/i.test(clean)) {
+      var timeM = clean.match(/(\d{1,2}:\d{2}\s*[AP]M)/i);
+      if (timeM) result.f_time = timeM[1];
+      var dateM = clean.match(/([A-Z][a-z]+ \d{1,2},?\s*\d{4})/);
+      if (dateM) result.f_date = gdocParseDate(dateM[1]);
+      firstBoldDone = true;
+      return;
+    }
+
+    // ── Section divider: ALL CAPS line OR known worship-section phrase ──
+    // Handles both "WE GATHER" (all-caps) and "We Gather" / "We gather" (title/sentence case).
+    var KNOWN_SECTION = /^(we gather|we share(?: the word)?|we receive(?: the word)?|we respond(?: with thanksgiving)?|we are sent|holy communion|the holy communion|prayer|gathering|sending forth|sending)\b/i;
+    // These all-caps phrases are liturgical items, NOT section dividers — they belong under their parent item
+    var NOT_A_DIVIDER = /^(prayer for illumination|words of institution|passing of peace|sharing of joys|joys and concerns|call to give)\b/i;
+    var isAllCaps = /^[A-Z][A-Z\s&,]+$/.test(clean) && clean.length >= 4;
+    var isKnownSection = KNOWN_SECTION.test(clean) && clean.split(/\s+/).length <= 6;
+    if ((isAllCaps || isKnownSection) && clean.indexOf(':') === -1 && !NOT_A_DIVIDER.test(clean)) {
+      curItem = null;
+      // Always store dividers as ALL CAPS so every export path (preview, Word, JSON) is consistent
+      items.push({ id: 'div_' + clean.replace(/\s+/g,'_').toLowerCase(), type: 'divider', label: clean.toUpperCase(), icon: '' });
+      firstBoldDone = true;
+      return;
+    }
+
+    // ── Label: detail pattern ──
+    var colonIdx = clean.indexOf(':');
+    var labelRaw = colonIdx > -1 ? clean.slice(0, colonIdx).trim() : '';
+    var detailRaw= colonIdx > -1 ? clean.slice(colonIdx + 1).trim() : '';
+    // Strip any ** bold markers that may surround the label
+    labelRaw = labelRaw.replace(/^\*\*|\*\*$/g, '').trim();
+
+    // Also recognise "Label – Detail" or "Label - Detail" (dash separator) when no colon found.
+    // Only triggers when the label part is ≤ 8 words and starts with a capital letter.
+    var hasSeparator = colonIdx > -1;
+    if (!hasSeparator) {
+      var dashM = clean.match(/^([A-Z][^–\-\n]{2,55}?)\s+[-–]\s+(.+)$/);
+      if (dashM && dashM[1].trim().split(/\s+/).length <= 8) {
+        labelRaw   = dashM[1].trim();
+        detailRaw  = dashM[2].trim();
+        hasSeparator = true;
+      }
+    }
+
+    // Also recognise "Label — Detail" (em-dash separator) for items that don't use Tenebrae-style
+    // em-dash subtitles. Skip Tenebrae since its em-dash is part of the label, not a separator.
+    if (!hasSeparator && !/^tenebrae\b/i.test(clean)) {
+      var emDashM = clean.match(/^([A-Z][^—\n]{1,40}?)\s*—\s*(.+)$/);
+      if (emDashM && emDashM[1].trim().split(/\s+/).length <= 3) {
+        labelRaw   = emDashM[1].trim();
+        detailRaw  = emDashM[2].trim();
+        hasSeparator = true;
+      }
+    }
+
+    // Scripture references like "Luke 2:1-7" — treat as continuation
+    var isScripRef = /^[A-Z][a-z]+ \d/.test(labelRaw) && /^\d/.test(detailRaw);
+
+    // Liturgical dialogue rubrics — "Leader:", "All:", "Unison:", etc.
+    // These are part of a Call to Worship / litany, not separate service items.
+    var isLiturgicalRubric = /^(leader|all|unison|people|congregation|one|many|voice\s*\d*|voices|response|reader|narrator)$/i.test(labelRaw);
+
+    // Service item or header field: label starts with capital, is short, is not a scripture ref.
+    // Works with plain text (no **) AND with markdown (**bold**) from Google Docs.
+    if (hasSeparator && labelRaw && labelRaw.length < 70 && !isScripRef &&
+        /^[A-Z]/.test(labelRaw) && labelRaw.split(/\s+/).length <= 8) {
+      firstBoldDone = true;
+
+      // Header fields
+      if (/^acolyte$/i.test(labelRaw))   { result.f_acolyte   = detailRaw; curItem = null; return; }
+      if (/^greeter/i.test(labelRaw))    { result.f_greeters   = detailRaw; curItem = null; return; }
+      if (/^liturgical/i.test(labelRaw)) { result.f_liturgical = detailRaw; curItem = null; return; }
+
+      // Scripture sub-label — fold into current scripture/illumination item
+      var isScriptureSubLabel = curItem &&
+        /scripture|illumination|reading/i.test(curItem.label) &&
+        /^(hebrew scripture|old testament|new testament|epistle|gospel|first reading|second reading|third reading|psalm reading|prayer of illumination|prayer for illumination)\b/i.test(labelRaw);
+      if (isScriptureSubLabel) {
+        curItem.iDetail += (curItem.iDetail ? '\n' : '') + clean;
+        return;
+      }
+
+      // Liturgical rubric — append as continuation of current item, not a new item
+      if (isLiturgicalRubric && curItem) {
+        curItem.iDetail += (curItem.iDetail ? '\n' : '') + clean;
+        return;
+      }
+
+      // Service item
+      var parsed = gdocParseDetail(detailRaw);
+      curItem = {
+        id:     gdocMapId(labelRaw),
+        type:   'item',
+        icon:   gdocIcon(labelRaw),
+        label:  labelRaw,
+        iHymn:  parsed.iHymn,
+        iTitle: parsed.iTitle,
+        iDetail:parsed.iDetail
+      };
+      items.push(curItem);
+
+    } else if (isScripRef && curItem) {
+      // Scripture reference — append as block detail
+      curItem.iDetail += (curItem.iDetail ? '\n' : '') + clean;
+    } else if (!hasSeparator && clean.length < 80 && !/(worship|sunday)\s+outline/i.test(clean)) {
+      // No-colon line: could be liturgical subtitle, a known standalone item, or block continuation
+      // Normalize curly apostrophes before matching so "Lord\u2019s" matches "Lord's"
+      var cleanNorm = clean.replace(/[\u2018\u2019\u02bc]/g, "'");
+      var STANDALONE_ITEM = /^(prayers of the people|the lord'?s prayer|lord'?s prayer|passing of peace|sharing of joys and concerns|joys and concerns|silent prayer|moment of silence|benediction|offertory|call to worship|call to give|holy communion|communion|eucharist|tenebrae|the slamming of the bible|slamming of the bible|quiet time of meditation|quiet time|a time of meditation|time of meditation|invitation|consecration and prayer|words of institution|sharing of the bread|message\/?sermon|sermon\/?message|message|sermon)\b/i;
+      if (!result.f_liturgical && !curItem) {
+        // Before any service items — treat as liturgical subtitle
+        result.f_liturgical = clean;
+        firstBoldDone = true;
+      } else if (STANDALONE_ITEM.test(cleanNorm)) {
+        // Known colon-less service item — add as its own item.
+        // If there is text after the matched label (e.g. "Message/Sermon Sermon Title Pastor"),
+        // split at the label boundary: label stays clean, the rest becomes iDetail.
+        var saM = cleanNorm.match(STANDALONE_ITEM);
+        var saLen = saM[0].length;
+        var saLabel = clean.slice(0, saLen);           // original-case label
+        var saDetail = clean.slice(saLen).trim();      // any trailing text
+        curItem = { id: gdocMapId(saLabel), type: 'item', icon: gdocIcon(saLabel), label: saLabel, iHymn: '', iTitle: '', iDetail: saDetail };
+        items.push(curItem);
+        firstBoldDone = true;
+      } else if (curItem) {
+        var cont = clean;
+        if (cont && !/^\*\s*the asterisk/i.test(cont)) {
+          curItem.iDetail += (curItem.iDetail ? '\n' : '') + cont;
+        }
+      }
+    } else if (curItem) {
+      // Continuation: colon present but didn't match label pattern (e.g. long stage direction)
+      var cont2 = clean;
+      if (cont2 && !/^\*\s*the asterisk/i.test(cont2) && !/(worship|sunday)\s+outline/i.test(cont2)) {
+        curItem.iDetail += (curItem.iDetail ? '\n' : '') + cont2;
+      }
+    }
+  });
+
+  // ── Auto-insert standard section dividers where missing ──────────────
+  // If the Google Doc doesn't have "WE GATHER" etc., insert them automatically
+  // before known anchor items. Skips if that exact divider already exists,
+  // or if another divider is already right before the anchor (within 2 slots).
+  (function autoInsertDividers() {
+    function firstItemIdx(regex) {
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type === 'item' && regex.test(items[i].label)) return i;
+      }
+      return -1;
+    }
+    function hasDiv(label) {
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type === 'divider' && items[i].label === label) return true;
+      }
+      return false;
+    }
+    function divNearby(idx) {
+      for (var i = Math.max(0, idx - 2); i < idx; i++) {
+        if (items[i].type === 'divider') return true;
+      }
+      return false;
+    }
+    var insertions = [];
+    function maybeAdd(anchorRegex, label) {
+      if (hasDiv(label)) return;           // already present — skip
+      var idx = firstItemIdx(anchorRegex);
+      if (idx < 0) return;                 // anchor item not found
+      if (divNearby(idx)) return;          // another divider is already right there
+      insertions.push({ idx: idx, label: label });
+    }
+
+    maybeAdd(/^(welcome|prelude|call to worship)\b/i,            'WE GATHER');
+    maybeAdd(/^(children.?s message|scripture readings?)\b/i,    'WE SHARE THE WORD');
+    maybeAdd(/^(offering announcement|hymn of thanksgiving)\b/i, 'WE RESPOND WITH THANKSGIVING');
+    // HOLY COMMUNION — only insert if communion items actually exist in this service;
+    // anchor on Invitation (first item) → fall back to Communion Song
+    (function() {
+      if (hasDiv('HOLY COMMUNION')) return;
+      var communionExists = items.some(function(it) {
+        return it.type === 'item' && /^(communion song|sharing of the bread|consecration and prayer|words of institution)\b/i.test(it.label);
+      });
+      if (!communionExists) return;
+      var idx = firstItemIdx(/^invitation\b/i);
+      if (idx < 0) idx = firstItemIdx(/^(communion song|sharing of the bread)\b/i);
+      if (idx < 0 || divNearby(idx)) return;
+      insertions.push({ idx: idx, label: 'HOLY COMMUNION' });
+    })();
+    // NOTE: No auto-insert for PRAYER — Prayers of the People and Lord's Prayer
+    // are regular service items, not a section divider.
+    maybeAdd(/^(hymn of mission|sending song|blessing)\b/i,      'WE ARE SENT');
+
+    // Insert from back to front so earlier indices stay valid
+    insertions.sort(function(a, b) { return b.idx - a.idx; });
+    insertions.forEach(function(ins) {
+      items.splice(ins.idx, 0, {
+        id: 'div_auto_' + ins.label.replace(/\s+/g, '_').toLowerCase(),
+        type: 'divider', label: ins.label, icon: '', iPageBreak: false
+      });
+    });
+  })();
+
+  result._order = items;
+  gdocResult    = result;
+
+  // ── Build preview ──────────────────────────────────────────────────
+  var cntEl  = document.getElementById('gd-count');
+  var prevEl = document.getElementById('gd-preview');
+
+  if (items.length === 0) {
+    cntEl.textContent = 'No service items found — make sure each item is on its own line as "Label: detail" (e.g. "Welcome: Rev. Darin").';
+    cntEl.style.color = '#c00';
+    prevEl.style.display = 'none';
+    document.getElementById('gd-apply-wrap').style.display = 'none';
+    return;
+  }
+
+  cntEl.textContent = items.length + ' items found';
+  cntEl.style.color = '#2a7a5a';
+
+  var html = '';
+  // Header summary
+  html += '<div class="mr-row"><span class="mr-lbl">Date</span><span class="mr-val">' + (result.f_date||'(not found)') + ' ' + (result.f_time||'') + '</span></div>';
+  if (result.f_liturgical) html += '<div class="mr-row"><span class="mr-lbl">Liturgical</span><span class="mr-val">' + result.f_liturgical + '</span></div>';
+  if (result.f_acolyte)    html += '<div class="mr-row"><span class="mr-lbl">Acolyte</span><span class="mr-val">'    + result.f_acolyte    + '</span></div>';
+  if (result.f_greeters)   html += '<div class="mr-row"><span class="mr-lbl">Greeters</span><span class="mr-val">'   + result.f_greeters   + '</span></div>';
+  // First 6 items preview
+  items.slice(0,8).forEach(function(it) {
+    var val = '';
+    if (it.iHymn)  val += '#' + it.iHymn + ' ';
+    if (it.iTitle) val += '\u201c' + it.iTitle + '\u201d ';
+    if (it.iDetail) val += it.iDetail.replace(/\n/g,' | ').slice(0,60);
+    html += '<div class="mr-row"><span class="mr-lbl">' + it.label + '</span><span class="mr-val">' + (val.trim()||'(no detail)') + '</span></div>';
+  });
+  if (items.length > 8) html += '<div class="mr-row"><span class="mr-val" style="color:var(--g400);">… and ' + (items.length-8) + ' more items</span></div>';
+
+  prevEl.innerHTML = html;
+  prevEl.style.display = 'block';
+  document.getElementById('gd-apply-wrap').style.display = 'flex';
+}
+
+function gdocApply() {
+  if (!gdocResult) return;
+  // Apply header fields
+  ['f_date','f_time','f_liturgical','f_acolyte','f_greeters','s_name','s_sub'].forEach(function(id) {
+    if (gdocResult[id] !== undefined && gdocResult[id] !== '') sv(id, gdocResult[id]);
+  });
+  // Replace service order
+  svcOrder = gdocResult._order;
+  buildOrderUI();
+  render();
+  gdocClose();
+  toast('\u2705 Service order imported from Google Doc!');
+}
+
+function init() {
+  wireInputs();
+  // Pre-loaded: April 12, 2026 weekly template (Second Sunday of Easter)
+  // This is the standard weekly structure — change date, hymns, music, and sermon title each week.
+  applyData({"f_date":"2026-04-12","f_time":"10:30 AM","f_liturgical":"Second Sunday of Easter","f_acolyte":"","f_greeters":"","s_name":"St. Paul's United Church of Christ","s_sub":"Open and Affirming","_order":[{"id":"div_auto_we_gather","type":"divider","label":"WE GATHER","icon":"","iPageBreak":false},{"id":"welcome","type":"item","icon":"\u26ac","label":"Welcome and Announcements","iHymn":"","iTitle":"","iDetail":"Rev. Dr. Dietmar Plajer"},{"id":"prelude","type":"item","icon":"\ud83c\udfb5","label":"Prelude","iHymn":"","iTitle":"The Strife is O'er, the Battle Done by Palestrina","iDetail":"Carolyn Patton"},{"id":"theme","type":"item","icon":"\u26ac","label":"Introduction of the Worship Theme","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar"},{"id":"ci_hymn_741","type":"item","icon":"\ud83c\udfbc","label":"Hymn","iHymn":"238","iTitle":"Thine is the Glory","iDetail":"(all 3 verses)"},{"id":"confession","type":"item","icon":"\u26ac","label":"Prayer of Confession","iHymn":"","iTitle":"","iDetail":"Dietmar Plajer\nGod of all creation big and small, we thank you for this wonderful life that you have gifted us. We thank you for your Son, and the sacrifices that have been made for us. As we go about each day, remind us of the love you have for us. We acknowledge that we are too comfortable with our daily routines, too focused on day to day tasks, that we forget the blessings that we have. We are forgetful, easy to distract, and hard to humble. We share with you what is on our hearts\u2026\n(Silence for personal prayer and reflection)"},{"id":"kyrie","type":"item","icon":"\ud83c\udfbc","label":"Kyrie","iHymn":"695","iTitle":"Change My Heart, O God","iDetail":"(Refrain, verse, refrain)"},{"id":"assurance","type":"item","icon":"\u26ac","label":"Assurance","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar"},{"id":"ci_gloria_81","type":"item","icon":"\ud83c\udfbc","label":"Gloria","iHymn":"243","iTitle":"Be Not Afraid","iDetail":""},{"id":"div_auto_we_share_the_word","type":"divider","label":"WE SHARE THE WORD","icon":"","iPageBreak":false},{"id":"music2","type":"item","icon":"\ud83c\udfb5","label":"Offering of Music","iHymn":"","iTitle":"Be Thou My Vision (Traditional Irish Melody) arr. Victor Labenske","iDetail":"Amy Caron"},{"id":"ci_hymn_849","type":"item","icon":"\ud83c\udfbc","label":"Hymn","iHymn":"188","iTitle":"Jesus Loves Me","iDetail":""},{"id":"ci_children_s_message_618","type":"item","icon":"\u26ac","label":"Children\u2019s Message","iHymn":"","iTitle":"","iDetail":"First Last\nThe piano softly plays \u201cJesus Loves Me\u201d until children in kindergarten and up leave for Sunday school. Pre-school children are to return to their families or go to the nursery."},{"id":"ci_scripture_readings_418","type":"item","icon":"\u26ac","label":"Scripture Readings","iHymn":"","iTitle":"","iDetail":"First Last\nPrayer of Illumination\nHebrew Scripture: \nGospel: "},{"id":"ci_scripture_response_371","type":"item","icon":"\ud83c\udfbc","label":"Scripture Response","iHymn":"","iTitle":"This is God\u2019s Word for the people of God","iDetail":""},{"id":"ci1","type":"item","icon":"\u26ac","label":"Message/Sermon","iHymn":"","iTitle":"Sermon Title","iDetail":"Pastor Dietmar","iPageBreak":false},{"id":"div_auto_we_respond_with_thanksgiving","type":"divider","label":"WE RESPOND WITH THANKSGIVING","icon":"","iPageBreak":false},{"id":"ci_hymn_of_thanksgivi_203","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Thanksgiving","iHymn":"1","iTitle":"Holy, Holy Holy! Lord, God Almighty!","iDetail":"(all 4 verses)"},{"id":"ci_offering_announcem_93","type":"item","icon":"\u26ac","label":"Offering Announcement","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar"},{"id":"music2b","type":"item","icon":"\ud83c\udfb5","label":"Offering of Music","iHymn":"","iTitle":"Hallelujah! What a Savior by Philip Bliss","iDetail":"Carolyn Patton"},{"id":"doxology","type":"item","icon":"\ud83c\udfbc","label":"Doxology","iHymn":"607","iTitle":"Praise God, from Whom All Blessings Flow","iDetail":""},{"id":"prayers","type":"item","icon":"\u26ac","label":"Prayers of the People","iHymn":"","iTitle":"","iDetail":""},{"id":"ci_the_lord_s_prayer_222","type":"item","icon":"\u26ac","label":"The Lord\u2019s Prayer","iHymn":"","iTitle":"","iDetail":""},{"id":"div_auto_we_are_sent","type":"divider","label":"WE ARE SENT","icon":"","iPageBreak":false},{"id":"ci_hymn_of_mission_269","type":"item","icon":"\ud83c\udfbc","label":"Hymn of Mission","iHymn":"817","iTitle":"We Walk by Faith and Not by Sight","iDetail":"(all 4 verses)"},{"id":"ci_blessing_137","type":"item","icon":"\u26ac","label":"Blessing","iHymn":"","iTitle":"","iDetail":"Pastor Dietmar"},{"id":"ci_benediction_respon_778","type":"item","icon":"\ud83c\udfbc","label":"Benediction Response","iHymn":"43","iTitle":"On Eagle's Wings","iDetail":"(refrain only)\nWe invite you to hold hands during this song. Hand sanitizer is available in the foyer."},{"id":"postlude","type":"item","icon":"\ud83c\udfb5","label":"Postlude","iHymn":"","iTitle":"Medley of Songs of Creation arr. Phillip Keveren","iDetail":"Carolyn Patton"}]});
+}
+init();
+</script>
+
+
+
+<div class="modal-bg" id="em-bg">
+  <div class="modal">
+    <h2>📧 Import from Email</h2>
+    <p>Paste Micah's music email. Titles, composers, and performer will be detected automatically.</p>
+    <textarea id="em-ta" placeholder="Paste email text here…"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-p" onclick="runEmailParse()">Parse Email</button>
+      <button class="btn btn-g" onclick="emToggle(false)">Cancel</button>
+      <span id="em-count" class="mr-count"></span>
+    </div>
+    <div class="modal-results" id="em-results" style="display:none;"></div>
+    <div class="modal-btns" id="em-apply-wrap" style="display:none;">
+      <button class="btn btn-p" onclick="applyEmailResults()">✅ Apply to Bulletin</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="pt-bg">
+  <div class="modal">
+    <h2>📋 Paste Service Text</h2>
+    <p>Paste a plain-text service outline. Lines matching service items will be detected and titles/composers applied.</p>
+    <textarea id="pt-ta" placeholder="Paste service outline here…"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-p" onclick="ptParse()">Match Items</button>
+      <button class="btn btn-g" onclick="ptClose()">Cancel</button>
+      <span id="pt-count" class="mr-count"></span>
+    </div>
+    <div class="modal-results" id="pt-results" style="display:none;"></div>
+    <div class="modal-btns" id="pt-apply" style="display:none;margin-top:8px;">
+      <button class="btn btn-p" onclick="ptApply()">✅ Apply to Bulletin</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ GOOGLE DOC IMPORT MODAL ═══ -->
+<div class="modal-bg" id="gd-bg">
+  <div class="modal" style="width:540px;">
+    <h2>📄 Import from Google Doc</h2>
+    <p>Open the Google Doc, press <strong>Ctrl+A</strong> then <strong>Ctrl+C</strong>, then paste below.<br>This will replace your current service order with the contents of the doc.</p>
+    <textarea id="gd-ta" placeholder="Paste Google Doc text here…" style="min-height:160px;"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-p" onclick="gdocParse()">Parse Document</button>
+      <button class="btn btn-g" onclick="gdocClose()">Cancel</button>
+      <span id="gd-count" class="mr-count"></span>
+    </div>
+    <div class="modal-results" id="gd-preview" style="display:none;"></div>
+    <div class="modal-btns" id="gd-apply-wrap" style="display:none;margin-top:8px;">
+      <button class="btn btn-p" onclick="gdocApply()">✅ Apply — Replace Service Order</button>
+    </div>
+  </div>
+</div>
+
+</body></html>
