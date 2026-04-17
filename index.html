@@ -162,7 +162,6 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .mr-lbl{font-weight:600;color:var(--g900);flex:0 0 130px;}
 .mr-val{color:var(--g700);flex:1;}
 .mr-count{font-size:11px;color:var(--g500);margin:auto 0;}
-.btn-publish{background:#2a7a5a;color:white;}
 .btn-email{background:var(--blue);color:white;font-size:11px;}
 .ocb.hymn-on{background:var(--blue);color:white;border-color:var(--blue);}
 </style>
@@ -223,28 +222,19 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
       <div class="fr"><label>Tagline</label><input type="text" id="s_sub" value="Open and Affirming"></div>
     </div>
     <div class="fsec">
-      <div class="fsec-hd"><h3>📂 Import Previous Bulletin</h3></div>
-      <p style="font-size:11px;color:var(--g500);line-height:1.6;margin-bottom:9px;">Load a saved JSON to reuse or edit for a new week.</p>
-      <button class="btn btn-g" onclick="document.getElementById(&#39;imp&#39;).click()" style="font-size:11.5px;">⬆ Import JSON</button>
-      <button class="btn btn-g" onclick="gdocOpen()" style="font-size:11.5px;margin-top:6px;">📄 From Google Doc</button>
-      <input type="file" id="imp" accept=".json" style="display:none">
-    </div>
-    <div class="fsec">
       <div class="fsec-hd"><h3>ℹ️ Saving</h3></div>
-      <p style="font-size:11px;color:var(--g500);line-height:1.7;"><strong>📄 Export Word</strong> — downloads an .rtf file; upload to Google Drive and open with Google Docs.<br><strong>🖨 Print / PDF</strong> — opens print dialog; choose "Save as PDF."<br><strong>⬇ Save JSON</strong> — saves everything for reuse next week.</p>
+      <p style="font-size:11px;color:var(--g500);line-height:1.7;"><strong>🖨 Print / PDF</strong> — opens print dialog; choose "Save as PDF."<br><strong>⬇ Save JSON</strong> — saves a snapshot for reuse next week.</p>
     </div>
     <div style="height:8px"></div>
   </div>
 
   <div id="action-bar">
     <button class="btn btn-p" id="btn-clear">🗒 New Week</button>
+    <button class="btn btn-g" onclick="gdocOpen()">📄 From Google Doc</button>
+    <button class="btn btn-g" onclick="document.getElementById('imp').click()">⬆ Import JSON</button>
+    <input type="file" id="imp" accept=".json" style="display:none">
     <button class="btn btn-g" id="btn-save">⬇ Save JSON</button>
-    <button class="btn btn-g" id="btn-docx">📄 Export Word</button>
     <button class="btn btn-print" onclick="window.print()">🖨 Print / PDF</button>
-    <button class="btn btn-g" onclick="ptOpen()" style="font-size:11.5px;">📋 Paste Text</button>
-    <button class="btn btn-g" id="btn-drive-save" onclick="saveToDrive()">☁️ Save to Drive</button>
-    <button class="btn btn-g" id="btn-drive-load" onclick="loadFromDrive()">📂 Open from Drive</button>
-    <button class="btn btn-publish" id="btn-publish" onclick="publishToGoogle()">📤 Publish</button>
   </div>
 </div>
 
@@ -254,7 +244,6 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
     <span>Live Preview</span>
     <div style="display:flex;gap:6px;">
       <button class="btn btn-g" id="btn-save2">⬇ Save JSON</button>
-      <button class="btn btn-g" id="btn-docx2">📄 Export Word</button>
       <button class="btn btn-print" onclick="window.print()">🖨 Print / PDF</button>
     </div>
   </div>
@@ -729,9 +718,38 @@ function clearForm() {
     else if(id==='s_sub') e.value='Open and Affirming';
     else e.value='';
   });
-  // Remove dynamically added items, clear values on defaults
-  svcOrder = svcOrder.filter(function(item){ return !item.id.startsWith('ci') && !item.id.startsWith('cd'); });
-  svcOrder.forEach(function(item){ if(item.type==='item') item.value=''; });
+  // Reset svcOrder completely to the clean default template
+  svcOrder = [
+    {id:'dv_gather',    type:'divider', label:'We Gather'},
+    {id:'welcome',      type:'item', icon:'⚬', label:'Welcome & Announcements', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'prelude',      type:'item', icon:'🎵', label:'Prelude', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'theme',        type:'item', icon:'⚬', label:'Introduction of the Worship Theme', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'tuning',       type:'item', icon:'🎼', label:'Tuning Hymn', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'praise',       type:'item', icon:'🎼', label:'Hymn of Praise', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'dv_confess',   type:'divider', label:'We Confess and Are Forgiven'},
+    {id:'confession',   type:'item', icon:'⚬', label:'Prayer of Confession', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'kyrie',        type:'item', icon:'🎼', label:'Kyrie', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'assurance',    type:'item', icon:'⚬', label:'Assurance', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'gloria',       type:'item', icon:'🎼', label:'Gloria', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'dv_word',      type:'divider', label:'We Receive the Word'},
+    {id:'music1',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'hymn1',        type:'item', icon:'🎼', label:'Hymn', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'childrens',    type:'item', icon:'⚬', label:"Children's Message", iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'scripture',    type:'item', icon:'⚬', label:'Scripture Readings', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'sermon',       type:'item', icon:'⚬', label:'Message / Sermon', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'dv_respond',   type:'divider', label:'We Respond'},
+    {id:'thanks',       type:'item', icon:'🎼', label:'Hymn of Thanksgiving', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'offering',     type:'item', icon:'⚬', label:'Offering Announcement', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'music2',       type:'item', icon:'🎵', label:'Offering of Music', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'doxology',     type:'item', icon:'🎼', label:'Doxology', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'prayers',      type:'item', icon:'⚬', label:'Prayers of the People', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'lords_prayer', type:'item', icon:'⚬', label:"The Lord's Prayer", iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'dv_send',      type:'divider', label:'We Are Sent'},
+    {id:'mission',      type:'item', icon:'🎼', label:'Hymn of Mission', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'blessing',     type:'item', icon:'⚬', label:'Blessing', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'benediction',  type:'item', icon:'🎼', label:'Benediction Response', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+    {id:'postlude',     type:'item', icon:'🎵', label:'Postlude', iHymn:'',iTitle:'',iDetail:'',iPageBreak:false},
+  ];
   buildOrderUI(); render(); toast('Ready for a new week!');
 }
 
@@ -740,10 +758,11 @@ document.getElementById('btn-clear').addEventListener('click', clearForm);
 document.getElementById('btn-save').addEventListener('click', saveJSON);
 document.getElementById('btn-save2').addEventListener('click', saveJSON);
 
+
 // ─── TOAST ───
 function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2800); }
 
-// ─── EXPORT WORD (RTF — no external library needed) ───
+// ─── EXPORT WORD (RTF) — removed from UI but kept for reference ───
 function exportDocx() {
   var dt = v('f_date') || 'bulletin';
   var bulletinEl = document.getElementById('bulletin');
@@ -832,13 +851,7 @@ function exportDocx() {
     toast('Exported! Open the .rtf file in Word or upload to Google Drive \u2192 open with Google Docs.');
   } catch(e) { alert('Export failed: ' + e.message); }
 }
-document.getElementById('btn-docx').addEventListener('click', exportDocx);
-document.getElementById('btn-docx2').addEventListener('click', exportDocx);
-
 // ─── INIT ───
-
-// ── Google Publish URL ──
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDeRKd7rtrmLVWj6kOwIWQSyIz1e_LuLE47P9to0dSjocWKxuhQ4vGKefEosOizKk/exec';
 
 function toTitleCase(str) {
   var SMALL = /^(a|an|the|and|but|or|nor|for|yet|so|at|by|in|of|on|to|up|as|is|it)$/i;
@@ -1002,44 +1015,6 @@ function ptApply() {
     }
   });
   buildOrderUI();render();ptClose();toast('\u2705 Items updated!');
-}
-
-// ─── PUBLISH TO GOOGLE ───────────────────────────────────────────────
-function publishToGoogle() {
-  if(!SCRIPT_URL||SCRIPT_URL.indexOf('YOUR_')===0){alert('Publish is not set up yet.');return;}
-  var btn=document.getElementById('btn-publish');
-  btn.disabled=true;btn.textContent='\u23f3 Publishing\u2026';
-  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(collect())})
-  .then(function(){toast('\u2705 Published! Google Doc updated & archive saved.');btn.disabled=false;btn.textContent='\ud83d\udce4 Publish';})
-  .catch(function(){toast('\u274c Publish failed.');btn.disabled=false;btn.textContent='\ud83d\udce4 Publish';});
-}
-
-
-// ─── SAVE TO DRIVE ──────────────────────────────────────────────────
-function saveToDrive() {
-  if(!SCRIPT_URL||SCRIPT_URL.indexOf('YOUR_')===0){alert('Publish is not set up yet.');return;}
-  var btn=document.getElementById('btn-drive-save');
-  btn.disabled=true; btn.textContent='⏳ Saving…';
-  var payload = JSON.stringify({ action:'saveJSON', bulletin: collect() });
-  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:payload})
-  .then(function(){ toast('☁️ Saved to shared Drive!'); btn.disabled=false; btn.textContent='☁️ Save to Drive'; })
-  .catch(function(){ toast('❌ Save to Drive failed.'); btn.disabled=false; btn.textContent='☁️ Save to Drive'; });
-}
-
-// ─── OPEN FROM DRIVE ────────────────────────────────────────────────
-function loadFromDrive() {
-  if(!SCRIPT_URL||SCRIPT_URL.indexOf('YOUR_')===0){alert('Publish is not set up yet.');return;}
-  var btn=document.getElementById('btn-drive-load');
-  btn.disabled=true; btn.textContent='⏳ Loading…';
-  fetch(SCRIPT_URL+'?action=loadJSON',{method:'GET',mode:'cors'})
-  .then(function(r){ return r.json(); })
-  .then(function(data){
-    if(data.error){ toast('⚠️ '+data.error); btn.disabled=false; btn.textContent='📂 Open from Drive'; return; }
-    applyData(data);
-    toast('✅ Loaded from shared Drive!');
-    btn.disabled=false; btn.textContent='📂 Open from Drive';
-  })
-  .catch(function(){ toast('❌ Could not load from Drive.'); btn.disabled=false; btn.textContent='📂 Open from Drive'; });
 }
 
 // ─── GOOGLE DOC IMPORT ──────────────────────────────────────────────
@@ -1227,6 +1202,16 @@ function gdocParse() {
       var dateM = clean.match(/([A-Z][a-z]+ \d{1,2},?\s*\d{4})/);
       if (dateM) result.f_date = gdocParseDate(dateM[1]);
       firstBoldDone = true;
+      return;
+    }
+
+    // ── Liturgical subtitle: line right after the title, before any service items ──
+    // e.g. "Third Sunday of Easter" — mixed case, no colon, no service items yet.
+    if (firstBoldDone && items.length === 0 && !result.f_liturgical &&
+        clean.indexOf(':') === -1 && /^[A-Z][a-z]/.test(clean) &&
+        clean.split(/\s+/).length <= 8 &&
+        !/(\bchurch\b|\bopen and affirming\b|\u2022|•)/i.test(clean)) {
+      result.f_liturgical = clean;
       return;
     }
 
