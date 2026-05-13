@@ -115,7 +115,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .bh-title  { font-size: 24px; font-weight: 700; color: var(--g900); line-height: 1.2; }
 .bh-lit    { font-size: 13.5px; color: var(--g900); margin-top: 3px; font-style: italic; }
 .bh-meta   { font-size: 13.5px; color: var(--g900); margin-top: 5px; }
-.bs { background: #F0EDE8; border-left: 3px solid var(--g900); padding: 5px 11px; margin-top: 10px; margin-bottom: 0; font-size: 12px; font-weight: 700; color: var(--g900); text-transform: uppercase; letter-spacing: .8px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+.bs { background: #E8E8E8; border-left: 3px solid var(--g900); padding: 5px 11px; margin-top: 10px; margin-bottom: 0; font-size: 12px; font-weight: 700; color: var(--g900); text-transform: uppercase; letter-spacing: .8px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 .bi { display: flex; align-items: flex-start; padding: 7px 9px; border-bottom: 1px solid #F2F2F2; }
 .bi-break { page-break-after: always; border-bottom: 2px dashed var(--g400) !important; margin-bottom: 10px; padding-bottom: 4px; }
 .bi-icon { width: 26px; flex-shrink: 0; font-size: 15px; padding-top: 1px; text-align: center; }
@@ -384,7 +384,7 @@ function bItem(item) {
   } else if (/^prayer\b/i.test(item.label.trim()) && !/^prayers of the people/i.test(item.label.trim())) {
     isBlockType = detailFirst.length >= 60;   // long first line = prayer text, not a name
   } else {
-    isBlockType = /^(communion|symbolic|responsive|litany|kyrie|sanctus|gloria|passing of peace)/i.test(item.label.trim());
+    isBlockType = /^(symbolic|responsive|litany|kyrie|sanctus|gloria|passing of peace)/i.test(item.label.trim());
   }
   var useBlock = isBlockType || forcedBlock;
 
@@ -399,7 +399,7 @@ function bItem(item) {
     if (hasOwnQuotes) {
       musicHtml += '<em>' + x(iTitle) + '</em>';
     } else {
-      var byM = iTitle.match(/^(\S.*\s\S+) ((?:by|arr\.?)\s\S+\s.+)$/i);
+      var byM = iTitle.match(/^(\S.*\S|\S+) ((?:by|arr\.?)\s\S.+)$/i);
       var titleOnly = byM ? byM[1].trim() : iTitle;
       var titleAttr = byM ? ' ' + byM[2]  : '';
       musicHtml += '<em>\u201c' + x(titleOnly) + '\u201d</em>' + x(titleAttr);
@@ -1086,7 +1086,7 @@ function gdocIcon(label) {
   // Sung congregational hymns — treble clef
   if (/\bhymn\b|communion song|gloria|kyrie|sanctus|benediction response|sending song|doxology|scripture response/.test(l)) return '\uD83C\uDFBC'; // 🎼
   // Instrumental / choral / special music — music note
-  if (/prelude|postlude|offering of music|offertory|choir|carol|bell|ring|procession|easter music|\bmusic\b/.test(l)) return '\uD83C\uDFB5'; // 🎵
+  if (/prelude|postlude|offering of music|offertory|choir|carol|bell|\bring\b|procession|easter music|\bmusic\b/.test(l)) return '\uD83C\uDFB5'; // 🎵
   // Everything else → medium small white circle ⚬ (U+26AC — matches the bulletin style)
   return '\u26AC'; // ⚬
 }
@@ -1180,6 +1180,7 @@ function gdocParse() {
   var items   = [];
   var curItem = null;
   var firstBoldDone = false;
+  var inCommunion   = false; // true right after HOLY COMMUNION divider, waiting for sub-items line
 
   lines.forEach(function(rawLine) {
     var line = rawLine.trim();
@@ -1295,6 +1296,29 @@ function gdocParse() {
       if (/^greeters?$/i.test(labelRaw)) { result.f_greeters = detailRaw; return; }
       if (/^liturgical\b/i.test(labelRaw)) { result.f_liturgical = detailRaw; return; }
 
+      // ── Holy Communion: expand into section divider + individual sub-items ──
+      if (/^holy communion$/i.test(labelRaw)) {
+        curItem = null;
+        items.push({ id: 'div_holy_communion', type: 'divider', label: 'HOLY COMMUNION', icon: '' });
+        // If sub-items are on the same line (after the colon), expand them now.
+        // If detailRaw is empty, they're on the next line — set inCommunion flag to catch them.
+        if (detailRaw) {
+          detailRaw.split(/\s*,\s*/).forEach(function(sub) {
+            sub = sub.trim();
+            if (!sub) return;
+            var subIcon = gdocIcon(sub);
+            var subId   = gdocMapId(sub);
+            var subItem = { id: subId, type: 'item', icon: subIcon, label: sub,
+                            iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
+            items.push(subItem);
+            curItem = subItem;
+          });
+        } else {
+          inCommunion = true; // next content line contains the comma-separated sub-items
+        }
+        return;
+      }
+
       // Service item
       var parsed = gdocParseDetail(detailRaw);
       var icon   = gdocIcon(labelRaw);
@@ -1311,12 +1335,51 @@ function gdocParse() {
     var cleanNorm = clean.replace(/[\u2018\u2019\u02BC]/g, "'");
     var STANDALONE = /^(prayers of the people|the lord's prayer|lord's prayer|passing of the peace|benediction|blessing|assurance|gloria|doxology|postlude|prelude|sermon|message|children's message|scripture readings?|scripture response|call to worship|call to confession|words of assurance)$/i;
     if (STANDALONE.test(cleanNorm)) {
+      // ── Auto-insert a PRAYER section header before "Prayers of the People" ──
+      // whenever a Holy Communion section is present in the service.
+      if (/^prayers of the people$/i.test(cleanNorm)) {
+        var hasCommunion = items.some(function(it){ return it.type === 'divider' && /holy communion/i.test(it.label); });
+        var hasPrayerDiv = items.some(function(it){ return it.type === 'divider' && /^prayer$/i.test(it.label); });
+        if (hasCommunion && !hasPrayerDiv) {
+          curItem = null;
+          items.push({ id: 'div_prayer', type: 'divider', label: 'PRAYER', icon: '' });
+        }
+      }
       var icon2  = gdocIcon(clean);
       var id2    = gdocMapId(clean);
       curItem = { id: id2, type: 'item', icon: icon2, label: clean,
                   iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
       items.push(curItem);
       return;
+    }
+
+    // ── Holy Communion as a bare standalone line (no colon) ──
+    if (/^holy communion$/i.test(clean)) {
+      curItem = null;
+      items.push({ id: 'div_holy_communion', type: 'divider', label: 'HOLY COMMUNION', icon: '' });
+      inCommunion = true; // next content line contains the comma-separated sub-items
+      return;
+    }
+
+    // ── Communion sub-items line: comma-separated list right after HOLY COMMUNION divider ──
+    if (inCommunion) {
+      inCommunion = false;
+      // Only expand if line looks like a comma-separated list (contains comma, no colon separator)
+      if (clean.indexOf(',') !== -1 && clean.indexOf(':') === -1) {
+        clean.split(/\s*,\s*/).forEach(function(sub) {
+          sub = sub.trim();
+          if (!sub) return;
+          var subIcon = gdocIcon(sub);
+          var subId   = gdocMapId(sub);
+          var subItem = { id: subId, type: 'item', icon: subIcon, label: sub,
+                          iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
+          items.push(subItem);
+          curItem = subItem;
+        });
+        return;
+      }
+      // If line doesn't look like a list (e.g. it's already "Communion Song: ..."),
+      // fall through to normal parsing with inCommunion cleared.
     }
 
     // ── Continuation line: append to current item's detail ──
