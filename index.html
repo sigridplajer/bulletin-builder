@@ -399,7 +399,11 @@ function bItem(item) {
     if (hasOwnQuotes) {
       musicHtml += '<em>' + x(iTitle) + '</em>';
     } else {
-      var byM = iTitle.match(/^(\S.*\S|\S+) ((?:by|arr\.?)\s\S.+)$/i);
+      // Split at the FIRST "by"/"arr." marker (lazy .*?), so only the song
+      // title is quoted. A greedy match here would split at the LAST marker,
+      // trapping "by Composer," inside the quotes when both "by" and "arr."
+      // are present (e.g. "Holy, Holy, Holy by Reginald Heber, arr. Namminga").
+      var byM = iTitle.match(/^(\S.*?\S|\S+) ((?:by|arr\.?)\s\S.+)$/i);
       var titleOnly = byM ? byM[1].trim() : iTitle;
       var titleAttr = byM ? ' ' + byM[2]  : '';
       musicHtml += '<em>\u201c' + x(titleOnly) + '\u201d</em>' + x(titleAttr);
@@ -1146,7 +1150,7 @@ function gdocParseDetail(raw) {
         iTitle += ' (' + parts[0] + ') arr. ' + parts[1].replace(/^arr\.?\s*/i, '').trim();
         parts.splice(0, 2);
       }
-      s = parts.join(' - ');
+      s = parts.join(' – ');
     }
   }
 
@@ -1384,8 +1388,13 @@ function gdocParse() {
 
     // ── Continuation line: append to current item's detail ──
     if (curItem) {
-      if (curItem.iDetail) curItem.iDetail += '\n' + clean;
-      else curItem.iDetail = clean;
+      // Strip a leading dash/en-dash/em-dash separator (e.g. a performer name
+      // like "– Jaime Namminga" left on its own line). The bulletin inserts its
+      // own em-dash before inline detail, so a leading dash here would render as
+      // a doubled dash ("— –").
+      var contLine = clean.replace(/^[-–—]\s+/, '');
+      if (curItem.iDetail) curItem.iDetail += '\n' + contLine;
+      else curItem.iDetail = contLine;
     }
   });
 
