@@ -125,8 +125,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .bi-hymn   { font-weight: 700; color: var(--g900); }
 .bi-rest   { font-weight: 400; }
 .bi-sep    { color: var(--g900); }
-.bi-communion { margin-top: 6px; border-top: 1px solid var(--g400); }
-.bi-communion .bi-detail { padding-left: 2px; }
+.bi-communion { margin-top: 4px; }
 .bf-rule { margin-top: 18px; border-top: 1px solid var(--g200); padding-top: 12px; }
 .bf-people { font-size: 13.5px; color: var(--g700); line-height: 1.7; }
 .bf-people strong { font-weight: 600; color: var(--g900); }
@@ -196,6 +195,7 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
         <div><label>Acolyte</label><input type="text" id="f_acolyte"></div>
         <div><label>Greeters</label><input type="text" id="f_greeters"></div>
       </div>
+      <div class="fr"><label>Communion Servers</label><input type="text" id="f_servers" placeholder="communion Sundays only"></div>
     </div>
     <div class="fsec">
       <div class="fsec-hd"><h3>💡 Tip</h3></div>
@@ -449,7 +449,7 @@ function render() {
     var sn = v('s_name') || "St. Paul's United Church of Christ";
     var ss = v('s_sub');
     var dt = v('f_date'), tm = v('f_time'), lit = v('f_liturgical');
-    var ac = v('f_acolyte'), gr = v('f_greeters');
+    var ac = v('f_acolyte'), gr = v('f_greeters'), sv_ = v('f_servers');
 
     var dstr = '';
     if (dt) { try { var d=new Date(dt+'T12:00:00'); dstr=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}); } catch(e){dstr=dt;} }
@@ -475,10 +475,11 @@ function render() {
     }
 
     var peoplePart = '';
-    if (ac || gr) {
+    if (ac || gr || sv_) {
       peoplePart = '<div class="bf-rule">';
-      if (ac) peoplePart += '<div class="bf-people"><strong>Acolyte:</strong> ' + x(ac) + '</div>';
-      if (gr) peoplePart += '<div class="bf-people"><strong>Greeters:</strong> ' + x(gr) + '</div>';
+      if (ac)  peoplePart += '<div class="bf-people"><strong>Acolyte:</strong> ' + x(ac) + '</div>';
+      if (gr)  peoplePart += '<div class="bf-people"><strong>Greeters:</strong> ' + x(gr) + '</div>';
+      if (sv_) peoplePart += '<div class="bf-people"><strong>Communion Servers:</strong> ' + x(sv_) + '</div>';
       peoplePart += '</div>';
     }
     var ftr = peoplePart + '<div class="bf">' + x(sn) + ' &nbsp;&middot;&nbsp; All are welcome.</div>';
@@ -649,7 +650,7 @@ document.querySelectorAll('.tab').forEach(function(b){
 });
 
 // ─── HEADER FIELD IDs ───
-var HFID = ['f_date','f_time','f_liturgical','f_acolyte','f_greeters','s_name','s_sub'];
+var HFID = ['f_date','f_time','f_liturgical','f_acolyte','f_greeters','f_servers','s_name','s_sub'];
 
 function wireInputs() {
   HFID.forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', render); });
@@ -718,6 +719,17 @@ function applyData(d) {
       return item;
     });
     svcOrder = migrateCommunion(svcOrder);
+
+    // Communion Servers used to sit in the order of service. It is a people credit,
+    // so it now prints in the footer with Acolyte and Greeters. Lift it out of any
+    // bulletin saved before Jul 30, 2026.
+    for (var ci = svcOrder.length - 1; ci >= 0; ci--) {
+      var cit = svcOrder[ci];
+      if (cit.type === 'item' && /^communion servers?$/i.test((cit.label || '').trim())) {
+        if (!v('f_servers')) sv('f_servers', (cit.iDetail || '').replace(/\n/g, ' ').trim());
+        svcOrder.splice(ci, 1);
+      }
+    }
   }
   buildOrderUI(); render();
 }
@@ -1217,13 +1229,17 @@ function gdocParse() {
   var lines   = text.split('\n');
   var result  = {
     f_date:'', f_time:'', f_liturgical:'',
-    f_acolyte:'', f_greeters:'',
+    f_acolyte:'', f_greeters:'', f_servers:'',
     s_name: v('s_name') || "St. Paul's United Church of Christ",
     s_sub:  v('s_sub')  || 'Open and Affirming',
     _order: []
   };
   var items   = [];
   var curItem = null;
+  // When a line feeds a header field (Acolyte, Greeters, Communion Servers) instead of
+  // a service item, curField remembers which one, so a wrapped second line of names
+  // lands in the same field rather than being dropped.
+  var curField = null;
   var firstBoldDone = false;
 
   lines.forEach(function(rawLine) {
@@ -1266,7 +1282,7 @@ function gdocParse() {
     // Only treat a line as a divider if it is ALL CAPS (no lowercase letters) and has no colon.
     var isAllCaps = /^[A-Z][A-Z\s&,]+$/.test(clean) && clean.length >= 4;
     if (isAllCaps && clean.indexOf(':') === -1) {
-      curItem = null;
+      curItem = null; curField = null;
       // Always store dividers as ALL CAPS so every export path (preview, Word, JSON) is consistent
       items.push({ id: 'div_' + clean.replace(/\s+/g,'_').toLowerCase(), type: 'divider', label: clean.toUpperCase(), icon: '' });
       firstBoldDone = true;
@@ -1336,8 +1352,11 @@ function gdocParse() {
       firstBoldDone = true;
 
       // Header fields
-      if (/^acolyte$/i.test(labelRaw))   { result.f_acolyte  = detailRaw; return; }
-      if (/^greeters?$/i.test(labelRaw)) { result.f_greeters = detailRaw; return; }
+      if (/^acolyte$/i.test(labelRaw))   { result.f_acolyte  = detailRaw; curItem = null; curField = 'f_acolyte';  return; }
+      if (/^greeters?$/i.test(labelRaw)) { result.f_greeters = detailRaw; curItem = null; curField = 'f_greeters'; return; }
+      // Communion Servers is a people credit, not a moment in the service. It prints
+      // in the footer next to Acolyte and Greeters, so pull it out of the order here.
+      if (/^communion servers?$/i.test(labelRaw)) { result.f_servers = detailRaw; curItem = null; curField = 'f_servers'; return; }
       if (/^liturgical\b/i.test(labelRaw)) { result.f_liturgical = detailRaw; return; }
 
       // ── Holy Communion: ONE block item, exactly as the Google Doc has it ──
@@ -1347,6 +1366,7 @@ function gdocParse() {
       // Cup) stay together on one line beneath the label. If they sit on the next line
       // in the doc, the continuation-line handler at the bottom picks them up.
       if (/^holy communion$/i.test(labelRaw)) {
+        curField = null;
         curItem = { id: 'communion', type: 'item', icon: '\u26ac', label: 'Holy Communion',
                     iHymn: '', iTitle: '', iDetail: detailRaw || '', iPageBreak: false };
         items.push(curItem);
@@ -1357,6 +1377,7 @@ function gdocParse() {
       var parsed = gdocParseDetail(detailRaw);
       var icon   = gdocIcon(labelRaw);
       var id     = gdocMapId(labelRaw);
+      curField = null;
       curItem = { id: id, type: 'item', icon: icon, label: labelRaw,
                   iHymn: parsed.iHymn, iTitle: parsed.iTitle, iDetail: parsed.iDetail, iPageBreak: false };
       items.push(curItem);
@@ -1375,6 +1396,7 @@ function gdocParse() {
       // is no longer a divider, and the Google Doc has no PRAYER header, so it is gone.
       var icon2  = gdocIcon(clean);
       var id2    = gdocMapId(clean);
+      curField = null;
       curItem = { id: id2, type: 'item', icon: icon2, label: clean,
                   iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
       items.push(curItem);
@@ -1385,6 +1407,7 @@ function gdocParse() {
     // Same treatment as the colon form: one block item. The rite parts on the
     // following line are appended by the continuation-line handler below.
     if (/^holy communion$/i.test(clean)) {
+      curField = null;
       curItem = { id: 'communion', type: 'item', icon: '\u26ac', label: 'Holy Communion',
                   iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
       items.push(curItem);
@@ -1400,6 +1423,10 @@ function gdocParse() {
       var contLine = clean.replace(/^[-–—]\s+/, '');
       if (curItem.iDetail) curItem.iDetail += '\n' + contLine;
       else curItem.iDetail = contLine;
+    } else if (curField) {
+      // A wrapped continuation of Acolyte / Greeters / Communion Servers.
+      var contName = clean.replace(/^[-–—]\s+/, '');
+      result[curField] = result[curField] ? (result[curField] + ' ' + contName) : contName;
     }
   });
 
