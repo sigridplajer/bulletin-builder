@@ -125,6 +125,8 @@ body { display: flex; overflow: hidden; background: #C6C2BA; color: var(--g700);
 .bi-hymn   { font-weight: 700; color: var(--g900); }
 .bi-rest   { font-weight: 400; }
 .bi-sep    { color: var(--g900); }
+.bi-communion { margin-top: 6px; border-top: 1px solid var(--g400); }
+.bi-communion .bi-detail { padding-left: 2px; }
 .bf-rule { margin-top: 18px; border-top: 1px solid var(--g200); padding-top: 12px; }
 .bf-people { font-size: 13.5px; color: var(--g700); line-height: 1.7; }
 .bf-people strong { font-weight: 600; color: var(--g900); }
@@ -384,7 +386,7 @@ function bItem(item) {
   } else if (/^prayer\b/i.test(item.label.trim()) && !/^prayers of the people/i.test(item.label.trim())) {
     isBlockType = detailFirst.length >= 60;   // long first line = prayer text, not a name
   } else {
-    isBlockType = /^(symbolic|responsive|litany|kyrie|sanctus|gloria|passing of peace)/i.test(item.label.trim());
+    isBlockType = /^(symbolic|responsive|litany|kyrie|sanctus|gloria|passing of peace|holy communion)/i.test(item.label.trim());
   }
   var useBlock = isBlockType || forcedBlock;
 
@@ -411,7 +413,8 @@ function bItem(item) {
   }
 
   var sep = ' <span class="bi-sep">&mdash;</span> ';
-  var h   = '<div class="bi' + (item.iPageBreak ? ' bi-break' : '') + '"><div class="bi-icon">' + x(icon) + '</div><div class="bi-body">';
+  var isCommunion = /^holy communion\b/i.test(item.label.trim());
+  var h   = '<div class="bi' + (isCommunion ? ' bi-communion' : '') + (item.iPageBreak ? ' bi-break' : '') + '"><div class="bi-icon">' + x(icon) + '</div><div class="bi-body">';
 
   if (useBlock) {
     // ── BLOCK FORMAT: label bold on top, music + detail rows below ──
@@ -660,6 +663,43 @@ function collect() {
   return d;
 }
 
+// ─── MIGRATION: old communion shape → one block item ───
+// Bulletins saved before Jul 2026 stored communion as an all-caps HOLY COMMUNION
+// section divider followed by one item per rite part, plus (sometimes) an
+// auto-inserted PRAYER divider. Collapse that back into the single "Holy Communion"
+// item the Google Doc uses, so old saved bulletins reprint correctly.
+var COMMUNION_RITE = /^(invitation( to the table)?|communion prayer|prayer of consecration|great thanksgiving|words of institution|sharing of the (bread and cup|elements)|breaking of the bread|prayer after communion)$/i;
+
+function migrateCommunion(order) {
+  var out = [];
+  for (var i = 0; i < order.length; i++) {
+    var it = order[i];
+
+    // Drop the old auto-inserted PRAYER divider (identified by its generated id).
+    if (it.type === 'divider' && it.id === 'div_prayer') continue;
+
+    if (it.type === 'divider' && /^holy communion$/i.test((it.label || '').trim())) {
+      // Gather the consecutive bare rite items that followed the divider.
+      var parts = [];
+      var j = i + 1;
+      while (j < order.length) {
+        var nx = order[j];
+        if (nx.type !== 'item') break;
+        if (!COMMUNION_RITE.test((nx.label || '').trim())) break;
+        if ((nx.iHymn || '') || (nx.iTitle || '') || (nx.iDetail || '')) break; // has real content, leave alone
+        parts.push((nx.label || '').trim());
+        j++;
+      }
+      out.push({ id: 'communion', type: 'item', icon: '\u26ac', label: 'Holy Communion',
+                 iHymn: '', iTitle: '', iDetail: parts.join(', '), iPageBreak: false });
+      i = j - 1;
+      continue;
+    }
+    out.push(it);
+  }
+  return out;
+}
+
 function applyData(d) {
   HFID.forEach(function(id){ if(d[id]!==undefined) sv(id, d[id]); });
   if (d._order && Array.isArray(d._order)) {
@@ -677,6 +717,7 @@ function applyData(d) {
       if (item.iPageBreak=== undefined) item.iPageBreak= false;
       return item;
     });
+    svcOrder = migrateCommunion(svcOrder);
   }
   buildOrderUI(); render();
 }
@@ -1184,7 +1225,6 @@ function gdocParse() {
   var items   = [];
   var curItem = null;
   var firstBoldDone = false;
-  var inCommunion   = false; // true right after HOLY COMMUNION divider, waiting for sub-items line
 
   lines.forEach(function(rawLine) {
     var line = rawLine.trim();
@@ -1300,26 +1340,16 @@ function gdocParse() {
       if (/^greeters?$/i.test(labelRaw)) { result.f_greeters = detailRaw; return; }
       if (/^liturgical\b/i.test(labelRaw)) { result.f_liturgical = detailRaw; return; }
 
-      // ── Holy Communion: expand into section divider + individual sub-items ──
+      // ── Holy Communion: ONE block item, exactly as the Google Doc has it ──
+      // "Holy Communion:" is a labeled item inside its surrounding section (usually
+      // WE RESPOND WITH THANKSGIVING), NOT an all-caps section divider. The rite parts
+      // (Invitation, Communion Prayer, Words of Institution, Sharing of the Bread and
+      // Cup) stay together on one line beneath the label. If they sit on the next line
+      // in the doc, the continuation-line handler at the bottom picks them up.
       if (/^holy communion$/i.test(labelRaw)) {
-        curItem = null;
-        items.push({ id: 'div_holy_communion', type: 'divider', label: 'HOLY COMMUNION', icon: '' });
-        // If sub-items are on the same line (after the colon), expand them now.
-        // If detailRaw is empty, they're on the next line — set inCommunion flag to catch them.
-        if (detailRaw) {
-          detailRaw.split(/\s*,\s*/).forEach(function(sub) {
-            sub = sub.trim();
-            if (!sub) return;
-            var subIcon = gdocIcon(sub);
-            var subId   = gdocMapId(sub);
-            var subItem = { id: subId, type: 'item', icon: subIcon, label: sub,
-                            iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
-            items.push(subItem);
-            curItem = subItem;
-          });
-        } else {
-          inCommunion = true; // next content line contains the comma-separated sub-items
-        }
+        curItem = { id: 'communion', type: 'item', icon: '\u26ac', label: 'Holy Communion',
+                    iHymn: '', iTitle: '', iDetail: detailRaw || '', iPageBreak: false };
+        items.push(curItem);
         return;
       }
 
@@ -1339,16 +1369,10 @@ function gdocParse() {
     var cleanNorm = clean.replace(/[\u2018\u2019\u02BC]/g, "'");
     var STANDALONE = /^(prayers of the people|the lord's prayer|lord's prayer|passing of the peace|benediction|blessing|assurance|gloria|doxology|postlude|prelude|sermon|message|children's message|scripture readings?|scripture response|call to worship|call to confession|words of assurance)$/i;
     if (STANDALONE.test(cleanNorm)) {
-      // ── Auto-insert a PRAYER section header before "Prayers of the People" ──
-      // whenever a Holy Communion section is present in the service.
-      if (/^prayers of the people$/i.test(cleanNorm)) {
-        var hasCommunion = items.some(function(it){ return it.type === 'divider' && /holy communion/i.test(it.label); });
-        var hasPrayerDiv = items.some(function(it){ return it.type === 'divider' && /^prayer$/i.test(it.label); });
-        if (hasCommunion && !hasPrayerDiv) {
-          curItem = null;
-          items.push({ id: 'div_prayer', type: 'divider', label: 'PRAYER', icon: '' });
-        }
-      }
+      // NOTE: an earlier version auto-inserted a "PRAYER" section header before
+      // Prayers of the People on communion Sundays. That only existed to stop the
+      // HOLY COMMUNION divider from swallowing the offering and the prayers. Communion
+      // is no longer a divider, and the Google Doc has no PRAYER header, so it is gone.
       var icon2  = gdocIcon(clean);
       var id2    = gdocMapId(clean);
       curItem = { id: id2, type: 'item', icon: icon2, label: clean,
@@ -1358,32 +1382,13 @@ function gdocParse() {
     }
 
     // ── Holy Communion as a bare standalone line (no colon) ──
+    // Same treatment as the colon form: one block item. The rite parts on the
+    // following line are appended by the continuation-line handler below.
     if (/^holy communion$/i.test(clean)) {
-      curItem = null;
-      items.push({ id: 'div_holy_communion', type: 'divider', label: 'HOLY COMMUNION', icon: '' });
-      inCommunion = true; // next content line contains the comma-separated sub-items
+      curItem = { id: 'communion', type: 'item', icon: '\u26ac', label: 'Holy Communion',
+                  iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
+      items.push(curItem);
       return;
-    }
-
-    // ── Communion sub-items line: comma-separated list right after HOLY COMMUNION divider ──
-    if (inCommunion) {
-      inCommunion = false;
-      // Only expand if line looks like a comma-separated list (contains comma, no colon separator)
-      if (clean.indexOf(',') !== -1 && clean.indexOf(':') === -1) {
-        clean.split(/\s*,\s*/).forEach(function(sub) {
-          sub = sub.trim();
-          if (!sub) return;
-          var subIcon = gdocIcon(sub);
-          var subId   = gdocMapId(sub);
-          var subItem = { id: subId, type: 'item', icon: subIcon, label: sub,
-                          iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
-          items.push(subItem);
-          curItem = subItem;
-        });
-        return;
-      }
-      // If line doesn't look like a list (e.g. it's already "Communion Song: ..."),
-      // fall through to normal parsing with inCommunion cleared.
     }
 
     // ── Continuation line: append to current item's detail ──
