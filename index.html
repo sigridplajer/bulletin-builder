@@ -412,6 +412,22 @@ function bItem(item) {
     }
   }
 
+  // A leading "from Songs for a New World by Jason Robert Brown" is a source
+  // attribution, not a performer credit, so it rides on the music line with no
+  // em dash in front of it, exactly like "by" and "arr." do. Anything after the
+  // first em dash is the performer and keeps its separator.
+  //
+  // This is done HERE on the detail, deliberately NOT by adding "from" to the
+  // title-splitting regex above. Song titles contain the word "from" all the
+  // time \u2014 the Doxology is "Praise God, from Whom All Blessings Flow" \u2014 and a
+  // title-level split would yank half the Doxology outside its quotation marks.
+  if (musicHtml && /^from\s/i.test(detailFirst)) {
+    var fCut  = detailFirst.indexOf('\u2014');
+    var fAttr = (fCut === -1 ? detailFirst : detailFirst.slice(0, fCut)).trim();
+    musicHtml  += ' ' + x(fAttr);
+    detailFirst = fCut === -1 ? '' : detailFirst.slice(fCut + 1).trim();
+  }
+
   var sep = ' <span class="bi-sep">&mdash;</span> ';
   var isCommunion = /^holy communion\b/i.test(item.label.trim());
   var h   = '<div class="bi' + (isCommunion ? ' bi-communion' : '') + (item.iPageBreak ? ' bi-break' : '') + '"><div class="bi-icon">' + x(icon) + '</div><div class="bi-body">';
@@ -730,6 +746,29 @@ function applyData(d) {
         svcOrder.splice(ci, 1);
       }
     }
+
+    // Bulletins saved before Aug 1, 2026 have en-dash separators baked into the
+    // title/detail text, because the parser used to join leftover parts with an
+    // en dash. Every dash the builder inserts is an em dash now, so upgrade any
+    // en dash found in imported data. Only the en dash (U+2013) is touched;
+    // plain hyphens are left alone so scripture refs (Genesis 32:22-31) and
+    // verse ranges survive untouched.
+    // Composer year ranges are the exception: a range takes an EN dash, so any
+    // range that picked up an em dash is put back. Runs second so it also
+    // repairs bulletins saved on Aug 1, 2026, before the parser was taught to
+    // protect year ranges from the attribution split.
+    svcOrder.forEach(function(it){
+      ['iTitle','iDetail'].forEach(function(f){
+        if (typeof it[f] !== 'string') return;
+        it[f] = it[f].replace(/–/g, '—')
+                     // A hyphen with a space on BOTH sides is being used as a dash
+                     // ("as we commune - after the Words of Institution"), so it
+                     // becomes an em dash. Unspaced hyphens are left alone, which
+                     // is what keeps Genesis 32:22-31 and verse ranges intact.
+                     .replace(/ +- +/g, ' — ')
+                     .replace(/(\d{4})(\s*)—(\s*)(\d{4})/g, '$1$2–$3$4');
+      });
+    });
   }
   buildOrderUI(); render();
 }
@@ -1165,6 +1204,19 @@ function gdocParseDetail(raw) {
   // Strip leading dash/em-dash (e.g. "– Jaime Namminga" → "Jaime Namminga")
   s = s.replace(/^[-\u2013\u2014]\s+/, '');
 
+  // Composer year ranges like (1867 - 1944) are NOT separators. Park them behind
+  // a sentinel so the attribution split below cannot break them apart, and give
+  // them an EN dash, which is the typographic standard for a range. The original
+  // spacing is preserved. Restored just before returning.
+  var yrRanges = [];
+  s = s.replace(/(\d{4})(\s*)[-\u2013\u2014](\s*)(\d{4})/g, function(m, a, sp1, sp2, b){
+    yrRanges.push(a + sp1 + '\u2013' + sp2 + b);
+    return '\u0001' + (yrRanges.length - 1) + '\u0001';
+  });
+  function unparkYears(t) {
+    return t.replace(/\u0001(\d+)\u0001/g, function(m, i){ return yrRanges[+i]; });
+  }
+
   // Extract hymn number: #NNN at start
   var hymnM = s.match(/^#\s*(\d+)\s*/);
   if (hymnM) { iHymn = hymnM[1]; s = s.slice(hymnM[0].length); }
@@ -1181,7 +1233,11 @@ function gdocParseDetail(raw) {
     // string for attribution patterns: "by Composer", "arr. Arranger",
     // "Subtitle - by Composer", "Subtitle - arr. Arranger".
     // Attribution gets appended to iTitle; performer stays in iDetail.
-    var parts = s.split(/\s*[-\u2013\u2014]\s*/)
+    // Split on a dash used as a SEPARATOR, meaning it has whitespace on at
+    // least one side. A dash with no space either side is part of a word and is
+    // left alone, which keeps hyphenated composer names whole \u2014 Saint-Sa\u00ebns,
+    // Claude-Michel Sch\u00f6nberg, Jean-Baptiste Lully were all being cut in half.
+    var parts = s.split(/\s+[-\u2013\u2014]\s*|\s*[-\u2013\u2014]\s+/)
                  .map(function(p){ return p.trim(); })
                  .filter(Boolean);
 
@@ -1203,12 +1259,42 @@ function gdocParseDetail(raw) {
         iTitle += ' (' + parts[0] + ') arr. ' + parts[1].replace(/^arr\.?\s*/i, '').trim();
         parts.splice(0, 2);
       }
-      s = parts.join(' – ');
+      // Join leftover detail parts with an EM dash, matching the separator the
+      // renderer uses between label / music / detail. Previously an en dash,
+      // which made one line carry both dash styles (2026-08-01).
+      s = parts.join(' — ');
+    }
+  }
+
+  // ── Unquoted hymn title ──
+  // A hymn number means the text after it IS a title, even when the Google Doc
+  // left the quotation marks off (e.g. "#45 Amazing Grace - (all three verses)").
+  // Pull it into iTitle so the renderer quotes and italicises it the same way it
+  // would a title that was typed with quotes. Scoped to lines that have a #, so
+  // ordinary detail text like "Pastor Dietmar Plajer" is never quoted.
+  if (!titleM && iHymn && s) {
+    var hParts = s.split(/\s+[-–—]\s*|\s*[-–—]\s+/)
+                  .map(function(p){ return p.trim(); })
+                  .filter(Boolean);
+    var head = hParts.shift() || '';
+    // A parenthetical riding on the title ("Jesus Loves Me (all verses)") is a
+    // detail, not part of the title, so break it off.
+    var parIdx = head.indexOf(' (');
+    if (parIdx !== -1) {
+      hParts.unshift(head.slice(parIdx).trim());
+      head = head.slice(0, parIdx).trim();
+    }
+    // If it opens with "(" the whole thing is a detail like "(all verses)" and
+    // there is no title to take. Leave s untouched in that case.
+    if (head && head.charAt(0) !== '(') {
+      iTitle = head;
+      s = hParts.join(' — ');
     }
   }
 
   iDetail = s.trim();
-  return { iHymn: iHymn, iTitle: iTitle, iDetail: iDetail };
+  // Put the parked year ranges back (en dash, original spacing).
+  return { iHymn: iHymn, iTitle: unparkYears(iTitle), iDetail: unparkYears(iDetail) };
 }
 
 // Parse a date string like "December 24, 2025" → "2025-12-24"
