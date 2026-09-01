@@ -1328,6 +1328,16 @@ function gdocParse() {
   var curField = null;
   var firstBoldDone = false;
 
+  // Every id in _order must be unique. Repeated labels (two "Offering of Music"
+  // lines, three "Hymn of Praise" lines) all mapped to the same id, which made
+  // later lookups and the editor UI act on the wrong row. Suffix any repeat.
+  var usedIds = {};
+  function uniqueId(id) {
+    if (!usedIds[id]) { usedIds[id] = 1; return id; }
+    usedIds[id] += 1;
+    return id + '_' + usedIds[id];
+  }
+
   lines.forEach(function(rawLine) {
     var line = rawLine.trim();
     if (!line) return;
@@ -1340,7 +1350,13 @@ function gdocParse() {
     // ── Skip church name / tagline lines at the top of a Google Doc ──
     // e.g. "St. Paul's United Church of Christ • Open and Affirming"
     // These appear before service items and must not be captured as the liturgical subtitle.
-    if (!curItem && /(\bchurch\b|\bopen and affirming\b|\u2022|•)/i.test(clean)) return;
+    // Scoped to the masthead zone only: nothing pushed to items yet AND no "Label:"
+    // structure. The old test was `!curItem`, which is also true on the first line
+    // after every section divider — so "Hymn of Praise: #321 The Church's One
+    // Foundation" was silently dropped on 2026-08-23 because the title contains
+    // the word "Church". (fixed 2026-09-01)
+    if (items.length === 0 && clean.indexOf(':') === -1 &&
+        /(\bchurch\b|\bopen and affirming\b|\u2022|•)/i.test(clean)) return;
 
     // ── Title line: contains "Worship Outline" or "Sunday Outline" ──
     if (/(worship|sunday)\s+outline/i.test(clean)) {
@@ -1370,7 +1386,7 @@ function gdocParse() {
     if (isAllCaps && clean.indexOf(':') === -1) {
       curItem = null; curField = null;
       // Always store dividers as ALL CAPS so every export path (preview, Word, JSON) is consistent
-      items.push({ id: 'div_' + clean.replace(/\s+/g,'_').toLowerCase(), type: 'divider', label: clean.toUpperCase(), icon: '' });
+      items.push({ id: uniqueId('div_' + clean.replace(/\s+/g,'_').toLowerCase()), type: 'divider', label: clean.toUpperCase(), icon: '' });
       firstBoldDone = true;
       return;
     }
@@ -1453,7 +1469,7 @@ function gdocParse() {
       // in the doc, the continuation-line handler at the bottom picks them up.
       if (/^holy communion$/i.test(labelRaw)) {
         curField = null;
-        curItem = { id: 'communion', type: 'item', icon: '\u26ac', label: 'Holy Communion',
+        curItem = { id: uniqueId('communion'), type: 'item', icon: '\u26ac', label: 'Holy Communion',
                     iHymn: '', iTitle: '', iDetail: detailRaw || '', iPageBreak: false };
         items.push(curItem);
         return;
@@ -1462,7 +1478,7 @@ function gdocParse() {
       // Service item
       var parsed = gdocParseDetail(detailRaw);
       var icon   = gdocIcon(labelRaw);
-      var id     = gdocMapId(labelRaw);
+      var id     = uniqueId(gdocMapId(labelRaw));
       curField = null;
       curItem = { id: id, type: 'item', icon: icon, label: labelRaw,
                   iHymn: parsed.iHymn, iTitle: parsed.iTitle, iDetail: parsed.iDetail, iPageBreak: false };
@@ -1481,7 +1497,7 @@ function gdocParse() {
       // HOLY COMMUNION divider from swallowing the offering and the prayers. Communion
       // is no longer a divider, and the Google Doc has no PRAYER header, so it is gone.
       var icon2  = gdocIcon(clean);
-      var id2    = gdocMapId(clean);
+      var id2    = uniqueId(gdocMapId(clean));
       curField = null;
       curItem = { id: id2, type: 'item', icon: icon2, label: clean,
                   iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
@@ -1494,7 +1510,7 @@ function gdocParse() {
     // following line are appended by the continuation-line handler below.
     if (/^holy communion$/i.test(clean)) {
       curField = null;
-      curItem = { id: 'communion', type: 'item', icon: '\u26ac', label: 'Holy Communion',
+      curItem = { id: uniqueId('communion'), type: 'item', icon: '\u26ac', label: 'Holy Communion',
                   iHymn: '', iTitle: '', iDetail: '', iPageBreak: false };
       items.push(curItem);
       return;
